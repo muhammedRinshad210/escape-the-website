@@ -762,16 +762,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }, null, '+=0.2')
 
     // PHASE 7 — Escape Camera Push & White Wash
+    .call(() => {
+      if (dom.stageLobby && dom.doorFrameOuter) {
+        const stageRect = dom.stageLobby.getBoundingClientRect();
+        const doorRect = dom.doorFrameOuter.getBoundingClientRect();
+        const originX = ((doorRect.left + doorRect.width / 2 - stageRect.left) / stageRect.width) * 100;
+        const originY = ((doorRect.top + doorRect.height / 2 - stageRect.top) / stageRect.height) * 100;
+        gsap.set(dom.stageLobby, {
+          transformOrigin: `${originX.toFixed(2)}% ${originY.toFixed(2)}%`
+        });
+      }
+    })
     .to(dom.stageLobby, {
-      scale: 2.5,
-      opacity: 0.2,
-      duration: 2.5,
-      ease: 'power2.in',
-      delay: 0.8
+      scale: 5.0,
+      opacity: 0.1,
+      duration: 2.4,
+      ease: 'power3.in',
+      delay: 0.4
     })
     .to(dom.escapeWhiteWash, {
       opacity: 1,
-      duration: 1.2,
+      duration: 1.1,
       ease: 'power2.in'
     }, '-=1.0')
     .call(() => {
@@ -1177,10 +1188,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const imageBlob = await renderShareCardCanvas(state, time, score, keys, arcade);
       const fileName = `escape-the-website-result.png`;
-      const imageFile = new File([imageBlob], fileName, { type: 'image/png' });
-
+      const gameUrl = 'https://muhammedrinshad210.github.io/escape-the-website/';
+      const keysCount = Array.isArray(state.keysCollected) ? state.keysCollected.length : 3;
       const shareTitle = 'ESCAPE THE WEBSITE';
-      const shareText = `I escaped ESCAPE THE WEBSITE!\n\nTIME: ${time}\nSCORE: ${score} PTS\nKEYS: 3/3\nARCADE BEST: ${arcade}`;
+      const shareText = `I escaped ESCAPE THE WEBSITE.\n\nTIME: ${time}\nSCORE: ${score}\nKEYS: ${keysCount}/3\n\nCan you escape too?\n${gameUrl}`;
 
       // 1. Native Web Share with File Support
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
@@ -1198,8 +1209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadBlob(imageBlob, fileName);
         await navigator.share({
           title: shareTitle,
-          text: shareText,
-          url: window.location.href
+          text: shareText
         });
         if (window.trackEvent) {
           window.trackEvent('share_completed', { share_method: 'native_text' });
