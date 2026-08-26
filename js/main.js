@@ -2,7 +2,8 @@
  * Escape The Website - Main Game Controller & Orchestrator
  * High-performance, memory-safe controller handling the full gameplay loop,
  * interactive puzzles, arcade reaction game, multi-phase final escape,
- * hidden Sector 02 Observation Chamber, and 1080x1350 canvas share card generator.
+ * hidden Sector 02 Observation Chamber, 1080x1350 canvas share card generator,
+ * and failure-proof Google Analytics 4 event tracking.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -206,11 +207,41 @@ document.addEventListener('DOMContentLoaded', () => {
     playCinematicIntro();
   }
 
-  // 6. Subscribe to Game Engine State Updates
+  // 6. Subscribe to Game Engine State Updates & GA4 Event Tracking
   if (window.gameManager) {
-    window.gameManager.subscribe((event, data) => {
+    window.gameManager.subscribe((event, data, state) => {
       updateHUD();
       updateLobbyVisuals();
+
+      // Dispatch GA4 events safely
+      if (window.trackEvent) {
+        if (event === 'KEY_COLLECTED') {
+          if (data.keyId === 'key_01') {
+            window.trackEvent('key_01_collected');
+          } else if (data.keyId === 'key_02') {
+            window.trackEvent('key_02_collected');
+          } else if (data.keyId === 'key_03') {
+            window.trackEvent('key_03_collected');
+          }
+        } else if (event === 'GAME_COMPLETED') {
+          const startTime = data.gameStartTime || Date.now();
+          const endTime = data.completionTime || Date.now();
+          const timeSec = Math.max(0, Math.floor((endTime - startTime) / 1000));
+
+          window.trackEvent('game_completed', {
+            time_seconds: timeSec,
+            score: data.score || 0,
+            arcade_best_score: data.arcadeBestScore || 0,
+            keys_collected: (data.keysCollected || []).length
+          });
+        } else if (event === 'SECRET_DISCOVERED') {
+          window.trackEvent('secret_discovered');
+        } else if (event === 'STATE_RESET') {
+          if (window.analyticsManager) {
+            window.analyticsManager.resetRunEvents();
+          }
+        }
+      }
     });
   }
 
@@ -265,11 +296,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Transition into the Game World
+   * Transition into the Game World (Fires GA4 game_start)
    */
   function transitionToGameWorld() {
     if (isTransitioning) return;
     isTransitioning = true;
+
+    // Fire GA4 game_start event once per gameplay run
+    if (window.analyticsManager) {
+      window.analyticsManager.trackUniqueEvent('run_game_start', 'game_start');
+    } else if (window.trackEvent) {
+      window.trackEvent('game_start');
+    }
 
     if (window.audioManager) {
       window.audioManager.playEnterSound();
@@ -1113,6 +1151,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isSharing || !window.gameManager) return;
     isSharing = true;
 
+    // Track GA4 share_clicked event
+    if (window.trackEvent) {
+      window.trackEvent('share_clicked');
+    }
+
     const originalText = dom.btnShareScore ? dom.btnShareScore.textContent : 'SHARE MY SCORE';
     if (dom.btnShareScore) {
       dom.btnShareScore.textContent = 'GENERATING RESULT...';
@@ -1146,6 +1189,9 @@ document.addEventListener('DOMContentLoaded', () => {
           text: shareText,
           files: [imageFile]
         });
+        if (window.trackEvent) {
+          window.trackEvent('share_completed', { share_method: 'native_file' });
+        }
         showToast('// RESULT SHARED');
       } else if (navigator.share && navigator.canShare && navigator.canShare({ title: shareTitle, text: shareText })) {
         // 2. Web share text fallback + auto-download image
@@ -1155,6 +1201,9 @@ document.addEventListener('DOMContentLoaded', () => {
           text: shareText,
           url: window.location.href
         });
+        if (window.trackEvent) {
+          window.trackEvent('share_completed', { share_method: 'native_text' });
+        }
         showToast('// RESULT IMAGE DOWNLOADED');
       } else {
         // 3. Desktop / Unsupported browser fallback: Download PNG & Copy Text
@@ -1164,6 +1213,9 @@ document.addEventListener('DOMContentLoaded', () => {
           showToast('// RESULT IMAGE SAVED • TEXT COPIED');
         } else {
           showToast('// RESULT IMAGE READY');
+        }
+        if (window.trackEvent) {
+          window.trackEvent('share_completed', { share_method: 'download' });
         }
       }
     } catch (err) {
