@@ -3,7 +3,7 @@
  * High-performance, memory-safe controller handling the full gameplay loop,
  * interactive puzzles, arcade reaction game, multi-phase final escape,
  * hidden Sector 02 Observation Chamber, 1080x1350 canvas share card generator,
- * and failure-proof Google Analytics 4 event tracking.
+ * failure-proof Google Analytics 4 event tracking, and 60fps mobile ergonomics.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -180,6 +180,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let arcadeTimeRemaining = 20;
   let arcadeIsPlaying = false;
 
+  // Body Scroll Locking Helpers
+  function lockBodyScroll() {
+    document.body.classList.add('modal-open');
+  }
+
+  function unlockBodyScroll() {
+    if (!isModalOpen && !isResonatorOpen && !isTerminalOpen && !isArcadeOpen) {
+      document.body.classList.remove('modal-open');
+    }
+  }
+
   // 3. Initialize Audio Label State
   if (window.audioManager && dom.audioStatusLabel) {
     dom.audioStatusLabel.textContent = window.audioManager.soundEnabled ? 'ON' : 'OFF';
@@ -275,24 +286,24 @@ document.addEventListener('DOMContentLoaded', () => {
       duration: 1.0,
       delay: 0.2
     })
-    .to(dom.introTitle, {
-      opacity: 1,
-      y: 0,
-      duration: 1.4,
-      ease: 'power4.out'
-    }, '-=0.4')
-    .to(dom.introSubtitle, {
-      opacity: 1,
-      y: 0,
-      duration: 1.2,
-      ease: 'power2.out'
-    }, '-=0.7')
-    .to(dom.introCta, {
-      opacity: 1,
-      y: 0,
-      duration: 1.0,
-      ease: 'back.out(1.3)'
-    }, '-=0.4');
+      .to(dom.introTitle, {
+        opacity: 1,
+        y: 0,
+        duration: 1.4,
+        ease: 'power4.out'
+      }, '-=0.4')
+      .to(dom.introSubtitle, {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: 'power2.out'
+      }, '-=0.7')
+      .to(dom.introCta, {
+        opacity: 1,
+        y: 0,
+        duration: 1.0,
+        ease: 'back.out(1.3)'
+      }, '-=0.4');
   }
 
   /**
@@ -336,26 +347,26 @@ document.addEventListener('DOMContentLoaded', () => {
         duration: 0.8,
         ease: 'power3.in'
       }, 0)
-      .to(dom.introSubtitle, {
-        opacity: 0,
-        y: -12,
-        duration: 0.5
-      }, 0.1)
-      .to(dom.introCta, {
-        scale: 0.92,
-        opacity: 0,
-        duration: 0.4
-      }, 0.1)
-      .to(dom.introScreen, {
-        opacity: 0,
-        duration: 0.9,
-        ease: 'power2.inOut'
-      }, 0.25)
-      .to(dom.gameWorld, {
-        opacity: 1,
-        duration: 1.0,
-        ease: 'power2.out'
-      }, 0.5);
+        .to(dom.introSubtitle, {
+          opacity: 0,
+          y: -12,
+          duration: 0.5
+        }, 0.1)
+        .to(dom.introCta, {
+          scale: 0.92,
+          opacity: 0,
+          duration: 0.4
+        }, 0.1)
+        .to(dom.introScreen, {
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power2.inOut'
+        }, 0.25)
+        .to(dom.gameWorld, {
+          opacity: 1,
+          duration: 1.0,
+          ease: 'power2.out'
+        }, 0.5);
     } else {
       dom.introScreen.style.display = 'none';
       dom.gameWorld.classList.add('active');
@@ -577,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
           dom.stageSector02.style.display = 'none';
           dom.stageSector02.classList.remove('active');
           dom.stageSector02.setAttribute('aria-hidden', 'true');
-          
+
           dom.stageLobby.style.display = 'flex';
           gsap.fromTo(dom.stageLobby,
             { opacity: 0, scale: 1.02 },
@@ -665,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================================
-  // FINAL ESCAPE SEQUENCE ORCHESTRATION
+  // FINAL ESCAPE SEQUENCE ORCHESTRATION & RESPONSIVE CAMERA PUSH
   // =========================================================================
 
   function triggerFinalEscapeSequence() {
@@ -689,105 +700,106 @@ document.addEventListener('DOMContentLoaded', () => {
       { opacity: 0, y: -20 },
       { opacity: 1, y: 0, duration: 0.7 }
     )
-    .to(dom.escapeBannerTitle, {
-      textContent: 'ESCAPE PROTOCOL INITIALIZING...',
-      duration: 1.0,
-      delay: 0.6
-    })
+      .to(dom.escapeBannerTitle, {
+        textContent: 'ESCAPE PROTOCOL INITIALIZING...',
+        duration: 1.0,
+        delay: 0.6
+      })
 
-    // PHASE 2 — Ambient Power Shutdown
-    .to([dom.layerBg, dom.terminalPreviewStatus, dom.arcadePreviewFrame, dom.mainGameHud], {
-      opacity: 0.2,
-      duration: 1.2,
-      ease: 'power1.inOut'
-    }, '-=0.4')
+      // PHASE 2 — Ambient Power Shutdown
+      .to([dom.layerBg, dom.terminalPreviewStatus, dom.arcadePreviewFrame, dom.mainGameHud], {
+        opacity: 0.2,
+        duration: 1.2,
+        ease: 'power1.inOut'
+      }, '-=0.4')
 
-    // PHASE 3 — Sequential Lock Releases (Locks 1, 2, 3)
-    .call(() => {
-      if (dom.lockClamp1) dom.lockClamp1.classList.add('released');
-      if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'LOCK 01 // RELEASED';
-      if (window.audioManager) window.audioManager.playLockRelease(1);
-    })
-    .to(dom.doorLockRing, { rotate: 60, scale: 1.05, duration: 0.4 }, '+=0.2')
+      // PHASE 3 — Sequential Lock Releases (Locks 1, 2, 3)
+      .call(() => {
+        if (dom.lockClamp1) dom.lockClamp1.classList.add('released');
+        if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'LOCK 01 // RELEASED';
+        if (window.audioManager) window.audioManager.playLockRelease(1);
+      })
+      .to(dom.doorLockRing, { rotate: 60, scale: 1.05, duration: 0.4 }, '+=0.2')
 
-    .call(() => {
-      if (dom.lockClamp2) dom.lockClamp2.classList.add('released');
-      if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'LOCK 02 // RELEASED';
-      if (window.audioManager) window.audioManager.playLockRelease(2);
-    }, null, '+=0.6')
-    .to(dom.doorLockRing, { rotate: 140, scale: 1.1, duration: 0.4 })
+      .call(() => {
+        if (dom.lockClamp2) dom.lockClamp2.classList.add('released');
+        if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'LOCK 02 // RELEASED';
+        if (window.audioManager) window.audioManager.playLockRelease(2);
+      }, null, '+=0.6')
+      .to(dom.doorLockRing, { rotate: 140, scale: 1.1, duration: 0.4 })
 
-    .call(() => {
-      if (dom.lockClamp3) dom.lockClamp3.classList.add('released');
-      if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'LOCK 03 // RELEASED';
-      if (window.audioManager) window.audioManager.playLockRelease(3);
-    }, null, '+=0.6')
-    .to(dom.doorLockRing, { rotate: 240, scale: 1.2, duration: 0.5 })
+      .call(() => {
+        if (dom.lockClamp3) dom.lockClamp3.classList.add('released');
+        if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'LOCK 03 // RELEASED';
+        if (window.audioManager) window.audioManager.playLockRelease(3);
+      }, null, '+=0.6')
+      .to(dom.doorLockRing, { rotate: 240, scale: 1.2, duration: 0.5 })
 
-    // PHASE 4 — Door Power-Up & Energy Conduits Surge
-    .call(() => {
-      if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'SECURITY BARRIER // OVERRIDE ACCEPTED';
-      if (dom.doorAccessLabel) dom.doorAccessLabel.textContent = 'OVERRIDE: ACCEPTED';
-      if (dom.doorAccessSub) dom.doorAccessSub.textContent = '// DISENGAGING HYDRAULICS';
-      if (window.audioManager) window.audioManager.playDoorPowerUp();
-    }, null, '+=0.5')
-    .to(dom.doorFrameOuter, {
-      boxShadow: '0 0 60px rgba(0, 255, 136, 0.8), inset 0 0 40px rgba(0, 240, 255, 0.6)',
-      borderColor: '#00ff88',
-      duration: 1.0
-    })
-    .to(dom.nodeDoor, {
-      x: () => (Math.random() - 0.5) * 5,
-      y: () => (Math.random() - 0.5) * 3,
-      repeat: 6,
-      yoyo: true,
-      duration: 0.08,
-      ease: 'none'
-    }, '-=0.7')
-    .set(dom.nodeDoor, { x: 0, y: 0 })
+      // PHASE 4 — Door Power-Up & Energy Conduits Surge
+      .call(() => {
+        if (dom.escapeBannerTitle) dom.escapeBannerTitle.textContent = 'SECURITY BARRIER // OVERRIDE ACCEPTED';
+        if (dom.doorAccessLabel) dom.doorAccessLabel.textContent = 'OVERRIDE: ACCEPTED';
+        if (dom.doorAccessSub) dom.doorAccessSub.textContent = '// DISENGAGING HYDRAULICS';
+        if (window.audioManager) window.audioManager.playDoorPowerUp();
+      }, null, '+=0.5')
+      .to(dom.doorFrameOuter, {
+        boxShadow: '0 0 60px rgba(0, 255, 136, 0.8), inset 0 0 40px rgba(0, 240, 255, 0.6)',
+        borderColor: '#00ff88',
+        duration: 1.0
+      })
+      .to(dom.nodeDoor, {
+        x: () => (Math.random() - 0.5) * 5,
+        y: () => (Math.random() - 0.5) * 3,
+        repeat: 6,
+        yoyo: true,
+        duration: 0.08,
+        ease: 'none'
+      }, '-=0.7')
+      .set(dom.nodeDoor, { x: 0, y: 0 })
 
-    // PHASE 5 — Door Opening (Panels Retract Horizontally)
-    .call(() => {
-      if (dom.doorRadiantAperture) dom.doorRadiantAperture.style.opacity = '1';
-      if (dom.doorLockRing) dom.doorLockRing.style.opacity = '0';
-      if (window.audioManager) window.audioManager.playDoorSlideOpen();
-    }, null, '+=0.3')
-    .to(dom.doorPanelLeft, { x: '-105%', duration: 2.0, ease: 'power3.inOut' })
-    .to(dom.doorPanelRight, { x: '105%', duration: 2.0, ease: 'power3.inOut' }, '<')
-    .to(dom.escapeSequenceBanner, { opacity: 0, duration: 0.7 }, '<')
+      // PHASE 5 — Door Opening (Panels Retract Horizontally)
+      .call(() => {
+        if (dom.doorRadiantAperture) dom.doorRadiantAperture.style.opacity = '1';
+        if (dom.doorLockRing) dom.doorLockRing.style.opacity = '0';
+        if (window.audioManager) window.audioManager.playDoorSlideOpen();
+      }, null, '+=0.3')
+      .to(dom.doorPanelLeft, { x: '-105%', duration: 2.0, ease: 'power3.inOut' })
+      .to(dom.doorPanelRight, { x: '105%', duration: 2.0, ease: 'power3.inOut' }, '<')
+      .to(dom.escapeSequenceBanner, { opacity: 0, duration: 0.7 }, '<')
 
-    // PHASE 6 — Silence
-    .call(() => {
-      if (window.audioManager) window.audioManager.stopAmbientDrone();
-    }, null, '+=0.2')
+      // PHASE 6 — Silence
+      .call(() => {
+        if (window.audioManager) window.audioManager.stopAmbientDrone();
+      }, null, '+=0.2')
 
-    // PHASE 7 — Escape Camera Push & White Wash
-    .call(() => {
-      if (dom.stageLobby && dom.doorFrameOuter) {
-        const stageRect = dom.stageLobby.getBoundingClientRect();
-        const doorRect = dom.doorFrameOuter.getBoundingClientRect();
-        const originX = ((doorRect.left + doorRect.width / 2 - stageRect.left) / stageRect.width) * 100;
-        const originY = ((doorRect.top + doorRect.height / 2 - stageRect.top) / stageRect.height) * 100;
-        gsap.set(dom.stageLobby, {
-          transformOrigin: `${originX.toFixed(2)}% ${originY.toFixed(2)}%`
-        });
-      }
-    })
-    .to(dom.stageLobby, {
-      scale: 5.0,
-      opacity: 0.1,
-      duration: 2.4,
-      ease: 'power3.in',
-      delay: 0.4
-    })
-    .to(dom.escapeWhiteWash, {
-      opacity: 1,
-      duration: 1.1,
-      ease: 'power2.in'
-    }, '-=1.0')
-    .call(() => {
-      showEscapeResultScreen(true);
-    });
+      // PHASE 7 — Responsive Escape Camera Push (Focus on Radiant Aperture)
+      .call(() => {
+        if (dom.stageLobby && dom.doorFrameOuter) {
+          const stageRect = dom.stageLobby.getBoundingClientRect();
+          const doorRect = dom.doorFrameOuter.getBoundingClientRect();
+          const originX = ((doorRect.left + doorRect.width / 2 - stageRect.left) / stageRect.width) * 100;
+          const originY = ((doorRect.top + doorRect.height / 2 - stageRect.top) / stageRect.height) * 100;
+
+          gsap.set(dom.stageLobby, {
+            transformOrigin: `${originX.toFixed(2)}% ${originY.toFixed(2)}%`
+          });
+        }
+      })
+      .to(dom.stageLobby, {
+        scale: 5.5,
+        opacity: 0.08,
+        duration: 2.4,
+        ease: 'power3.in',
+        delay: 0.4
+      })
+      .to(dom.escapeWhiteWash, {
+        opacity: 1,
+        duration: 1.1,
+        ease: 'power2.in'
+      }, '-=1.0')
+      .call(() => {
+        showEscapeResultScreen(true);
+      });
   }
 
   function showEscapeResultScreen(playFinalChord = true) {
@@ -849,6 +861,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function handlePlayAgain() {
     isEscapeSequenceActive = false;
     inSector02 = false;
+    unlockBodyScroll();
 
     if (window.gameManager) {
       window.gameManager.resetState();
@@ -1039,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sub Status
     ctx.font = '500 22px "JetBrains Mono", monospace';
     ctx.fillStyle = state.secretDiscovered ? '#c084fc' : '#94a3b8';
-    const subStatusText = state.secretDiscovered 
+    const subStatusText = state.secretDiscovered
       ? '// ANOMALY DETECTED • SECTOR 02 DISCOVERED'
       : '// SECURITY BARRIER OVERRIDDEN • ACCESS RESTORED';
     ctx.fillText(subStatusText, width / 2, 390);
@@ -1188,6 +1201,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const imageBlob = await renderShareCardCanvas(state, time, score, keys, arcade);
       const fileName = `escape-the-website-result.png`;
+      const imageFile = new File([imageBlob], fileName, { type: 'image/png' });
+
       const gameUrl = 'https://muhammedrinshad210.github.io/escape-the-website/';
       const keysCount = Array.isArray(state.keysCollected) ? state.keysCollected.length : 3;
       const shareTitle = 'ESCAPE THE WEBSITE';
@@ -1261,6 +1276,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openArcadeModal() {
     if (!dom.arcadeModal || !dom.arcadeCard || isEscapeSequenceActive || inSector02) return;
     isArcadeOpen = true;
+    lockBodyScroll();
 
     stopArcadeGame();
     clearArcadePlayfield();
@@ -1289,8 +1305,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.arcadeModal, { opacity: 0 }, { opacity: 1, duration: 0.25 });
-      gsap.fromTo(dom.arcadeCard, 
-        { opacity: 0, scale: 0.94, y: 15 }, 
+      gsap.fromTo(dom.arcadeCard,
+        { opacity: 0, scale: 0.94, y: 15 },
         { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: 'power3.out' }
       );
     } else {
@@ -1325,11 +1341,13 @@ document.addEventListener('DOMContentLoaded', () => {
         onComplete: () => {
           dom.arcadeModal.classList.remove('active');
           dom.arcadeModal.setAttribute('aria-hidden', 'true');
+          unlockBodyScroll();
         }
       });
     } else {
       dom.arcadeModal.classList.remove('active');
       dom.arcadeModal.setAttribute('aria-hidden', 'true');
+      unlockBodyScroll();
     }
   }
 
@@ -1552,11 +1570,13 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.arcadePlayfield.appendChild(tag);
 
     if (typeof gsap !== 'undefined') {
-      gsap.fromTo(tag, 
-        { opacity: 1, y: 0, scale: 0.8 }, 
-        { opacity: 0, y: -30, scale: 1.1, duration: 0.6, ease: 'power2.out', onComplete: () => {
-          if (tag.parentNode) tag.parentNode.removeChild(tag);
-        }}
+      gsap.fromTo(tag,
+        { opacity: 1, y: 0, scale: 0.8 },
+        {
+          opacity: 0, y: -30, scale: 1.1, duration: 0.6, ease: 'power2.out', onComplete: () => {
+            if (tag.parentNode) tag.parentNode.removeChild(tag);
+          }
+        }
       );
     } else {
       setTimeout(() => {
@@ -1651,6 +1671,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openTerminalModal() {
     if (!dom.terminalModal || !dom.terminalCard || isEscapeSequenceActive || inSector02) return;
     isTerminalOpen = true;
+    lockBodyScroll();
 
     const isSolved = window.puzzleManager ? window.puzzleManager.isSolved('key_02') : false;
 
@@ -1692,8 +1713,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.terminalModal, { opacity: 0 }, { opacity: 1, duration: 0.25 });
-      gsap.fromTo(dom.terminalCard, 
-        { opacity: 0, scale: 0.94, y: 15 }, 
+      gsap.fromTo(dom.terminalCard,
+        { opacity: 0, scale: 0.94, y: 15 },
         { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: 'power3.out' }
       );
     } else {
@@ -1727,11 +1748,13 @@ document.addEventListener('DOMContentLoaded', () => {
         onComplete: () => {
           dom.terminalModal.classList.remove('active');
           dom.terminalModal.setAttribute('aria-hidden', 'true');
+          unlockBodyScroll();
         }
       });
     } else {
       dom.terminalModal.classList.remove('active');
       dom.terminalModal.setAttribute('aria-hidden', 'true');
+      unlockBodyScroll();
     }
   }
 
@@ -1780,11 +1803,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const sysLog = document.createElement('div');
-    sysLog.className = `terminal-entry-log ${
-      res.status === 'auth_success' ? 'success-msg' :
+    sysLog.className = `terminal-entry-log ${res.status === 'auth_success' ? 'success-msg' :
       res.status === 'auth_denied' ? 'error-msg' :
-      res.status === 'warning' ? 'hint-msg' : 'system-msg'
-    }`;
+        res.status === 'warning' ? 'hint-msg' : 'system-msg'
+      }`;
     sysLog.textContent = res.text || '';
     dom.termOutputStream.appendChild(sysLog);
 
@@ -1824,8 +1846,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.audioManager.playLockedSound();
       }
       if (typeof gsap !== 'undefined') {
-        gsap.fromTo(dom.terminalCard, 
-          { x: -4 }, 
+        gsap.fromTo(dom.terminalCard,
+          { x: -4 },
           { x: 4, duration: 0.08, repeat: 3, yoyo: true, ease: 'none', onComplete: () => { gsap.set(dom.terminalCard, { x: 0 }); } }
         );
       }
@@ -1848,6 +1870,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openResonatorModal() {
     if (!dom.resonatorModal || !dom.resonatorCard || isEscapeSequenceActive || inSector02) return;
     isResonatorOpen = true;
+    lockBodyScroll();
 
     const isSolved = window.puzzleManager ? window.puzzleManager.isSolved('key_01') : false;
 
@@ -1866,7 +1889,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.resStatusBadge.classList.remove('stable');
       dom.resClueText.innerHTML = 'Telemetry signature: Harmonize nodes in order of <span class="text-info fw-bold">ascending harmonic frequency</span> (Phase I &rarr; IV).';
       dom.resStreamDisplay.textContent = 'WAITING FOR SEQUENCE...';
-      
+
       const puzzle = window.puzzleManager?.getPuzzle('key_01');
       if (puzzle && puzzle.attempts >= puzzle.hintThreshold && dom.resHintBox) {
         dom.resHintBox.textContent = 'TELEMETRY HINT: Align nodes by ascending harmonic frequency (14.2G → 28.4G → 42.6G → 56.8G).';
@@ -1885,8 +1908,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.resonatorModal, { opacity: 0 }, { opacity: 1, duration: 0.25 });
-      gsap.fromTo(dom.resonatorCard, 
-        { opacity: 0, scale: 0.94, y: 15 }, 
+      gsap.fromTo(dom.resonatorCard,
+        { opacity: 0, scale: 0.94, y: 15 },
         { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: 'power3.out' }
       );
     } else {
@@ -1920,11 +1943,13 @@ document.addEventListener('DOMContentLoaded', () => {
         onComplete: () => {
           dom.resonatorModal.classList.remove('active');
           dom.resonatorModal.setAttribute('aria-hidden', 'true');
+          unlockBodyScroll();
         }
       });
     } else {
       dom.resonatorModal.classList.remove('active');
       dom.resonatorModal.setAttribute('aria-hidden', 'true');
+      unlockBodyScroll();
     }
   }
 
@@ -1997,8 +2022,8 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.keyExtractStage.classList.add('active');
 
         if (typeof gsap !== 'undefined') {
-          gsap.fromTo(dom.keyExtractStage, 
-            { opacity: 0, scale: 0.9 }, 
+          gsap.fromTo(dom.keyExtractStage,
+            { opacity: 0, scale: 0.9 },
             { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.2)' }
           );
         } else {
@@ -2025,6 +2050,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openModal(title, bodyHtml, diagHtml) {
     if (!dom.modalOverlay || !dom.modalCard || isEscapeSequenceActive) return;
     isModalOpen = true;
+    lockBodyScroll();
 
     dom.modalTitle.textContent = title;
     dom.modalBody.innerHTML = bodyHtml;
@@ -2035,8 +2061,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.modalOverlay, { opacity: 0 }, { opacity: 1, duration: 0.25 });
-      gsap.fromTo(dom.modalCard, 
-        { opacity: 0, scale: 0.94, y: 15 }, 
+      gsap.fromTo(dom.modalCard,
+        { opacity: 0, scale: 0.94, y: 15 },
         { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: 'power3.out' }
       );
     } else {
@@ -2066,11 +2092,13 @@ document.addEventListener('DOMContentLoaded', () => {
         onComplete: () => {
           dom.modalOverlay.classList.remove('active');
           dom.modalOverlay.setAttribute('aria-hidden', 'true');
+          unlockBodyScroll();
         }
       });
     } else {
       dom.modalOverlay.classList.remove('active');
       dom.modalOverlay.setAttribute('aria-hidden', 'true');
+      unlockBodyScroll();
     }
   }
 
@@ -2404,12 +2432,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
 
-    const particles = [];
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = (canvas.width = window.innerWidth * dpr);
+    let height = (canvas.height = window.innerHeight * dpr);
+    ctx.scale(dpr, dpr);
+
     const isMobile = window.innerWidth < 768;
-    const PARTICLE_COUNT = isMobile ? 20 : Math.min(Math.floor((width * height) / 24000), 50);
+    const PARTICLE_COUNT = isMobile ? 18 : Math.min(Math.floor((window.innerWidth * window.innerHeight) / 22000), 45);
+    const particles = [];
 
     class Particle {
       constructor() {
@@ -2417,12 +2451,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.size = Math.random() * 1.6 + 0.4;
-        this.vx = (Math.random() - 0.5) * 0.25;
-        this.vy = (Math.random() - 0.5) * 0.25 - 0.06;
-        this.alpha = Math.random() * 0.4 + 0.1;
+        this.x = Math.random() * window.innerWidth;
+        this.y = Math.random() * window.innerHeight;
+        this.size = Math.random() * 1.5 + 0.5;
+        this.vx = (Math.random() - 0.5) * 0.22;
+        this.vy = (Math.random() - 0.5) * 0.22 - 0.05;
+        this.alpha = Math.random() * 0.35 + 0.1;
         this.color = Math.random() > 0.35 ? '0, 240, 255' : '0, 255, 136';
       }
 
@@ -2430,10 +2464,10 @@ document.addEventListener('DOMContentLoaded', () => {
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < 0) this.x = width;
-        if (this.x > width) this.x = 0;
-        if (this.y < 0) this.y = height;
-        if (this.y > height) this.y = 0;
+        if (this.x < 0) this.x = window.innerWidth;
+        if (this.x > window.innerWidth) this.x = 0;
+        if (this.y < 0) this.y = window.innerHeight;
+        if (this.y > window.innerHeight) this.y = 0;
       }
 
       draw() {
@@ -2449,13 +2483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function render() {
-      ctx.clearRect(0, 0, width, height);
-
-      const grad = ctx.createRadialGradient(width / 2, height / 2, 40, width / 2, height / 2, width * 0.65);
-      grad.addColorStop(0, 'rgba(6, 15, 35, 0.18)');
-      grad.addColorStop(1, 'rgba(2, 4, 8, 0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
       for (let i = 0; i < particles.length; i++) {
         particles[i].update();
@@ -2467,8 +2495,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const dy = particles[i].y - particles[j].y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (dist < 90) {
-              ctx.strokeStyle = `rgba(0, 240, 255, ${0.08 * (1 - dist / 90)})`;
+            if (dist < 85) {
+              ctx.strokeStyle = `rgba(0, 240, 255, ${0.07 * (1 - dist / 85)})`;
               ctx.lineWidth = 0.5;
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
@@ -2486,9 +2514,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-      }, 100);
+        width = canvas.width = window.innerWidth * dpr;
+        height = canvas.height = window.innerHeight * dpr;
+        ctx.scale(dpr, dpr);
+      }, 150);
     }, { passive: true });
 
     render();
