@@ -1696,7 +1696,8 @@ body.cursor-hover .custom-cursor-ring {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 30;
+  /* Sits above the summary panel (z-index 35) so the 3-2-1 countdown of a retry is never hidden behind it */
+  z-index: 40;
   backdrop-filter: blur(8px);
 }
 

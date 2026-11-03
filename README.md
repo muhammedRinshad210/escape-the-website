@@ -49,3 +49,15 @@ Then open [http://localhost:8000](http://localhost:8000) in any modern browser.
 
 ### Method 2: Direct File Opening
 Double-click `index.html` or open it directly inside your browser.
+
+## Tests
+
+The regression suites live in `tests/` and use plain Node.js with no dependencies. Run them from the repository root:
+
+```bash
+node tests/test-gsap-guards.js       # GSAP guards and degraded animation paths
+node tests/test-arcade-countdown.js  # Arcade countdown lifecycle (close / retry / reopen)
+node tests/test-step-e.js            # Share text and analytics contract
+```
+
+Each suite prints `TOTAL TESTS: n | PASSED: n | FAILED: n` and exits non-zero on failure. The `tests/` directory is not referenced by the game; only `index.html`, `css/`, `js/` and `assets/` are needed to run it.

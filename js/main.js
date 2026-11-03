@@ -176,6 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Arcade Session Engine
   let arcadeTimerInterval = null;
   let arcadeSpawnerTimeout = null;
+  let arcadeCountdownInterval = null;
+  let arcadeCountdownToken = 0;
   const activeTargets = new Set();
   let arcadeTimeRemaining = 20;
   let arcadeIsPlaying = false;
@@ -188,6 +190,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function unlockBodyScroll() {
     if (!isModalOpen && !isResonatorOpen && !isTerminalOpen && !isArcadeOpen) {
       document.body.classList.remove('modal-open');
+    }
+  }
+
+  /**
+   * Reveal a key-extraction (claim) overlay stage with the standard pop-in animation.
+   * Shared by the puzzle-completion paths and by modal re-open when a puzzle was
+   * solved but the key was never claimed.
+   * @param {HTMLElement} stageEl
+   */
+  function revealKeyExtractStage(stageEl) {
+    if (!stageEl) return;
+    stageEl.classList.add('active');
+
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(stageEl,
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.2)' }
+      );
+    } else {
+      stageEl.style.opacity = '1';
     }
   }
 
@@ -263,7 +285,14 @@ document.addEventListener('DOMContentLoaded', () => {
    * GSAP Cinematic Intro Sequence
    */
   function playCinematicIntro() {
-    if (typeof gsap === 'undefined') {
+    if (!isGsapReady()) {
+      // Mirror the gsap.set() pre-state below: the intro screen has to be put back
+      // on screen (Play Again leaves it at display:none) and the world hidden.
+      if (dom.introScreen) {
+        dom.introScreen.style.display = 'flex';
+        dom.introScreen.style.opacity = '1';
+      }
+      if (dom.gameWorld) dom.gameWorld.style.opacity = '0';
       if (dom.introEyebrow) dom.introEyebrow.style.opacity = '1';
       if (dom.introTitle) dom.introTitle.style.opacity = '1';
       if (dom.introSubtitle) dom.introSubtitle.style.opacity = '1';
@@ -330,12 +359,14 @@ document.addEventListener('DOMContentLoaded', () => {
       updateLobbyVisuals();
     }
 
-    if (typeof gsap !== 'undefined') {
+    if (isGsapReady()) {
       const tl = gsap.timeline({
         onComplete: () => {
-          dom.introScreen.style.display = 'none';
-          dom.gameWorld.classList.add('active');
-          dom.gameWorld.setAttribute('aria-hidden', 'false');
+          if (dom.introScreen) dom.introScreen.style.display = 'none';
+          if (dom.gameWorld) {
+            dom.gameWorld.classList.add('active');
+            dom.gameWorld.setAttribute('aria-hidden', 'false');
+          }
           isTransitioning = false;
         }
       });
@@ -368,9 +399,13 @@ document.addEventListener('DOMContentLoaded', () => {
           ease: 'power2.out'
         }, 0.5);
     } else {
-      dom.introScreen.style.display = 'none';
-      dom.gameWorld.classList.add('active');
-      dom.gameWorld.style.opacity = '1';
+      // Degraded transition: swap the screens instantly, same end state as the tween
+      if (dom.introScreen) dom.introScreen.style.display = 'none';
+      if (dom.gameWorld) {
+        dom.gameWorld.classList.add('active');
+        dom.gameWorld.setAttribute('aria-hidden', 'false');
+        dom.gameWorld.style.opacity = '1';
+      }
       isTransitioning = false;
     }
   }
@@ -643,6 +678,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * True only when the animation library is present AND usable.
+   * A missing global and a partially initialised one (object without the
+   * animation API) both have to fall back, otherwise the cinematic throws
+   * after the run has already been locked into the escape state.
+   */
+  function isGsapReady() {
+    return typeof gsap !== 'undefined' && gsap !== null &&
+      typeof gsap.timeline === 'function' && typeof gsap.set === 'function';
+  }
+
   function triggerSecretReveal() {
     if (window.gameManager) {
       window.gameManager.discoverSecret();
@@ -652,27 +698,45 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioManager.playSectorAnomaly();
     }
 
+    // Nothing can be revealed without the overlay
+    if (!dom.obsRevealStage) return;
+
     dom.obsRevealStage.classList.add('active');
     dom.obsRevealStage.setAttribute('aria-hidden', 'false');
 
-    gsap.set([dom.revealLine1, dom.revealLine2, dom.revealLine3, dom.revealMainTitle, dom.revealSubQuote], {
+    const revealLines = [dom.revealLine1, dom.revealLine2, dom.revealLine3, dom.revealMainTitle, dom.revealSubQuote];
+
+    if (!isGsapReady()) {
+      // Fallback: present the reveal in its final state without animation
+      dom.obsRevealStage.style.opacity = '1';
+      revealLines.forEach(el => {
+        if (!el) return;
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+      return;
+    }
+
+    gsap.set(revealLines.filter(Boolean), {
       opacity: 0,
       y: 12
     });
 
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-    tl.to(dom.obsRevealStage, { opacity: 1, duration: 0.5 })
-      .to(dom.revealLine1, { opacity: 1, y: 0, duration: 0.7 }, '+=0.2')
-      .to(dom.revealLine2, { opacity: 1, y: 0, duration: 0.7 }, '+=0.4')
-      .to(dom.revealLine3, { opacity: 1, y: 0, duration: 0.5 }, '+=0.3')
-      .to(dom.revealMainTitle, {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        ease: 'back.out(1.2)'
-      }, '+=0.5')
-      .to(dom.revealSubQuote, { opacity: 1, y: 0, duration: 1.0 }, '+=0.3');
+    tl.to(dom.obsRevealStage, { opacity: 1, duration: 0.5 });
+
+    // Optional reveal lines: each step is skipped when its element is absent
+    if (dom.revealLine1) tl.to(dom.revealLine1, { opacity: 1, y: 0, duration: 0.7 }, '+=0.2');
+    if (dom.revealLine2) tl.to(dom.revealLine2, { opacity: 1, y: 0, duration: 0.7 }, '+=0.4');
+    if (dom.revealLine3) tl.to(dom.revealLine3, { opacity: 1, y: 0, duration: 0.5 }, '+=0.3');
+    if (dom.revealMainTitle) tl.to(dom.revealMainTitle, {
+      opacity: 1,
+      y: 0,
+      duration: 1.2,
+      ease: 'back.out(1.2)'
+    }, '+=0.5');
+    if (dom.revealSubQuote) tl.to(dom.revealSubQuote, { opacity: 1, y: 0, duration: 1.0 }, '+=0.3');
   }
 
   // =========================================================================
@@ -692,6 +756,13 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioManager.playEscapeInit();
     }
 
+    // The cinematic needs GSAP plus its two anchor targets. Without them there is
+    // nothing to animate, so complete the run instantly instead of stalling.
+    if (!isGsapReady() || !dom.escapeSequenceBanner || !dom.stageLobby) {
+      finishEscapeSequenceWithoutAnimation();
+      return;
+    }
+
     const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
 
     // PHASE 1 — Recognition & Sequence Banner
@@ -707,7 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
       })
 
       // PHASE 2 — Ambient Power Shutdown
-      .to([dom.layerBg, dom.terminalPreviewStatus, dom.arcadePreviewFrame, dom.mainGameHud], {
+      .to([dom.layerBg, dom.terminalPreviewStatus, dom.arcadePreviewFrame, dom.mainGameHud].filter(Boolean), {
         opacity: 0.2,
         duration: 1.2,
         ease: 'power1.inOut'
@@ -802,6 +873,32 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
+  /**
+   * Degraded escape path: used when GSAP is unavailable or a core animation target is
+   * missing. Applies the final cinematic state instantly so the run still completes
+   * instead of leaving the player locked inside the lobby.
+   */
+  function finishEscapeSequenceWithoutAnimation() {
+    if (window.audioManager) {
+      window.audioManager.stopAmbientDrone();
+    }
+
+    if (dom.escapeSequenceBanner) dom.escapeSequenceBanner.style.display = 'none';
+
+    [dom.lockClamp1, dom.lockClamp2, dom.lockClamp3].forEach(clamp => {
+      if (clamp) clamp.classList.add('released');
+    });
+
+    if (dom.doorAccessLabel) dom.doorAccessLabel.textContent = 'OVERRIDE: ACCEPTED';
+    if (dom.doorAccessSub) dom.doorAccessSub.textContent = '// HYDRAULICS DISENGAGED';
+    if (dom.doorRadiantAperture) dom.doorRadiantAperture.style.opacity = '1';
+    if (dom.doorLockRing) dom.doorLockRing.style.opacity = '0';
+    if (dom.doorPanelLeft) dom.doorPanelLeft.style.transform = 'translateX(-105%)';
+    if (dom.doorPanelRight) dom.doorPanelRight.style.transform = 'translateX(105%)';
+
+    showEscapeResultScreen(true);
+  }
+
   function showEscapeResultScreen(playFinalChord = true) {
     if (!window.gameManager) return;
     const finalState = window.gameManager.completeGame();
@@ -839,8 +936,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    dom.escapeResultScreen.classList.add('active');
-    dom.escapeResultScreen.setAttribute('aria-hidden', 'false');
+    if (dom.escapeResultScreen) {
+      dom.escapeResultScreen.classList.add('active');
+      dom.escapeResultScreen.setAttribute('aria-hidden', 'false');
+    }
 
     if (typeof gsap !== 'undefined') {
       gsap.to(dom.escapeWhiteWash, { opacity: 0, duration: 1.2, ease: 'power2.out' });
@@ -849,8 +948,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { opacity: 1, scale: 1, duration: 1.0, ease: 'power3.out' }
       );
     } else {
-      dom.escapeWhiteWash.style.opacity = '0';
-      dom.escapeResultScreen.style.opacity = '1';
+      if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '0';
+      if (dom.escapeResultScreen) dom.escapeResultScreen.style.opacity = '1';
     }
 
     if (playFinalChord && window.audioManager) {
@@ -902,9 +1001,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.mainGameHud) dom.mainGameHud.style.opacity = '1';
 
     // Hide result screen, show intro
-    dom.escapeResultScreen.classList.remove('active');
-    dom.escapeResultScreen.setAttribute('aria-hidden', 'true');
-    dom.escapeResultScreen.style.opacity = '0';
+    if (dom.escapeResultScreen) {
+      dom.escapeResultScreen.classList.remove('active');
+      dom.escapeResultScreen.setAttribute('aria-hidden', 'true');
+      dom.escapeResultScreen.style.opacity = '0';
+    }
 
     if (dom.gameWorld) {
       dom.gameWorld.classList.remove('active');
@@ -1203,7 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const fileName = `escape-the-website-result.png`;
       const imageFile = new File([imageBlob], fileName, { type: 'image/png' });
 
-      const gameUrl = 'https://muhammedrinshad210.github.io/escape-the-website/';
+      const gameUrl = 'https://escape-the-website.onrender.com/';
       const keysCount = Array.isArray(state.keysCollected) ? state.keysCollected.length : 3;
       const shareTitle = 'ESCAPE THE WEBSITE';
       const shareText = `I escaped ESCAPE THE WEBSITE.\n\nTIME: ${time}\nSCORE: ${score}\nKEYS: ${keysCount}/3\n\nCan you escape too?\n${gameUrl}`;
@@ -1293,8 +1394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.arcadeComboVal) dom.arcadeComboVal.textContent = 'x1';
     if (dom.arcadeTargetsVal) dom.arcadeTargetsVal.textContent = '0';
 
-    dom.arcadeSummaryStage.classList.remove('active');
-    dom.arcadeSummaryStage.style.opacity = '0';
+    hideArcadeSummaryStage();
 
     if (window.audioManager) {
       window.audioManager.playModalOpen();
@@ -1319,6 +1419,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeArcadeModal() {
     if (!dom.arcadeModal || !isArcadeOpen) return;
     isArcadeOpen = false;
+
+    // Invalidate any pending countdown so it cannot start a round behind the closed modal
+    stopArcadeCountdown();
 
     stopArcadeGame();
     clearArcadePlayfield();
@@ -1351,8 +1454,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Cancel any in-flight arcade countdown.
+   * Bumping the token invalidates callbacks that are already scheduled (interval
+   * ticks and the fade-out onComplete), so a countdown can never start a round
+   * after the modal has been closed or after a newer countdown took over.
+   */
+  function stopArcadeCountdown() {
+    if (arcadeCountdownInterval) {
+      clearInterval(arcadeCountdownInterval);
+      arcadeCountdownInterval = null;
+    }
+
+    arcadeCountdownToken += 1;
+
+    if (typeof gsap !== 'undefined' && dom.arcadeCountdownOverlay) {
+      gsap.killTweensOf(dom.arcadeCountdownOverlay);
+    }
+  }
+
   function startArcadeCountdown() {
     if (!dom.arcadeCountdownOverlay) return;
+
+    // A retry or reopen always supersedes the previous countdown (no duplicates)
+    stopArcadeCountdown();
+    const token = arcadeCountdownToken;
+    const isStale = () => token !== arcadeCountdownToken || !isArcadeOpen;
 
     dom.arcadeCountdownOverlay.style.display = 'flex';
     dom.arcadeCountdownOverlay.style.opacity = '1';
@@ -1365,7 +1492,12 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioManager.playArcadeCountdown(count);
     }
 
-    const countInterval = setInterval(() => {
+    arcadeCountdownInterval = setInterval(() => {
+      if (isStale()) {
+        stopArcadeCountdown();
+        return;
+      }
+
       count--;
       if (count > 0) {
         dom.countdownNum.textContent = count;
@@ -1375,12 +1507,14 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.countdownSub.textContent = 'ENGAGE TARGETS IMMEDIATELY!';
         if (window.audioManager) window.audioManager.playArcadeStart();
       } else {
-        clearInterval(countInterval);
+        clearInterval(arcadeCountdownInterval);
+        arcadeCountdownInterval = null;
         if (typeof gsap !== 'undefined') {
           gsap.to(dom.arcadeCountdownOverlay, {
             opacity: 0,
             duration: 0.25,
             onComplete: () => {
+              if (isStale()) return;
               dom.arcadeCountdownOverlay.style.display = 'none';
               startArcadeGame();
             }
@@ -1394,7 +1528,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startArcadeGame() {
-    if (!window.puzzleManager) return;
+    if (!window.puzzleManager || !isArcadeOpen) return;
     arcadeIsPlaying = true;
     arcadeTimeRemaining = 20;
 
@@ -1601,6 +1735,22 @@ document.addEventListener('DOMContentLoaded', () => {
     activeTargets.clear();
   }
 
+  /**
+   * Hide the arcade summary panel and clear any leftover inline opacity
+   * from the reveal tween so the next countdown/round is never covered.
+   */
+  function hideArcadeSummaryStage() {
+    if (!dom.arcadeSummaryStage) return;
+    dom.arcadeSummaryStage.classList.remove('active');
+
+    if (typeof gsap !== 'undefined') {
+      gsap.killTweensOf(dom.arcadeSummaryStage);
+      gsap.set(dom.arcadeSummaryStage, { opacity: 0 });
+    } else {
+      dom.arcadeSummaryStage.style.opacity = '0';
+    }
+  }
+
   function endArcadeGame() {
     stopArcadeGame();
     clearArcadePlayfield();
@@ -1674,6 +1824,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lockBodyScroll();
 
     const isSolved = window.puzzleManager ? window.puzzleManager.isSolved('key_02') : false;
+    const isClaimed = Boolean(window.gameManager && window.gameManager.getState().keysCollected.includes('key_02'));
 
     dom.termKeyExtractStage.classList.remove('active');
     dom.termKeyExtractStage.style.opacity = '0';
@@ -1719,6 +1870,11 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     } else {
       dom.terminalModal.style.opacity = '1';
+    }
+
+    // Puzzle solved but key never claimed (modal was closed before claiming): re-offer the claim
+    if (isSolved && !isClaimed) {
+      revealKeyExtractStage(dom.termKeyExtractStage);
     }
 
     setTimeout(() => {
@@ -1830,16 +1986,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.audioManager) {
           window.audioManager.playKeyExtractChime();
         }
-        dom.termKeyExtractStage.classList.add('active');
-
-        if (typeof gsap !== 'undefined') {
-          gsap.fromTo(dom.termKeyExtractStage,
-            { opacity: 0, scale: 0.9 },
-            { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.2)' }
-          );
-        } else {
-          dom.termKeyExtractStage.style.opacity = '1';
-        }
+        revealKeyExtractStage(dom.termKeyExtractStage);
       }, 600);
     } else if (res.status === 'auth_denied') {
       if (window.audioManager) {
@@ -1855,7 +2002,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleClaimKey2() {
-    if (!window.gameManager) return;
+    if (!window.gameManager || !window.puzzleManager) return;
+    // The claim overlay is only hidden visually (opacity + pointer-events), so the
+    // button stays focusable while the cipher is unsolved. Gate on the puzzle state.
+    const key02Puzzle = window.puzzleManager.getPuzzle('key_02');
+    if (!key02Puzzle || !key02Puzzle.solved) return;
     window.gameManager.collectKey('key_02');
 
     closeTerminalModal();
@@ -1873,6 +2024,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lockBodyScroll();
 
     const isSolved = window.puzzleManager ? window.puzzleManager.isSolved('key_01') : false;
+    const isClaimed = Boolean(window.gameManager && window.gameManager.getState().keysCollected.includes('key_01'));
 
     dom.resNodeCards.forEach(card => card.classList.remove('active-step', 'desync-flash'));
     dom.keyExtractStage.classList.remove('active');
@@ -1914,6 +2066,11 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     } else {
       dom.resonatorModal.style.opacity = '1';
+    }
+
+    // Puzzle solved but key never claimed (modal was closed before claiming): re-offer the claim
+    if (isSolved && !isClaimed) {
+      revealKeyExtractStage(dom.keyExtractStage);
     }
   }
 
@@ -2019,23 +2176,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.audioManager) {
           window.audioManager.playKeyExtractChime();
         }
-        dom.keyExtractStage.classList.add('active');
-
-        if (typeof gsap !== 'undefined') {
-          gsap.fromTo(dom.keyExtractStage,
-            { opacity: 0, scale: 0.9 },
-            { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.2)' }
-          );
-        } else {
-          dom.keyExtractStage.style.opacity = '1';
-        }
+        revealKeyExtractStage(dom.keyExtractStage);
         isNodeProcessing = false;
       }, 600);
     }
   }
 
   function handleClaimKey() {
-    if (!window.gameManager) return;
+    if (!window.gameManager || !window.puzzleManager) return;
+    // See handleClaimKey2: the hidden claim button must not bypass the resonance puzzle.
+    const key01Puzzle = window.puzzleManager.getPuzzle('key_01');
+    if (!key01Puzzle || !key01Puzzle.solved) return;
     window.gameManager.collectKey('key_01');
 
     closeResonatorModal();
@@ -2265,7 +2416,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.btnArcadeClose) dom.btnArcadeClose.addEventListener('click', closeArcadeModal);
     if (dom.btnClaimKey3) dom.btnClaimKey3.addEventListener('click', handleClaimKey3);
     if (dom.btnArcadeRetry) dom.btnArcadeRetry.addEventListener('click', () => {
-      dom.arcadeSummaryStage.classList.remove('active');
+      hideArcadeSummaryStage();
       startArcadeCountdown();
     });
 
