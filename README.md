@@ -2,6 +2,14 @@
 
 An interactive, immersive web-based mini adventure game where the player solves puzzles and navigates secrets to escape the website itself.
 
+## Live Site
+
+The official production URL (canonical) is the GitHub Pages deployment:
+
+**https://muhammedrinshad210.github.io/escape-the-website/**
+
+`index.html`, `sitemap.xml` and `robots.txt` reference this URL. Any legacy mirror deployment is non-canonical and is not part of the production SEO configuration.
+
 ## Technologies Used
 
 - **HTML5** (Semantic structure)
@@ -58,6 +66,7 @@ The regression suites live in `tests/` and use plain Node.js with no dependencie
 node tests/test-gsap-guards.js       # GSAP guards and degraded animation paths
 node tests/test-arcade-countdown.js  # Arcade countdown lifecycle (close / retry / reopen)
 node tests/test-step-e.js            # Share text and analytics contract
+node tests/test-seo-urls.js          # Canonical / Open Graph / sitemap production URL audit
 ```
 
 Each suite prints `TOTAL TESTS: n | PASSED: n | FAILED: n` and exits non-zero on failure. The `tests/` directory is not referenced by the game; only `index.html`, `css/`, `js/` and `assets/` are needed to run it.

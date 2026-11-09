@@ -1304,7 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const fileName = `escape-the-website-result.png`;
       const imageFile = new File([imageBlob], fileName, { type: 'image/png' });
 
-      const gameUrl = 'https://escape-the-website.onrender.com/';
+      const gameUrl = 'https://muhammedrinshad210.github.io/escape-the-website/';
       const keysCount = Array.isArray(state.keysCollected) ? state.keysCollected.length : 3;
       const shareTitle = 'ESCAPE THE WEBSITE';
       const shareText = `I escaped ESCAPE THE WEBSITE.\n\nTIME: ${time}\nSCORE: ${score}\nKEYS: ${keysCount}/3\n\nCan you escape too?\n${gameUrl}`;

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://escape-the-website.onrender.com/sitemap.xml
+Sitemap: https://muhammedrinshad210.github.io/escape-the-website/sitemap.xml

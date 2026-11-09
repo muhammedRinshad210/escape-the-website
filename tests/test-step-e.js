@@ -24,7 +24,7 @@ function assert(condition, name) {
 // 1. Check shareText in main.js
 const mainJs = fs.readFileSync(path.join(ROOT, 'js', 'main.js'), 'utf8');
 
-assert(mainJs.includes('const gameUrl = \'https://escape-the-website.onrender.com/\';'), 'Live production URL defined');
+assert(mainJs.includes('const gameUrl = \'https://muhammedrinshad210.github.io/escape-the-website/\';'), 'Live production URL defined');
 assert(mainJs.includes('I escaped ESCAPE THE WEBSITE.\\n\\nTIME: ${time}\\nSCORE: ${score}\\nKEYS: ${keysCount}/3\\n\\nCan you escape too?\\n${gameUrl}'), 'Referral share text template matches required format');
 
 // 2. Check 1080x1350 canvas generation preserved
@@ -39,7 +39,7 @@ const state = {
     keysCollected: ['key_01', 'key_02', 'key_03']
 };
 
-const gameUrl = 'https://escape-the-website.onrender.com/';
+const gameUrl = 'https://muhammedrinshad210.github.io/escape-the-website/';
 const keysCount = state.keysCollected.length;
 const shareText = `I escaped ESCAPE THE WEBSITE.\n\nTIME: ${state.finalTime}\nSCORE: ${state.score}\nKEYS: ${keysCount}/3\n\nCan you escape too?\n${gameUrl}`;
 
@@ -52,10 +52,10 @@ assert(shareText.includes('TIME: 01:45'), 'Contains formatted time');
 assert(shareText.includes('SCORE: 900'), 'Contains score');
 assert(shareText.includes('KEYS: 3/3'), 'Contains keys 3/3');
 assert(shareText.includes('Can you escape too?'), 'Contains call-to-action');
-assert(shareText.includes('https://escape-the-website.onrender.com/'), 'Contains live production URL');
+assert(shareText.includes('https://muhammedrinshad210.github.io/escape-the-website/'), 'Contains live production URL');
 
 // Confirm URL appears exactly once
-const urlMatches = shareText.match(/https:\/\/escape-the-website\.onrender\.com\//g);
+const urlMatches = shareText.match(/https:\/\/muhammedrinshad210\.github\.io\/escape-the-website\//g);
 assert(urlMatches && urlMatches.length === 1, 'URL appears exactly once in share text');
 
 // 4. Verify Analytics Events Preservation
