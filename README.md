@@ -4,9 +4,9 @@ An interactive, immersive web-based mini adventure game where the player solves 
 
 ## Live Site
 
-The official production URL (canonical) is the GitHub Pages deployment:
+The official production URL (canonical) is the Render deployment:
 
-**https://muhammedrinshad210.github.io/escape-the-website/**
+**https://escape-the-website.onrender.com/**
 
 `index.html`, `sitemap.xml` and `robots.txt` reference this URL. Any legacy mirror deployment is non-canonical and is not part of the production SEO configuration.
 

@@ -21,17 +21,17 @@ function assert(condition, name) {
     }
 }
 
-const PROD = 'https://muhammedrinshad210.github.io/escape-the-website';
-const LEGACY = 'escape-the-website.onrender.com';
+const PROD = 'https://escape-the-website.onrender.com';
+const LEGACY = 'muhammedrinshad210.github.io';
 
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
 const robots = fs.readFileSync(path.join(ROOT, 'robots.txt'), 'utf8');
 const mainJs = fs.readFileSync(path.join(ROOT, 'js', 'main.js'), 'utf8');
 
-// 1. Canonical + Open Graph + Twitter point at GitHub Pages
+// 1. Canonical + Open Graph + Twitter point at the production host
 const canonical = html.match(/<link rel="canonical" href="([^"]+)">/);
-assert(canonical && canonical[1] === PROD + '/', 'Canonical URL is the GitHub Pages production URL');
+assert(canonical && canonical[1] === PROD + '/', 'Canonical URL is the production URL');
 
 const ogUrl = html.match(/<meta property="og:url" content="([^"]+)">/);
 assert(ogUrl && ogUrl[1] === PROD + '/', 'og:url matches the canonical production URL');
@@ -51,13 +51,13 @@ try {
     ld = null;
 }
 assert(ld !== null, 'JSON-LD block parses as valid JSON');
-assert(ld && ld.url === PROD + '/', 'JSON-LD url is the GitHub Pages production URL');
+assert(ld && ld.url === PROD + '/', 'JSON-LD url is the production URL');
 assert(ld && typeof ld['@id'] === 'string' && ld['@id'].startsWith(PROD + '/'), 'JSON-LD @id is scoped to the production URL');
 
 // 3. Sitemap contains exactly one production URL
 const locs = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]);
 assert(locs.length === 1, 'Sitemap declares a single URL');
-assert(locs[0] === PROD + '/', 'Sitemap loc is the GitHub Pages production URL');
+assert(locs[0] === PROD + '/', 'Sitemap loc is the production URL');
 
 // 4. robots.txt advertises the production sitemap
 assert(robots.includes('Sitemap: ' + PROD + '/sitemap.xml'), 'robots.txt points at the production sitemap');
@@ -69,14 +69,14 @@ assert(!/noindex/i.test(html), 'No noindex directive was introduced');
 
 // 6. No legacy host references anywhere in shipped files
 [['index.html', html], ['sitemap.xml', sitemap], ['robots.txt', robots], ['js/main.js', mainJs]].forEach(([name, body]) => {
-    assert(!body.includes(LEGACY), 'No legacy Render host in ' + name);
+    assert(!body.includes(LEGACY), 'No legacy host in ' + name);
 });
 
 // 7. Share referral URL uses the production host
 assert(mainJs.includes("const gameUrl = '" + PROD + "/';"), 'Share referral URL is the production URL');
 
-// 8. Subpath deployment safety: no root-absolute asset references, declared files exist
-assert(!/(?:href|src)="\//.test(html), 'No root-absolute href/src paths (GitHub Pages subpath safe)');
+// 8. Deployment safety: no root-absolute asset references, declared files exist
+assert(!/(?:href|src)="\//.test(html), 'No root-absolute href/src paths');
 assert(fs.existsSync(path.join(ROOT, 'assets', 'images', 'og-preview.png')), 'og-preview.png exists at the declared path');
 assert(fs.existsSync(path.join(ROOT, 'assets', 'icons', 'favicon.svg')), 'favicon.svg exists at the declared path');
 
