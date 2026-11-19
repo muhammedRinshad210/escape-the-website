@@ -95,6 +95,57 @@ class PuzzleManager {
         }
       }
     });
+
+    // ROOM 02: Gravity Lift orbs (catch task — no sequence logic needed)
+    this.registerPuzzle('orbatrium_lift', {
+      id: 'orbatrium_lift',
+      name: 'Gravity Lift Energy Sockets',
+      orbsRequired: 3,
+      solved: false
+    });
+
+    // ROOM 03: Signal Relay memory console
+    this.registerPuzzle('signal_relay', {
+      id: 'signal_relay',
+      name: 'Signal Relay Memory Console',
+      // One cipher digit is revealed per successful round
+      cipherDigits: ['7', '3', '9'],
+      towerCount: 4,
+      roundLengths: [3, 4, 5],
+      round: 0,                 // 0 = not started; 1..3 while playing
+      phase: 'idle',            // idle | playback | input | round_won | solved
+      sequence: [],
+      currentInput: [],
+      attempts: 0,
+      revealedDigits: [],
+      solved: false
+    });
+
+    // ROOM 04: Coolant valve pipe grid (3 independent valve rows)
+    this.registerPuzzle('pipe_grid', {
+      id: 'pipe_grid',
+      name: 'Coolant Valve Grid',
+      rows: 3,
+      tilesPerRow: 3,           // rotatable tiles between source and fuse
+      // Correct rotation index (0..3) per tile; randomized at session start
+      solved: false
+    });
+
+    // ROOM 05: Core Ignition energy channel
+    this.registerPuzzle('core_ignition', {
+      id: 'core_ignition',
+      name: 'Core Ignition Matrix',
+      fragmentsRequired: 3,
+      energyTarget: 100,
+      gainPerTap: 2.2,
+      decayPerTick: 0.55,
+      solved: false,
+      session: {
+        energy: 0,
+        taps: 0,
+        active: false
+      }
+    });
   }
 
   /**
@@ -457,6 +508,248 @@ class PuzzleManager {
     if (roll < 0.60) return 'standard';
     if (roll < 0.85) return 'fast';
     return 'bonus';
+  }
+
+  // =========================================================================
+  // ROOM 03: SIGNAL RELAY MEMORY METHODS
+  // =========================================================================
+
+  /**
+   * Begin (or restart) a relay round. Generates a random tower sequence.
+   * roundNumber: 1..3. Returns the sequence for playback.
+   */
+  startSignalRound(roundNumber) {
+    const puzzle = this.puzzles.get('signal_relay');
+    if (!puzzle) return null;
+
+    const r = Math.max(1, Math.min(3, Number(roundNumber) || 1));
+    const len = puzzle.roundLengths[r - 1] || 3;
+
+    puzzle.round = r;
+    puzzle.phase = 'playback';
+    puzzle.sequence = [];
+    puzzle.currentInput = [];
+
+    for (let i = 0; i < len; i++) {
+      puzzle.sequence.push(Math.floor(Math.random() * puzzle.towerCount));
+    }
+
+    return { round: r, length: len, sequence: [...puzzle.sequence] };
+  }
+
+  /**
+   * Player taps a tower during the input phase.
+   * Returns { status, ... } — 'progress' | 'round_won' | 'desync' | 'error'.
+   */
+  inputSignalTower(towerIndex) {
+    const puzzle = this.puzzles.get('signal_relay');
+    if (!puzzle || puzzle.phase !== 'input') {
+      return { status: 'error', reason: 'NOT_ACCEPTING_INPUT' };
+    }
+
+    const expected = puzzle.sequence[puzzle.currentInput.length];
+    if (towerIndex === expected) {
+      puzzle.currentInput.push(towerIndex);
+
+      if (puzzle.currentInput.length === puzzle.sequence.length) {
+        puzzle.phase = 'round_won';
+        const digit = puzzle.cipherDigits[puzzle.round - 1];
+        if (digit && !puzzle.revealedDigits.includes(digit)) {
+          puzzle.revealedDigits.push(digit);
+        }
+        const isFinalRound = puzzle.round >= puzzle.roundLengths.length;
+        if (isFinalRound) {
+          puzzle.solved = true;
+          puzzle.phase = 'solved';
+        }
+        return {
+          status: 'round_won',
+          round: puzzle.round,
+          revealedDigit: digit,
+          allRoundsComplete: isFinalRound,
+          codeComplete: puzzle.revealedDigits.join('')
+        };
+      }
+
+      return { status: 'progress', input: [...puzzle.currentInput] };
+    }
+
+    puzzle.attempts += 1;
+    puzzle.currentInput = [];
+    puzzle.phase = 'input';
+    return {
+      status: 'desync',
+      attempts: puzzle.attempts,
+      showHint: puzzle.attempts >= 2,
+      hintText: 'RELAY HINT: The towers repeat their song — watch the glow order, then mirror it. Listen for the low pulse.'
+    };
+  }
+
+  /**
+   * Switch relay into accepting-input mode after playback finishes.
+   */
+  beginSignalInput() {
+    const puzzle = this.puzzles.get('signal_relay');
+    if (puzzle) {
+      puzzle.phase = 'input';
+      puzzle.currentInput = [];
+    }
+    return puzzle ? puzzle.phase : null;
+  }
+
+  /**
+   * Resend the current round sequence (used after a desync).
+   */
+  replaySignalRound() {
+    const puzzle = this.puzzles.get('signal_relay');
+    if (!puzzle || !puzzle.round) return null;
+    puzzle.phase = 'playback';
+    puzzle.currentInput = [];
+    return { round: puzzle.round, sequence: [...puzzle.sequence] };
+  }
+
+  /**
+   * Reconcile in-memory relay progress with the persisted round count
+   * (page reloads wipe puzzle sessions; the save keeps rounds won).
+   */
+  syncSignalProgress(roundsWon) {
+    const puzzle = this.puzzles.get('signal_relay');
+    if (!puzzle) return;
+    const r = Math.max(0, Math.min(3, Number(roundsWon) || 0));
+    puzzle.round = r;
+    puzzle.phase = r >= 3 ? 'solved' : (r > 0 ? 'round_won' : 'idle');
+    puzzle.revealedDigits = puzzle.cipherDigits.slice(0, r);
+    puzzle.currentInput = [];
+    if (r >= 3) puzzle.solved = true;
+  }
+
+  getSignalState() {
+    const puzzle = this.puzzles.get('signal_relay');
+    if (!puzzle) return null;
+    return {
+      round: puzzle.round,
+      phase: puzzle.phase,
+      solved: puzzle.solved,
+      attempts: puzzle.attempts,
+      revealedDigits: [...puzzle.revealedDigits],
+      cipherCode: puzzle.revealedDigits.join('')
+    };
+  }
+
+  // =========================================================================
+  // ROOM 04: COOLANT VALVE GRID METHODS
+  // =========================================================================
+
+  /**
+   * (Re)build the valve grid session: 3 rows x 3 rotatable tiles.
+   * A tile is visually aligned when its rotation is a multiple of 90deg that
+   * leaves the pipe horizontal (current % 2 === 0). Every tile starts rotated
+   * to a vertical (odd) orientation so each row needs real calibration work.
+   */
+  startPipeSession() {
+    const puzzle = this.puzzles.get('pipe_grid');
+    if (!puzzle) return null;
+
+    puzzle.grid = [];
+    for (let row = 0; row < puzzle.rows; row++) {
+      const rowTiles = [];
+      for (let t = 0; t < puzzle.tilesPerRow; t++) {
+        // Start vertical: odd rotation (1 or 3) so the pipe is misaligned.
+        const current = Math.random() < 0.5 ? 1 : 3;
+        rowTiles.push({ correct: 0, current });
+      }
+      puzzle.grid.push(rowTiles);
+    }
+
+    return { grid: puzzle.grid.map(r => r.map(t => ({ ...t }))) };
+  }
+
+  /**
+   * Rotate one valve tile clockwise (current = (current + 1) % 4).
+   * Returns row flow status after the rotation.
+   */
+  rotateValve(row, tile) {
+    const puzzle = this.puzzles.get('pipe_grid');
+    if (!puzzle || !puzzle.grid) return null;
+    if (row < 0 || row >= puzzle.rows || tile < 0 || tile >= puzzle.tilesPerRow) return null;
+
+    const t = puzzle.grid[row][tile];
+    t.current = (t.current + 1) % 4;
+
+    const rowFlowing = this.isPipeRowFlowing(row);
+    return {
+      row,
+      tile,
+      current: t.current,
+      rowFlowing,
+      allRowsFlowing: puzzle.grid.every((_, r) => this.isPipeRowFlowing(r))
+    };
+  }
+
+  /**
+   * A row flows when every tile in it sits at a horizontal (aligned) rotation.
+   */
+  isPipeRowFlowing(row) {
+    const puzzle = this.puzzles.get('pipe_grid');
+    if (!puzzle || !puzzle.grid || !puzzle.grid[row]) return false;
+    return puzzle.grid[row].every(t => t.current % 2 === 0);
+  }
+
+  getPipeGridSnapshot() {
+    const puzzle = this.puzzles.get('pipe_grid');
+    if (!puzzle || !puzzle.grid) return null;
+    return puzzle.grid.map(r => r.map(t => ({ ...t })));
+  }
+
+  // =========================================================================
+  // ROOM 05: CORE IGNITION METHODS
+  // =========================================================================
+
+  startCoreSession() {
+    const puzzle = this.puzzles.get('core_ignition');
+    if (!puzzle) return null;
+    puzzle.session = { energy: 0, taps: 0, active: true };
+    return { ...puzzle.session };
+  }
+
+  /**
+   * One tap on CHANNEL ENERGY: adds energy, returns the new level.
+   */
+  tapCoreEnergy() {
+    const puzzle = this.puzzles.get('core_ignition');
+    if (!puzzle || !puzzle.session.active) return null;
+
+    puzzle.session.energy = Math.min(puzzle.energyTarget, puzzle.session.energy + puzzle.gainPerTap);
+    puzzle.session.taps += 1;
+
+    const reached = puzzle.session.energy >= puzzle.energyTarget;
+    if (reached) {
+      puzzle.session.active = false;
+      puzzle.solved = true;
+    }
+
+    return {
+      energy: puzzle.session.energy,
+      taps: puzzle.session.taps,
+      target: puzzle.energyTarget,
+      reached
+    };
+  }
+
+  /**
+   * Passive decay between taps (the core leaks charge).
+   */
+  decayCoreEnergy() {
+    const puzzle = this.puzzles.get('core_ignition');
+    if (!puzzle || !puzzle.session.active) return null;
+    puzzle.session.energy = Math.max(0, puzzle.session.energy - puzzle.decayPerTick);
+    return puzzle.session.energy;
+  }
+
+  getCoreState() {
+    const puzzle = this.puzzles.get('core_ignition');
+    if (!puzzle) return null;
+    return { ...puzzle.session, target: puzzle.energyTarget, solved: puzzle.solved };
   }
 
   // =========================================================================

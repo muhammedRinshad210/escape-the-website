@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize Subsystems
   const gameState = window.gameManager ? window.gameManager.init() : null;
   if (window.puzzleManager) window.puzzleManager.init();
+  // Reconcile in-memory relay rounds with the persisted run state (resumes)
+  if (window.puzzleManager && window.gameManager) {
+    window.puzzleManager.syncSignalProgress(window.gameManager.getState().signalRoundsWon || 0);
+  }
 
   // 2. DOM Elements Cache
   const dom = {
@@ -36,6 +40,37 @@ document.addEventListener('DOMContentLoaded', () => {
     ],
     btnToggleAudio: document.getElementById('btn-toggle-audio'),
     audioStatusLabel: document.getElementById('audio-status-label'),
+    // HUD Extras (timer, objectives, help, reset)
+    hudTimerValue: document.getElementById('hud-timer'),
+    hudTimerPanel: document.getElementById('hud-timer-panel'),
+    btnHudObjectives: document.getElementById('btn-hud-objectives'),
+    objectivesPanel: document.getElementById('objectives-panel'),
+    btnObjectivesClose: document.getElementById('btn-objectives-close'),
+    objKey1: document.getElementById('obj-key-1'),
+    objKey1Status: document.getElementById('obj-key-1-status'),
+    objKey2: document.getElementById('obj-key-2'),
+    objKey2Status: document.getElementById('obj-key-2-status'),
+    objKey3: document.getElementById('obj-key-3'),
+    objKey3Status: document.getElementById('obj-key-3-status'),
+    objEscape: document.getElementById('obj-escape'),
+    objEscapeStatus: document.getElementById('obj-escape-status'),
+    objSecret: document.getElementById('obj-secret'),
+    objSecretName: document.querySelector('#obj-secret .objective-name'),
+    objSecretStatus: document.getElementById('obj-secret-status'),
+    btnHudHelp: document.getElementById('btn-hud-help'),
+    btnHudReset: document.getElementById('btn-hud-reset'),
+    briefingOverlay: document.getElementById('briefing-overlay'),
+    btnBriefingStart: document.getElementById('btn-briefing-start'),
+    briefingStartLabel: document.getElementById('briefing-start-label'),
+    // Node tap hints
+    terminalTapHint: document.getElementById('terminal-tap-hint'),
+    resonatorTapHint: document.getElementById('resonator-tap-hint'),
+    arcadeTapHint: document.getElementById('arcade-tap-hint'),
+    doorTapHint: document.getElementById('door-tap-hint'),
+    // Result screen extras
+    resultRecordBadge: document.getElementById('result-record-badge'),
+    resultBestLine: document.getElementById('result-best-line'),
+    resultBestValue: document.getElementById('result-best-value'),
     // Parallax Layers & Stages
     layerBg: document.getElementById('layer-bg'),
     layerMg: document.getElementById('layer-mg'),
@@ -155,8 +190,255 @@ document.addEventListener('DOMContentLoaded', () => {
     modalBody: document.getElementById('modal-content-body'),
     modalDiagLog: document.getElementById('modal-diag-log'),
     btnModalClose: document.getElementById('btn-modal-close'),
-    btnModalAction: document.getElementById('btn-modal-action')
+    btnModalAction: document.getElementById('btn-modal-action'),
+    // v3 Multi-room HUD extras
+    hudCollectibleLabel: document.getElementById('hud-collectible-label'),
+    objectivesList: document.getElementById('objectives-list'),
+    roomIntroBanner: document.getElementById('room-intro-banner'),
+    roomIntroEyebrow: document.getElementById('room-intro-eyebrow'),
+    roomIntroTitle: document.getElementById('room-intro-title'),
+    roomIntroHint: document.getElementById('room-intro-hint'),
+    // v3 Result screen extras
+    resultRankBadge: document.getElementById('result-rank-badge'),
+    resultRankValue: document.getElementById('result-rank-value'),
+    statGold: document.getElementById('stat-gold'),
+    resultRoomRecords: document.getElementById('result-room-records'),
+    // v3 Room 02 — Orb Atrium
+    stageOrbatrium: document.getElementById('stage-orbatrium'),
+    goldTokenLobby: document.getElementById('gold-token-lobby'),
+    orbNodes: [
+      document.getElementById('orb-node-1'),
+      document.getElementById('orb-node-2'),
+      document.getElementById('orb-node-3')
+    ],
+    atriumOrbReadout: document.getElementById('atrium-orb-readout'),
+    nodeAtriumConsole: document.getElementById('node-atrium-console'),
+    goldTokenOrbatrium: document.getElementById('gold-token-orbatrium'),
+    nodeLiftDoor: document.getElementById('node-lift-door'),
+    liftNodeTitle: document.getElementById('lift-node-title'),
+    liftStatusIndicator: document.getElementById('lift-status-indicator'),
+    liftSockets: [
+      document.getElementById('lift-socket-1'),
+      document.getElementById('lift-socket-2'),
+      document.getElementById('lift-socket-3')
+    ],
+    liftShaftFrame: document.getElementById('lift-shaft-frame'),
+    liftDescentGlow: document.getElementById('lift-descent-glow'),
+    liftIrisHatch: document.getElementById('lift-iris-hatch'),
+    liftIrisIcon: document.getElementById('lift-iris-icon'),
+    liftPlatform: document.getElementById('lift-platform'),
+    liftAccessLabel: document.getElementById('lift-access-label'),
+    liftAccessSub: document.getElementById('lift-access-sub'),
+    liftTapHint: document.getElementById('lift-tap-hint'),
+    // v3 Room 03 — Signal Vault
+    stageVault: document.getElementById('stage-vault'),
+    nodeSignalConsole: document.getElementById('node-signal-console'),
+    signalObjIndicator: document.getElementById('signal-obj-indicator'),
+    signalTapHint: document.getElementById('signal-tap-hint'),
+    vaultRoundReadout: document.getElementById('vault-round-readout'),
+    vaultDigitReadout: document.getElementById('vault-digit-readout'),
+    nodeVaultArchive: document.getElementById('node-vault-archive'),
+    goldTokenVault: document.getElementById('gold-token-vault'),
+    nodeVaultDoor: document.getElementById('node-vault-door'),
+    vaultNodeTitle: document.getElementById('vault-node-title'),
+    vaultDoorStatusIndicator: document.getElementById('vault-door-status-indicator'),
+    vaultWheel: document.getElementById('vault-wheel'),
+    vaultWheelIcon: document.getElementById('vault-wheel-icon'),
+    vaultBolts: [
+      document.getElementById('vault-bolt-1'),
+      document.getElementById('vault-bolt-2'),
+      document.getElementById('vault-bolt-3')
+    ],
+    vaultDoorReadout: document.getElementById('vault-door-readout'),
+    vaultAccessSub: document.getElementById('vault-access-sub'),
+    vaultDoorTapHint: document.getElementById('vault-door-tap-hint'),
+    signalModal: document.getElementById('signal-modal'),
+    signalCard: document.getElementById('signal-card'),
+    signalRoundBadge: document.getElementById('signal-round-badge'),
+    btnSignalClose: document.getElementById('btn-signal-close'),
+    signalInstruction: document.getElementById('signal-instruction'),
+    signalTowerCards: document.querySelectorAll('#signal-towers-grid .signal-tower'),
+    signalStatusText: document.getElementById('signal-status-text'),
+    signalInputTracker: document.getElementById('signal-input-tracker'),
+    signalHintBox: document.getElementById('signal-hint-box'),
+    btnSignalPlay: document.getElementById('btn-signal-play'),
+    btnSignalReplay: document.getElementById('btn-signal-replay'),
+    signalDigitsValue: document.getElementById('signal-digits-value'),
+    signalGoldStage: document.getElementById('signal-gold-stage'),
+    btnClaimGoldChip: document.getElementById('btn-claim-gold-chip'),
+    keypadModal: document.getElementById('vault-keypad-modal'),
+    keypadCard: document.getElementById('keypad-card'),
+    keypadStatusBadge: document.getElementById('keypad-status-badge'),
+    btnKeypadClose: document.getElementById('btn-keypad-close'),
+    keypadDisplay: document.getElementById('keypad-display'),
+    keypadFeedback: document.getElementById('keypad-feedback'),
+    keypadHintBox: document.getElementById('keypad-hint-box'),
+    keypadKeys: document.querySelectorAll('#keypad-grid .keypad-key'),
+    // v3 Room 04 — Cooling Tunnels
+    stageTunnels: document.getElementById('stage-tunnels'),
+    nodePipePanel: document.getElementById('node-pipe-panel'),
+    pipeObjIndicator: document.getElementById('pipe-obj-indicator'),
+    pipeTapHint: document.getElementById('pipe-tap-hint'),
+    tunnelsFuseReadout: document.getElementById('tunnels-fuse-readout'),
+    nodeTunnelsHatch: document.getElementById('node-tunnels-hatch'),
+    goldTokenTunnels: document.getElementById('gold-token-tunnels'),
+    nodePressureGate: document.getElementById('node-pressure-gate'),
+    gateNodeTitle: document.getElementById('gate-node-title'),
+    gateStatusIndicator: document.getElementById('gate-status-indicator'),
+    gateSteamLeft: document.getElementById('gate-steam-left'),
+    gateSteamRight: document.getElementById('gate-steam-right'),
+    gatePanelLeft: document.getElementById('gate-panel-left'),
+    gatePanelRight: document.getElementById('gate-panel-right'),
+    gatePressureWrap: document.getElementById('gate-pressure-wrap'),
+    gatePressureValue: document.getElementById('gate-pressure-value'),
+    gatePressureFill: document.getElementById('gate-pressure-fill'),
+    btnBoostPump: document.getElementById('btn-boost-pump'),
+    gateAccessLabel: document.getElementById('gate-access-label'),
+    gateAccessSub: document.getElementById('gate-access-sub'),
+    gateTapHint: document.getElementById('gate-tap-hint'),
+    pipeModal: document.getElementById('pipe-modal'),
+    pipeCard: document.getElementById('pipe-card'),
+    pipeStatusBadge: document.getElementById('pipe-status-badge'),
+    btnPipeClose: document.getElementById('btn-pipe-close'),
+    pipeRowsEl: document.getElementById('pipe-rows'),
+    btnPipeRealign: document.getElementById('btn-pipe-realign'),
+    pipeGoldStage: document.getElementById('pipe-gold-stage'),
+    btnClaimBooster: document.getElementById('btn-claim-booster'),
+    // v3 Room 05 — The Core
+    stageCore: document.getElementById('stage-core'),
+    fragmentNodes: [
+      document.getElementById('fragment-node-1'),
+      document.getElementById('fragment-node-2'),
+      document.getElementById('fragment-node-3')
+    ],
+    nodeCoreLog: document.getElementById('node-core-log'),
+    goldTokenCore: document.getElementById('gold-token-core'),
+    nodeCoreConsole: document.getElementById('node-core-console'),
+    coreNodeTitle: document.getElementById('core-node-title'),
+    coreStatusIndicator: document.getElementById('core-status-indicator'),
+    coreReactorRing: document.getElementById('core-reactor-ring'),
+    coreReactorHeart: document.getElementById('core-reactor-heart'),
+    coreHeartIcon: document.getElementById('core-heart-icon'),
+    coreInventoryReadout: document.getElementById('core-inventory-readout'),
+    coreAccessSub: document.getElementById('core-access-sub'),
+    coreTapHint: document.getElementById('core-tap-hint'),
+    coreModal: document.getElementById('core-modal'),
+    coreCard: document.getElementById('core-card'),
+    coreStatusBadge: document.getElementById('core-status-badge'),
+    btnCoreClose: document.getElementById('btn-core-close'),
+    coreInvFragments: document.getElementById('core-inv-fragments'),
+    coreInvChip: document.getElementById('core-inv-chip'),
+    coreInvKeys: document.getElementById('core-inv-keys'),
+    coreEnergyValue: document.getElementById('core-energy-value'),
+    coreEnergyFill: document.getElementById('core-energy-fill'),
+    coreInstruction: document.getElementById('core-instruction'),
+    btnChannelEnergy: document.getElementById('btn-channel-energy'),
+    coreTapCounter: document.getElementById('core-tap-counter'),
+    coreIgnitionStage: document.getElementById('core-ignition-stage'),
+    btnTriggerLaunch: document.getElementById('btn-trigger-launch')
   };
+
+  // =========================================================================
+  // v3 ROOM CONSTANTS (declared before boot so auto-resume can use them)
+  // =========================================================================
+
+  const ROOM_SEQUENCE = ['lobby', 'orbatrium', 'vault', 'tunnels', 'core'];
+
+  const ROOM_READY_BANNERS = {
+    lobby: '• ALL 3 ACCESS KEYS RECOVERED •',
+    orbatrium: '• ALL 3 PLASMA ORBS CAUGHT •',
+    vault: '• ALL 3 RELAY SIGNALS MIRRORED •',
+    tunnels: '• ALL 3 COOLANT FUSES LIT •',
+    core: '• ALL 3 CORE FRAGMENTS RECOVERED •'
+  };
+
+  const ROOM_NUDGES = {
+    lobby: '// HINT: INSPECT THE ANOMALY & TERMINAL NODES TO GET STARTED',
+    orbatrium: '// HINT: TAP THE DRIFTING PLASMA ORBS TO CATCH THEM',
+    vault: '// HINT: OPEN THE SIGNAL RELAY AND MIRROR THE GHOST SONGS',
+    tunnels: '// HINT: OPEN THE COOLANT VALVES AND ALIGN EVERY ROW',
+    core: '// HINT: TAP THE GLOWING SHARDS ON THE REACTOR FLOOR'
+  };
+
+  const ROOM_STAGE_ELEMENTS = {
+    lobby: () => dom.stageLobby,
+    orbatrium: () => dom.stageOrbatrium,
+    vault: () => dom.stageVault,
+    tunnels: () => dom.stageTunnels,
+    core: () => dom.stageCore
+  };
+
+  const ROOM_INTRO_TEXT = {
+    orbatrium: {
+      eyebrow: '// SUB-LEVEL 01 CLEARED — DESCENDING',
+      title: 'ROOM 02 • THE ORB ATRIUM',
+      hint: 'Catch the 3 drifting plasma orbs to power the gravity lift.'
+    },
+    vault: {
+      eyebrow: '// SUB-LEVEL 02 CLEARED — DESCENDING',
+      title: 'ROOM 03 • THE SIGNAL VAULT',
+      hint: 'Mirror the relay songs — each win reveals one vault cipher digit.'
+    },
+    tunnels: {
+      eyebrow: '// SUB-LEVEL 03 CLEARED — DESCENDING',
+      title: 'ROOM 04 • THE COOLING TUNNELS',
+      hint: 'Align the coolant valves, then pump the hydraulic gate with BOOST.'
+    },
+    core: {
+      eyebrow: '// SUB-LEVEL 04 CLEARED — DESCENDING',
+      title: 'ROOM 05 • THE CORE',
+      hint: 'Recover 3 core fragments, then channel energy for the final launch.'
+    }
+  };
+
+  const DOOR_LOCKED_COPY = {
+    orbatrium: {
+      title: 'GRAVITY LIFT • POWER OFFLINE',
+      body: 'A circular glass lift descends into the sub-levels. Its three energy sockets sit empty — the gravity engine cannot engage without plasma orbs.',
+      diag: [
+        '&gt; Lift Power: <span class="text-danger fw-bold">0 / 3</span>',
+        '&gt; Gravity Engine: OFFLINE',
+        '&gt; orbs required: 3 plasma orbs (catch them in the atrium)'
+      ]
+    },
+    vault: {
+      title: 'CIPHER VAULT • LOCK ENGAGED',
+      body: 'A massive circular vault door with a spinning lock wheel. The keypad accepts a 3-digit code — each digit is revealed by winning a Signal Relay round.',
+      diag: [
+        '&gt; Vault Status: <span class="text-danger fw-bold">LOCKED</span>',
+        '&gt; Cipher Fragments: WIN SIGNAL RELAY ROUNDS',
+        '&gt; Code Format: [ROUND 1][ROUND 2][ROUND 3]'
+      ]
+    },
+    tunnels: {
+      title: 'HYDRAULIC GATE • NO PRESSURE',
+      body: 'A towering hydraulic gate. Its pumps are dead — it can only be forced open by flooding the system with booster pressure. Hold the pump and do not let the gauge leak down.',
+      diag: [
+        '&gt; Hydraulics: <span class="text-danger fw-bold">DEAD</span>',
+        '&gt; Pressure: 0%',
+        '&gt; Required: PRESSURE BOOSTER (light all 3 fuses first)'
+      ]
+    },
+    core: {
+      title: 'CORE CONSOLE • REACTOR DORMANT',
+      body: 'The reactor heart of the website. Its ignition matrix is empty — three shattered core fragments must be recovered from the reactor floor before energy can be channeled.',
+      diag: [
+        '&gt; Reactor: <span class="text-danger fw-bold">DORMANT</span>',
+        '&gt; Fragments: 0 / 3',
+        '&gt; Ignition: CHANNEL ENERGY to 100%'
+      ]
+    }
+  };
+
+
+  const GOLD_TOKEN_ELEMENTS = {
+    lobby: () => dom.goldTokenLobby,
+    orbatrium: () => dom.goldTokenOrbatrium,
+    vault: () => dom.goldTokenVault,
+    tunnels: () => dom.goldTokenTunnels,
+    core: () => dom.goldTokenCore
+  };
+
 
   let isTransitioning = false;
   let isModalOpen = false;
@@ -168,6 +450,36 @@ document.addEventListener('DOMContentLoaded', () => {
   let inSector02 = false;
   let toastTimer = null;
   let isSharing = false;
+
+  // v3 Multi-room state
+  let isSignalOpen = false;
+  let isKeypadOpen = false;
+  let isPipeOpen = false;
+  let isCoreOpen = false;
+  let isRoomTransitionActive = false;
+  let currentRoomId = 'lobby';
+  let signalPlaybackTimers = [];
+  let boostPumpInterval = null;
+  let boostPumping = false;
+  let boostPressure = 0;
+  let coreDecayInterval = null;
+  let keypadEntry = '';
+  let keypadAttempts = 0;
+  let roomEntryTimestamps = {};
+
+  // Onboarding / Objectives / Timer state
+  const ONBOARDING_STORAGE_KEY = 'escape_the_website_onboarding_v1';
+  const BEST_TIME_STORAGE_KEY = 'escape_the_website_best_time_v1';
+  const RUNS_STORAGE_KEY = 'escape_the_website_runs_v1';
+  let isBriefingOpen = false;
+  let isObjectivesOpen = false;
+  let hudTimerInterval = null;
+  let nudgeTimer = null;
+  let nudgeShownThisRun = false;
+  let pendingModalAction = null;
+
+  // Touch device detection (mobile ergonomics: bigger arcade targets, TAP wording)
+  const IS_TOUCH_DEVICE = window.matchMedia('(hover: none), (pointer: coarse)').matches;
 
   // Terminal Command History
   const cmdHistory = [];
@@ -213,6 +525,327 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // =========================================================================
+  // HUD MISSION TIMER
+  // =========================================================================
+
+  function startHudTimer() {
+    stopHudTimer();
+    if (!dom.hudTimerValue) return;
+    updateHudTimerDisplay();
+    hudTimerInterval = setInterval(updateHudTimerDisplay, 1000);
+  }
+
+  function stopHudTimer() {
+    if (hudTimerInterval) {
+      clearInterval(hudTimerInterval);
+      hudTimerInterval = null;
+    }
+  }
+
+  function updateHudTimerDisplay() {
+    if (!dom.hudTimerValue || !window.gameManager) return;
+    dom.hudTimerValue.textContent = window.gameManager.getCurrentRunTime();
+  }
+
+  // =========================================================================
+  // MISSION OBJECTIVES PANEL (dynamic — re-rendered per sub-level)
+  // =========================================================================
+
+  /**
+   * Per-room objective definitions. Each room renders its own checklist so
+   * the objectives panel always matches the current sub-level.
+   */
+  const ROOM_OBJECTIVES = {
+    lobby: [
+      { id: 'key_01', name: 'KEY 01 • HARMONIC RESONATOR', desc: 'Calibrate the dormant anomaly node' },
+      { id: 'key_02', name: 'KEY 02 • MAINFRAME TERMINAL', desc: 'Derive the override cipher (LOGS + SCAN)' },
+      { id: 'key_03', name: 'KEY 03 • DEFENSE ARCADE', desc: 'Score 1200+ in System Defense' },
+      { id: 'door', name: 'OPEN • SECURITY BARRIER', desc: 'Blast door: descend to Sub-Level 02', type: 'door' }
+    ],
+    orbatrium: [
+      { id: 'orb_1', name: 'ORB 01 • DRIFTING PLASMA', desc: 'Catch the first drifting orb' },
+      { id: 'orb_2', name: 'ORB 02 • DRIFTING PLASMA', desc: 'Catch the second drifting orb' },
+      { id: 'orb_3', name: 'ORB 03 • DRIFTING PLASMA', desc: 'Catch the third drifting orb' },
+      { id: 'door', name: 'OPEN • GRAVITY LIFT', desc: 'Socket all orbs, ride the lift down', type: 'door' }
+    ],
+    vault: [
+      { id: 'round_1', name: 'SIGNAL 01 • RELAY SONG', desc: 'Mirror the first relay sequence' },
+      { id: 'round_2', name: 'SIGNAL 02 • RELAY SONG', desc: 'Mirror the longer relay sequence' },
+      { id: 'round_3', name: 'SIGNAL 03 • RELAY SONG', desc: 'Mirror the final relay sequence' },
+      { id: 'door', name: 'OPEN • CIPHER VAULT', desc: 'Enter the 3-digit code on the keypad', type: 'door' }
+    ],
+    tunnels: [
+      { id: 'fuse_1', name: 'FUSE 01 • COOLANT LINE', desc: 'Align row 1 valves to light the fuse' },
+      { id: 'fuse_2', name: 'FUSE 02 • COOLANT LINE', desc: 'Align row 2 valves to light the fuse' },
+      { id: 'fuse_3', name: 'FUSE 03 • COOLANT LINE', desc: 'Align row 3 valves to light the fuse' },
+      { id: 'door', name: 'OPEN • HYDRAULIC GATE', desc: 'Pump the BOOST pressure to 100%', type: 'door' }
+    ],
+    core: [
+      { id: 'frag_1', name: 'FRAGMENT 01 • CORE SHARD', desc: 'Recover the first glowing shard' },
+      { id: 'frag_2', name: 'FRAGMENT 02 • CORE SHARD', desc: 'Recover the second glowing shard' },
+      { id: 'frag_3', name: 'FRAGMENT 03 • CORE SHARD', desc: 'Recover the third glowing shard' },
+      { id: 'door', name: 'IGNITE • THE CORE', desc: 'Channel energy to 100% and launch', type: 'door' }
+    ]
+  };
+
+  function buildObjectiveRow(obj, done, statusLabel, statusClass, extraClass) {
+    const li = document.createElement('li');
+    li.className = 'objective-item' + (done ? ' done' : '') + (extraClass ? ' ' + extraClass : '');
+    li.innerHTML =
+      '<span class="objective-check" aria-hidden="true"></span>' +
+      '<div class="objective-text">' +
+        '<span class="objective-name">' + obj.name + '</span>' +
+        '<span class="objective-desc">' + obj.desc + '</span>' +
+      '</div>' +
+      '<span class="objective-status ' + statusClass + '">' + statusLabel + '</span>';
+    return li;
+  }
+
+  function renderObjectives() {
+    if (!window.gameManager || !dom.objectivesList) return;
+    const state = window.gameManager.getState();
+    const roomId = inSector02 ? 'lobby' : currentRoomId;
+    const objectives = ROOM_OBJECTIVES[roomId] || ROOM_OBJECTIVES.lobby;
+
+    const frag = document.createDocumentFragment();
+    let doorDone = false;
+
+    objectives.forEach((obj) => {
+      let done = false;
+      let label = 'PENDING';
+      let cls = 'pending';
+
+      if (obj.type === 'door') {
+        const ready = window.gameManager.isRoomDoorReady(roomId);
+        doorDone = ready;
+        if (ready) {
+          done = true;
+          label = roomId === 'core' ? 'IGNITED' : 'READY';
+          cls = 'ready';
+        } else {
+          label = 'LOCKED';
+          cls = 'locked';
+        }
+      } else if (roomId === 'lobby') {
+        done = state.keysCollected.includes(obj.id);
+        label = done ? 'SECURED' : 'PENDING';
+        cls = done ? 'secured' : 'pending';
+      } else if (roomId === 'orbatrium') {
+        done = state.orbsCollected.includes(obj.id);
+        label = done ? 'CAUGHT' : 'PENDING';
+        cls = done ? 'secured' : 'pending';
+      } else if (roomId === 'vault') {
+        const roundNum = Number(obj.id.split('_')[1]);
+        done = state.signalRoundsWon >= roundNum;
+        label = done ? 'MIRRORED' : 'PENDING';
+        cls = done ? 'secured' : 'pending';
+      } else if (roomId === 'tunnels') {
+        done = state.fusesLit.includes(obj.id);
+        label = done ? 'LIT' : 'PENDING';
+        cls = done ? 'secured' : 'pending';
+      } else if (roomId === 'core') {
+        done = state.fragmentsCollected.includes(obj.id);
+        label = done ? 'RECOVERED' : 'PENDING';
+        cls = done ? 'secured' : 'pending';
+      }
+
+      frag.appendChild(buildObjectiveRow(obj, done, label, cls, obj.type === 'door' ? 'final' : ''));
+    });
+
+    // Secret objective row (always last)
+    const secretDone = Boolean(state.secretDiscovered);
+    const secretRow = buildObjectiveRow(
+      { name: 'SECRET • ???', desc: 'A hidden sub-sector exists. Listen closely.' },
+      secretDone,
+      secretDone ? 'DISCOVERED' : 'HIDDEN',
+      secretDone ? 'discovered' : 'hidden-secret',
+      'secret'
+    );
+    if (secretDone) {
+      const nameEl = secretRow.querySelector('.objective-name');
+      if (nameEl) nameEl.textContent = 'SECRET • SECTOR 02';
+    }
+    frag.appendChild(secretRow);
+
+    dom.objectivesList.innerHTML = '';
+    dom.objectivesList.appendChild(frag);
+  }
+
+  function setObjectiveState(itemEl, statusEl, done, pendingLabel, doneLabel) {
+    if (!itemEl || !statusEl) return;
+    if (done) {
+      itemEl.classList.add('done');
+      statusEl.textContent = doneLabel;
+      statusEl.className = 'objective-status secured';
+    } else {
+      itemEl.classList.remove('done');
+      statusEl.textContent = pendingLabel;
+      statusEl.className = 'objective-status pending';
+    }
+  }
+
+  function openObjectivesPanel() {
+    if (!dom.objectivesPanel) return;
+    renderObjectives();
+    isObjectivesOpen = true;
+    dom.objectivesPanel.classList.remove('d-none');
+    dom.objectivesPanel.setAttribute('aria-hidden', 'false');
+    if (dom.btnHudObjectives) {
+      dom.btnHudObjectives.classList.add('open');
+      dom.btnHudObjectives.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  function closeObjectivesPanel() {
+    if (!dom.objectivesPanel || !isObjectivesOpen) return;
+    isObjectivesOpen = false;
+    dom.objectivesPanel.classList.add('d-none');
+    dom.objectivesPanel.setAttribute('aria-hidden', 'true');
+    if (dom.btnHudObjectives) {
+      dom.btnHudObjectives.classList.remove('open');
+      dom.btnHudObjectives.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  // =========================================================================
+  // MISSION BRIEFING (HOW-TO-PLAY ONBOARDING)
+  // =========================================================================
+
+  function hasSeenOnboarding() {
+    try {
+      return localStorage.getItem(ONBOARDING_STORAGE_KEY) === 'true';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function markOnboardingSeen() {
+    try {
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    } catch (e) {}
+  }
+
+  function showMissionBriefing(context) {
+    if (!dom.briefingOverlay) return;
+    isBriefingOpen = true;
+    lockBodyScroll();
+
+    const ctx = context || 'resume';
+    if (dom.briefingStartLabel) {
+      dom.briefingStartLabel.textContent = ctx === 'first-run' ? 'START EXPLORING' : 'RESUME MISSION';
+    }
+
+    dom.briefingOverlay.classList.add('visible');
+    dom.briefingOverlay.setAttribute('aria-hidden', 'false');
+
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(dom.briefingOverlay, { opacity: 0 }, { opacity: 1, duration: 0.35 });
+      const card = dom.briefingOverlay.querySelector('.briefing-card');
+      if (card) {
+        gsap.fromTo(card, { opacity: 0, y: 24, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' });
+      }
+    } else {
+      dom.briefingOverlay.style.opacity = '1';
+    }
+  }
+
+  function hideMissionBriefing(markSeen) {
+    if (!dom.briefingOverlay || !isBriefingOpen) return;
+    isBriefingOpen = false;
+    if (markSeen) markOnboardingSeen();
+    unlockBodyScroll();
+
+    if (typeof gsap !== 'undefined') {
+      gsap.to(dom.briefingOverlay, {
+        opacity: 0,
+        duration: 0.3,
+        onComplete: () => {
+          dom.briefingOverlay.classList.remove('visible');
+          dom.briefingOverlay.setAttribute('aria-hidden', 'true');
+        }
+      });
+    } else {
+      dom.briefingOverlay.classList.remove('visible');
+      dom.briefingOverlay.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  // =========================================================================
+  // IDLE NUDGE (GENTLE ONBOARDING HINT)
+  // =========================================================================
+
+  function scheduleNudgeHint() {
+    clearNudgeHint();
+    nudgeShownThisRun = false;
+    nudgeTimer = setTimeout(() => {
+      if (nudgeShownThisRun || isEscapeSequenceActive || isBriefingOpen || isRoomTransitionActive) return;
+      if (!window.gameManager) return;
+      if (isModalOpen || isResonatorOpen || isTerminalOpen || isArcadeOpen ||
+          isSignalOpen || isKeypadOpen || isPipeOpen || isCoreOpen) return;
+
+      const progress = window.gameManager.getRoomProgress(currentRoomId);
+      if (progress.have > 0) return;
+
+      const nudgeText = ROOM_NUDGES[currentRoomId] || ROOM_NUDGES.lobby;
+      nudgeShownThisRun = true;
+      showToast(nudgeText);
+    }, 75000);
+  }
+
+  function clearNudgeHint() {
+    if (nudgeTimer) {
+      clearTimeout(nudgeTimer);
+      nudgeTimer = null;
+    }
+  }
+
+  // =========================================================================
+  // PERSONAL BEST / RUN RECORDS (localStorage meta-progression)
+  // =========================================================================
+
+  function parseClockToMs(clockText) {
+    if (typeof clockText !== 'string') return null;
+    const parts = clockText.split(':').map(p => parseInt(p, 10));
+    if (parts.some(p => Number.isNaN(p))) return null;
+    if (parts.length === 3) return ((parts[0] * 3600) + (parts[1] * 60) + parts[2]) * 1000;
+    if (parts.length === 2) return ((parts[0] * 60) + parts[1]) * 1000;
+    return null;
+  }
+
+  function formatMsToClock(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const pad = (n) => n.toString().padStart(2, '0');
+    if (hours > 0) return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    return `${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  function getBestTimeMs() {
+    try {
+      const raw = localStorage.getItem(BEST_TIME_STORAGE_KEY);
+      const parsed = raw ? parseInt(raw, 10) : NaN;
+      return Number.isNaN(parsed) ? null : parsed;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveBestTimeMs(ms) {
+    try {
+      localStorage.setItem(BEST_TIME_STORAGE_KEY, String(ms));
+    } catch (e) {}
+  }
+
+  function incrementRunCounter() {
+    try {
+      const current = parseInt(localStorage.getItem(RUNS_STORAGE_KEY) || '0', 10);
+      localStorage.setItem(RUNS_STORAGE_KEY, String((Number.isNaN(current) ? 0 : current) + 1));
+    } catch (e) {}
+  }
+
   // 3. Initialize Audio Label State
   if (window.audioManager && dom.audioStatusLabel) {
     dom.audioStatusLabel.textContent = window.audioManager.soundEnabled ? 'ON' : 'OFF';
@@ -226,7 +859,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 5. Save State Check: Completed game vs in-progress vs fresh
   if (gameState && gameState.gameCompleted) {
     if (dom.introScreen) dom.introScreen.style.display = 'none';
-    showEscapeResultScreen(false);
+    // Completed save: show the final victory screen directly (the router
+    // would otherwise treat the fresh closure as an unfinished run).
+    showFinalVictoryScreen(false);
   } else if (gameState && gameState.gameStarted) {
     if (dom.introScreen) dom.introScreen.style.display = 'none';
     if (dom.gameWorld) {
@@ -234,8 +869,11 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.gameWorld.setAttribute('aria-hidden', 'false');
       dom.gameWorld.style.opacity = '1';
     }
+    restoreSavedRoomStage();
     updateHUD();
     updateLobbyVisuals();
+    startHudTimer();
+    scheduleNudgeHint();
   } else {
     playCinematicIntro();
   }
@@ -256,6 +894,12 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (data.keyId === 'key_03') {
             window.trackEvent('key_03_collected');
           }
+        } else if (event === 'ROOM_COLLECTIBLES_COMPLETE') {
+          window.trackEvent('room_collectibles_complete', { room: data.roomId });
+        } else if (event === 'GOLD_TOKEN_COLLECTED') {
+          // tracked at collection site with room context
+        } else if (event === 'ROOM_CHANGED') {
+          window.trackEvent('room_changed', { room: data.to });
         } else if (event === 'GAME_COMPLETED') {
           const startTime = data.gameStartTime || Date.now();
           const endTime = data.completionTime || Date.now();
@@ -279,6 +923,1527 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 7. Setup Interaction Event Listeners
+  // =========================================================================
+  // v3 MULTI-ROOM ENGINE — sub-level progression, doors, cinematics
+  // =========================================================================
+
+  /**
+   * Swap the visible room stage with a standard cross-fade.
+   */
+  function switchRoomStage(fromEl, toEl, onDone) {
+    if (typeof gsap !== 'undefined' && fromEl && toEl) {
+      gsap.to(fromEl, {
+        opacity: 0,
+        scale: 0.97,
+        duration: 0.45,
+        ease: 'power2.in',
+        onComplete: () => {
+          fromEl.style.display = 'none';
+          toEl.style.display = 'flex';
+          toEl.classList.add('active');
+          toEl.setAttribute('aria-hidden', 'false');
+          toEl.scrollTop = 0;
+          gsap.fromTo(toEl,
+            { opacity: 0, scale: 1.02 },
+            { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out', onComplete: onDone }
+          );
+        }
+      });
+    } else {
+      if (fromEl) fromEl.style.display = 'none';
+      if (toEl) {
+        toEl.style.display = 'flex';
+        toEl.classList.add('active');
+        toEl.setAttribute('aria-hidden', 'false');
+        toEl.style.opacity = '1';
+        if (toEl.scrollTop !== undefined) toEl.scrollTop = 0;
+      }
+      if (typeof onDone === 'function') onDone();
+    }
+  }
+
+  /**
+   * Show the per-room onboarding banner (auto-hides).
+   */
+  function showRoomIntroBanner(roomId) {
+    const intro = ROOM_INTRO_TEXT[roomId];
+    if (!intro || !dom.roomIntroBanner) return;
+
+    if (dom.roomIntroEyebrow) dom.roomIntroEyebrow.textContent = intro.eyebrow;
+    if (dom.roomIntroTitle) dom.roomIntroTitle.textContent = intro.title;
+    if (dom.roomIntroHint) dom.roomIntroHint.textContent = intro.hint;
+
+    dom.roomIntroBanner.style.display = 'flex';
+
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(dom.roomIntroBanner,
+        { opacity: 0, y: -18 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.2)' }
+      );
+      gsap.to(dom.roomIntroBanner, {
+        opacity: 0,
+        y: -14,
+        duration: 0.7,
+        delay: 3.8,
+        ease: 'power2.in',
+        onComplete: () => {
+          dom.roomIntroBanner.style.display = 'none';
+        }
+      });
+    } else {
+      setTimeout(() => {
+        dom.roomIntroBanner.style.display = 'none';
+      }, 4200);
+    }
+  }
+
+  /**
+   * Enter a room: update state, swap stages, refresh HUD, arm onboarding.
+   */
+  function enterRoomById(roomId, viaWhiteWash = false) {
+    if (!window.gameManager || !window.gameManager.rooms[roomId]) return;
+    if (!roomEntryTimestamps[roomId]) {
+      roomEntryTimestamps[roomId] = Date.now();
+    }
+    currentRoomId = roomId;
+    window.gameManager.enterRoom(roomId);
+    window.gameManager.unlockRoom(roomId);
+
+    const fromEl = ROOM_STAGE_ELEMENTS[ROOM_SEQUENCE[Math.max(0, ROOM_SEQUENCE.indexOf(roomId) - 1)]]?.();
+    const toEl = ROOM_STAGE_ELEMENTS[roomId]?.();
+
+    const finish = () => {
+      isRoomTransitionActive = false;
+      isEscapeSequenceActive = false;
+      updateHUD();
+      refreshRoomVisuals();
+      showRoomIntroBanner(roomId);
+      scheduleNudgeHint();
+    };
+
+    const doSwap = () => {
+      if (viaWhiteWash && dom.escapeWhiteWash) {
+        // White wash is fully opaque: swap beneath it, then fade it out.
+        const prevEl = fromEl && fromEl !== toEl ? fromEl : null;
+        if (prevEl) {
+          prevEl.style.display = 'none';
+          prevEl.classList.remove('active');
+        }
+        if (toEl) {
+          toEl.style.display = 'flex';
+          toEl.classList.add('active');
+          toEl.setAttribute('aria-hidden', 'false');
+          toEl.scrollTop = 0;
+        }
+        if (dom.gameWorld) {
+          dom.gameWorld.style.display = 'flex';
+          dom.gameWorld.classList.add('active');
+        }
+        if (typeof gsap !== 'undefined') {
+          gsap.to(dom.escapeWhiteWash, { opacity: 0, duration: 1.0, ease: 'power2.out' });
+          gsap.fromTo(toEl, { opacity: 0, scale: 1.03 }, {
+            opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out',
+            onComplete: () => {
+              if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '0';
+              finish();
+            }
+          });
+        } else {
+          if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '0';
+          finish();
+        }
+      } else {
+        switchRoomStage(fromEl, toEl, finish);
+      }
+    };
+
+    isRoomTransitionActive = true;
+    setTimeout(doSwap, viaWhiteWash ? 150 : 0);
+  }
+
+  /**
+   * Refresh all per-room door/node visuals from game state.
+   */
+  function refreshRoomVisuals() {
+    updateOrbatriumVisuals();
+    updateVaultVisuals();
+    updateTunnelsVisuals();
+    updateCoreVisuals();
+    refreshGoldTokenVisuals();
+  }
+
+  // --------------------------------------------------------------------------
+  // ROOM 02 — ORB ATRIUM
+  // --------------------------------------------------------------------------
+
+  function updateOrbatriumVisuals() {
+    if (!window.gameManager) return;
+    const state = window.gameManager.getState();
+    const orbs = state.orbsCollected || [];
+    const ready = orbs.length >= 3;
+    const inspectWording = IS_TOUCH_DEVICE ? '// TAP TO CATCH' : '// CLICK TO CATCH';
+
+    dom.orbNodes.forEach((orbEl, i) => {
+      if (!orbEl) return;
+      const orbId = `orb_${i + 1}`;
+      if (orbs.includes(orbId)) {
+        orbEl.classList.add('caught');
+        orbEl.style.pointerEvents = 'none';
+      }
+    });
+
+    dom.liftSockets.forEach((socket, i) => {
+      if (!socket) return;
+      if (i < orbs.length) {
+        socket.classList.add('filled');
+      } else {
+        socket.classList.remove('filled');
+      }
+    });
+
+    if (dom.atriumOrbReadout) dom.atriumOrbReadout.textContent = `${orbs.length} / 3`;
+
+    if (dom.nodeLiftDoor) {
+      if (ready) {
+        dom.nodeLiftDoor.classList.add('door-ready');
+        if (dom.liftNodeTitle) dom.liftNodeTitle.textContent = 'GRAVITY LIFT // READY';
+        if (dom.liftStatusIndicator) dom.liftStatusIndicator.className = 'node-status-indicator emerald';
+        if (dom.liftAccessLabel) {
+          dom.liftAccessLabel.textContent = 'LIFT POWER: 3 / 3';
+          dom.liftAccessLabel.style.color = 'var(--accent-emerald)';
+        }
+        if (dom.liftAccessSub) {
+          dom.liftAccessSub.textContent = '// GRAVITY ENGINE ONLINE — DESCEND';
+          dom.liftAccessSub.style.color = 'var(--accent-emerald)';
+        }
+        if (dom.liftTapHint) dom.liftTapHint.textContent = IS_TOUCH_DEVICE ? '// TAP TO DESCEND' : '// CLICK TO DESCEND';
+      } else {
+        dom.nodeLiftDoor.classList.remove('door-ready');
+        if (dom.liftNodeTitle) dom.liftNodeTitle.textContent = 'GRAVITY LIFT';
+        if (dom.liftStatusIndicator) dom.liftStatusIndicator.className = 'node-status-indicator red';
+        if (dom.liftAccessLabel) {
+          dom.liftAccessLabel.textContent = `LIFT POWER: ${orbs.length} / 3`;
+          dom.liftAccessLabel.style.color = 'var(--text-secondary)';
+        }
+        if (dom.liftAccessSub) {
+          dom.liftAccessSub.textContent = '// GRAVITY ENGINE OFFLINE';
+          dom.liftAccessSub.style.color = 'var(--accent-red)';
+        }
+        if (dom.liftTapHint) dom.liftTapHint.textContent = `// REQUIRES ${3 - orbs.length} MORE ORB${3 - orbs.length === 1 ? '' : 'S'}`;
+      }
+    }
+
+    if (dom.nodeAtriumConsole && dom.nodeAtriumConsole.querySelector('.node-tap-hint')) {
+      dom.nodeAtriumConsole.querySelector('.node-tap-hint').textContent = IS_TOUCH_DEVICE ? '// TAP TO INSPECT' : '// CLICK TO INSPECT';
+    }
+  }
+
+  function handleOrbCatch(orbIndex) {
+    if (!window.gameManager) return;
+    const orbId = `orb_${orbIndex + 1}`;
+    const collected = window.gameManager.collectOrb(orbId);
+    if (!collected) return;
+
+    if (window.audioManager) window.audioManager.playBonusTargetHit();
+
+    const orbEl = dom.orbNodes[orbIndex];
+    if (orbEl) {
+      orbEl.classList.add('caught');
+      orbEl.style.pointerEvents = 'none';
+    }
+
+    const filledIndex = (window.gameManager.getState().orbsCollected || []).length - 1;
+    if (dom.liftSockets[filledIndex]) dom.liftSockets[filledIndex].classList.add('filled');
+
+    if (window.trackEvent) window.trackEvent('orb_collected', { count: filledIndex + 1 });
+
+    showToast(`// PLASMA ORB SECURED • ${(filledIndex + 1)} / 3`);
+
+    if (filledIndex + 1 >= 3) {
+      setTimeout(() => {
+        showToast('// ALL ORBS CAUGHT • GRAVITY LIFT ONLINE — DESCEND');
+        updateOrbatriumVisuals();
+        updateHUD();
+      }, 900);
+    }
+    updateOrbatriumVisuals();
+    updateHUD();
+  }
+
+  /**
+   * Room 02 door cinematic: orbs socket in, iris hatch opens, lift descends.
+   */
+  function triggerLiftSequence() {
+    if (isRoomTransitionActive || isEscapeSequenceActive) return;
+    isRoomTransitionActive = true;
+    isEscapeSequenceActive = true;
+
+    [dom.nodeAtriumConsole, dom.nodeLiftDoor].forEach(el => {
+      if (el) el.style.pointerEvents = 'none';
+    });
+
+    if (window.audioManager) {
+      window.audioManager.playDoorPowerUp();
+    }
+
+    const gsapReady = isGsapReady() && dom.nodeLiftDoor;
+    if (!gsapReady) {
+      if (dom.nodeLiftDoor) dom.nodeLiftDoor.classList.add('opening');
+      enterRoomById('vault', true);
+      return;
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    tl.call(() => {
+      if (dom.liftIrisIcon) dom.liftIrisIcon.textContent = '◉';
+      if (dom.liftAccessLabel) dom.liftAccessLabel.textContent = 'LIFT POWER: 3 / 3 • LOCKED';
+      if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// SOCKETS CHARGING';
+    })
+      .to(dom.liftSockets.filter(Boolean), {
+        scale: 1.18,
+        boxShadow: '0 0 26px rgba(0, 255, 136, 0.7)',
+        duration: 0.4,
+        stagger: 0.15
+      })
+      .to(dom.liftSockets.filter(Boolean), { scale: 1, duration: 0.3 })
+      .call(() => {
+        if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// GRAVITY ENGINE ONLINE';
+        if (window.audioManager) window.audioManager.playDoorUnlockResonance();
+      })
+      .to(dom.liftIrisHatch, { scale: 0.85, duration: 0.5, ease: 'power1.inOut' })
+      .call(() => {
+        if (dom.nodeLiftDoor) dom.nodeLiftDoor.classList.add('opening');
+        if (window.audioManager) window.audioManager.playDoorSlideOpen();
+        if (dom.liftAccessLabel) dom.liftAccessLabel.textContent = 'LIFT: DESCENDING';
+        if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// DEPARTING SUB-LEVEL 02';
+      })
+      .to(dom.liftPlatform, { y: 140, duration: 1.7, ease: 'power2.in' }, '+=0.25')
+      .to(dom.stageOrbatrium, { opacity: 0.9, duration: 0.2 }, '<')
+      .call(() => {
+        enterRoomById('vault', true);
+      });
+  }
+
+  // --------------------------------------------------------------------------
+  // ROOM 03 — SIGNAL VAULT
+  // --------------------------------------------------------------------------
+
+  function updateVaultVisuals() {
+    if (!window.gameManager) return;
+    const state = window.gameManager.getState();
+    const rounds = state.signalRoundsWon || 0;
+    const chip = Boolean(state.goldChip);
+    const ready = chip && rounds >= 3;
+    const digits = ['7', '3', '9'];
+    const revealed = digits.slice(0, rounds).join(' ');
+
+    if (dom.vaultRoundReadout) dom.vaultRoundReadout.textContent = `${rounds} / 3`;
+    if (dom.vaultDigitReadout) dom.vaultDigitReadout.textContent = revealed ? revealed.split('').join(' - ') : '- - -';
+    if (dom.signalDigitsValue) dom.signalDigitsValue.textContent = revealed || '- - -';
+
+    if (dom.nodeSignalConsole) {
+      if (chip) {
+        dom.nodeSignalConsole.classList.add('solved');
+        if (dom.signalObjIndicator) dom.signalObjIndicator.className = 'node-status-indicator emerald';
+        if (dom.signalTapHint) dom.signalTapHint.textContent = IS_TOUCH_DEVICE ? '// TAP TO REVIEW' : '// CLICK TO REVIEW';
+      } else if (dom.signalObjIndicator) {
+        dom.signalObjIndicator.className = 'node-status-indicator amber';
+      }
+    }
+
+    if (dom.nodeVaultDoor) {
+      if (ready) {
+        dom.nodeVaultDoor.classList.add('door-ready');
+        if (dom.vaultNodeTitle) dom.vaultNodeTitle.textContent = 'CIPHER VAULT // READY';
+        if (dom.vaultDoorStatusIndicator) dom.vaultDoorStatusIndicator.className = 'node-status-indicator emerald';
+        if (dom.vaultDoorReadout) dom.vaultDoorReadout.textContent = 'CODE: 7 3 9';
+        if (dom.vaultAccessSub) {
+          dom.vaultAccessSub.textContent = '// CIPHER VERIFIED — ENTER CODE';
+          dom.vaultAccessSub.style.color = 'var(--accent-emerald)';
+        }
+        if (dom.vaultDoorTapHint) dom.vaultDoorTapHint.textContent = IS_TOUCH_DEVICE ? '// TAP TO OPEN' : '// CLICK TO OPEN';
+      } else {
+        dom.nodeVaultDoor.classList.remove('door-ready');
+        if (dom.vaultNodeTitle) dom.vaultNodeTitle.textContent = 'CIPHER VAULT DOOR';
+        if (dom.vaultDoorStatusIndicator) dom.vaultDoorStatusIndicator.className = 'node-status-indicator red';
+        if (dom.vaultDoorReadout) dom.vaultDoorReadout.textContent = 'CODE: ? ? ?';
+        if (dom.vaultAccessSub) {
+          if (rounds > 0) {
+            dom.vaultAccessSub.textContent = `// DIGITS REVEALED: ${revealed || '—'} (${rounds}/3)`;
+          } else {
+            dom.vaultAccessSub.textContent = '// WIN RELAY ROUNDS TO REVEAL DIGITS';
+          }
+          dom.vaultAccessSub.style.color = 'var(--accent-red)';
+        }
+        if (dom.vaultDoorTapHint) dom.vaultDoorTapHint.textContent = `// REQUIRES ${3 - rounds} MORE SIGNAL${3 - rounds === 1 ? '' : 'S'}`;
+      }
+    }
+  }
+
+  function openSignalModal() {
+    if (isSignalOpen || isEscapeSequenceActive) return;
+    isSignalOpen = true;
+    lockBodyScroll();
+    updateSignalModalUI();
+
+    if (dom.signalModal) {
+      dom.signalModal.classList.add('active');
+      dom.signalModal.setAttribute('aria-hidden', 'false');
+    }
+    if (window.audioManager) window.audioManager.playModalOpen();
+
+    if (typeof gsap !== 'undefined' && dom.signalCard) {
+      gsap.fromTo(dom.signalCard,
+        { opacity: 0, scale: 0.92, y: 24 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'power3.out' }
+      );
+    }
+  }
+
+  function closeSignalModal() {
+    if (!isSignalOpen) return;
+    isSignalOpen = false;
+    stopSignalPlayback();
+
+    if (typeof gsap !== 'undefined' && dom.signalCard) {
+      gsap.to(dom.signalCard, {
+        opacity: 0, scale: 0.94, y: 16, duration: 0.3, ease: 'power2.in',
+        onComplete: () => {
+          if (dom.signalModal) {
+            dom.signalModal.classList.remove('active');
+            dom.signalModal.setAttribute('aria-hidden', 'true');
+          }
+        }
+      });
+    } else {
+      if (dom.signalModal) {
+        dom.signalModal.classList.remove('active');
+        dom.signalModal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    if (window.audioManager) window.audioManager.playModalClose();
+    unlockBodyScroll();
+    updateVaultVisuals();
+    updateHUD();
+  }
+
+  function stopSignalPlayback() {
+    signalPlaybackTimers.forEach(t => clearTimeout(t));
+    signalPlaybackTimers = [];
+  }
+
+  function updateSignalModalUI() {
+    if (!window.puzzleManager) return;
+    const sig = window.puzzleManager.getSignalState();
+    if (!sig) return;
+
+    if (dom.signalRoundBadge) dom.signalRoundBadge.textContent = `ROUND ${Math.min(3, sig.round + (sig.phase === 'idle' ? 1 : 0))} / 3`;
+
+    dom.signalTowerCards.forEach(t => { if (t) t.classList.remove('lit'); });
+    if (dom.signalInputTracker) dom.signalInputTracker.textContent = '';
+    if (dom.signalHintBox) {
+      dom.signalHintBox.classList.add('d-none');
+      dom.signalHintBox.textContent = '';
+    }
+
+    if (sig.solved || window.gameManager?.getState().goldChip) {
+      if (dom.signalStatusText) {
+        dom.signalStatusText.textContent = '// ALL RELAY SONGS MIRRORED — DATACHIP EARNED';
+        dom.signalStatusText.className = 'signal-status-text win';
+      }
+      if (dom.signalGoldStage && !window.gameManager?.getState().goldChip) {
+        dom.signalGoldStage.classList.remove('d-none');
+      } else if (dom.signalGoldStage) {
+        dom.signalGoldStage.classList.add('d-none');
+      }
+      if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = true;
+      return;
+    }
+
+    if (dom.signalGoldStage) dom.signalGoldStage.classList.add('d-none');
+
+    if (sig.phase === 'idle' || !sig.round) {
+      if (dom.signalStatusText) {
+        dom.signalStatusText.textContent = '// RELAY IDLE — PRESS PLAY SEQUENCE';
+        dom.signalStatusText.className = 'signal-status-text';
+      }
+      if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = false;
+    } else if (sig.phase === 'playback') {
+      if (dom.signalStatusText) {
+        dom.signalStatusText.textContent = '// WATCH THE GHOST SONG...';
+        dom.signalStatusText.className = 'signal-status-text';
+      }
+      if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = true;
+    } else if (sig.phase === 'input') {
+      if (dom.signalStatusText) {
+        dom.signalStatusText.textContent = '// YOUR TURN — MIRROR THE PATTERN';
+        dom.signalStatusText.className = 'signal-status-text';
+      }
+      if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = true;
+    }
+  }
+
+  function playSignalSequence(sequence, onPlaybackDone) {
+    stopSignalPlayback();
+    if (dom.signalStatusText) {
+      dom.signalStatusText.textContent = '// WATCH THE GHOST SONG...';
+      dom.signalStatusText.className = 'signal-status-text';
+    }
+    if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = true;
+
+    const stepMs = 620;
+    sequence.forEach((towerIdx, i) => {
+      signalPlaybackTimers.push(setTimeout(() => {
+        flashSignalTower(towerIdx);
+      }, 500 + i * stepMs));
+    });
+
+    signalPlaybackTimers.push(setTimeout(() => {
+      if (typeof onPlaybackDone === 'function') onPlaybackDone();
+    }, 500 + sequence.length * stepMs + 350));
+  }
+
+  function flashSignalTower(towerIdx) {
+    const towerEl = dom.signalTowerCards[towerIdx];
+    if (!towerEl) return;
+    towerEl.classList.add('lit');
+    if (window.audioManager) window.audioManager.playResonanceNodeTone((towerIdx % 4) + 1);
+    setTimeout(() => towerEl.classList.remove('lit'), 380);
+  }
+
+  function handleSignalPlay() {
+    if (!window.puzzleManager || !window.gameManager) return;
+    if (window.gameManager.getState().goldChip) return;
+
+    const state = window.puzzleManager.getSignalState();
+    if (state && state.solved) return;
+
+    // Decide which round to launch:
+    //  - fresh console (idle / never started) -> round 1
+    //  - just won a round (round_won) -> advance to the next round
+    //  - mid-round (playback/input) -> restart the current round
+    let nextRound;
+    if (!state || !state.round || state.phase === 'idle') {
+      nextRound = 1;
+    } else if (state.phase === 'round_won') {
+      nextRound = Math.min(3, state.round + 1);
+    } else {
+      nextRound = state.round;
+    }
+
+    const session = window.puzzleManager.startSignalRound(nextRound);
+    if (!session) return;
+
+    if (dom.signalRoundBadge) dom.signalRoundBadge.textContent = `ROUND ${session.round} / 3`;
+    playSignalSequence(session.sequence, () => {
+      window.puzzleManager.beginSignalInput();
+      if (dom.signalStatusText) {
+        dom.signalStatusText.textContent = '// YOUR TURN — MIRROR THE PATTERN';
+        dom.signalStatusText.className = 'signal-status-text';
+      }
+      if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = true;
+    });
+  }
+
+  function handleSignalReplay() {
+    if (!window.puzzleManager) return;
+    const state = window.puzzleManager.getSignalState();
+    if (!state || !state.round || state.phase === 'idle' || state.solved) return;
+    const session = window.puzzleManager.replaySignalRound();
+    if (!session) return;
+    playSignalSequence(session.sequence, () => {
+      window.puzzleManager.beginSignalInput();
+      if (dom.signalStatusText) {
+        dom.signalStatusText.textContent = '// YOUR TURN — MIRROR THE PATTERN';
+        dom.signalStatusText.className = 'signal-status-text';
+      }
+    });
+  }
+
+  function handleSignalTowerClick(towerIdx) {
+    if (!window.puzzleManager || !window.gameManager) return;
+    const sig = window.puzzleManager.getSignalState();
+    if (!sig || sig.phase !== 'input') return;
+
+    flashSignalTower(towerIdx);
+    const result = window.puzzleManager.inputSignalTower(towerIdx);
+    if (!result || result.status === 'error') return;
+
+    if (result.status === 'progress') {
+      if (dom.signalInputTracker) dom.signalInputTracker.textContent = '●'.repeat(result.input.length);
+      return;
+    }
+
+    if (result.status === 'desync') {
+      if (window.audioManager) window.audioManager.playResonanceDesync();
+      if (dom.signalStatusText) {
+        dom.signalStatusText.textContent = '// SIGNAL DESYNC — MIRROR IT AGAIN';
+        dom.signalStatusText.className = 'signal-status-text error';
+      }
+      if (dom.signalInputTracker) dom.signalInputTracker.textContent = '';
+      if (result.showHint && dom.signalHintBox) {
+        dom.signalHintBox.textContent = result.hintText;
+        dom.signalHintBox.classList.remove('d-none');
+      }
+      setTimeout(() => handleSignalReplay(), 1100);
+      return;
+    }
+
+    if (result.status === 'round_won') {
+      window.gameManager.winSignalRound(result.round);
+      if (window.audioManager) window.audioManager.playResonanceSuccess();
+      if (window.trackEvent) window.trackEvent('signal_round_won', { round: result.round });
+
+      if (result.allRoundsComplete) {
+        if (dom.signalStatusText) {
+          dom.signalStatusText.textContent = `// FULL CIPHER: ${result.codeComplete} — GOLD DATACHIP UNLOCKED`;
+          dom.signalStatusText.className = 'signal-status-text win';
+        }
+        if (dom.signalGoldStage) dom.signalGoldStage.classList.remove('d-none');
+        if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = true;
+        updateVaultVisuals();
+        updateHUD();
+      } else {
+        if (dom.signalStatusText) {
+          dom.signalStatusText.textContent = `// SONG MIRRORED — DIGIT "${result.revealedDigit}" REVEALED`;
+          dom.signalStatusText.className = 'signal-status-text win';
+        }
+        if (dom.signalRoundBadge) dom.signalRoundBadge.textContent = `ROUND ${result.round} / 3`;
+        if (dom.signalDigitsValue) {
+          const revealed = ['7', '3', '9'].slice(0, result.round).join(' - ');
+          dom.signalDigitsValue.textContent = revealed;
+        }
+        showToast(`// SIGNAL ${result.round}/3 MIRRORED • CIPHER DIGIT "${result.revealedDigit}" REVEALED`);
+        if (dom.btnSignalPlay) dom.btnSignalPlay.disabled = false;
+        updateVaultVisuals();
+        updateHUD();
+      }
+    }
+  }
+
+  function handleClaimGoldChip() {
+    if (!window.gameManager) return;
+    const claimed = window.gameManager.claimGoldChip();
+    if (!claimed) return;
+
+    if (window.audioManager) window.audioManager.playKeyExtractChime();
+    showToast('// GOLD DATACHIP SECURED • +200 PTS');
+    if (window.trackEvent) window.trackEvent('gold_chip_claimed');
+
+    if (dom.signalGoldStage) dom.signalGoldStage.classList.add('d-none');
+    if (dom.signalStatusText) {
+      dom.signalStatusText.textContent = '// GOLD DATACHIP CLAIMED — OPEN THE VAULT DOOR';
+      dom.signalStatusText.className = 'signal-status-text win';
+    }
+    updateVaultVisuals();
+    updateHUD();
+    setTimeout(() => {
+      closeSignalModal();
+      openKeypadModal();
+    }, 1200);
+  }
+
+  // --- Vault keypad ---
+
+  function openKeypadModal() {
+    if (isKeypadOpen || isEscapeSequenceActive) return;
+    isKeypadOpen = true;
+    keypadEntry = '';
+    lockBodyScroll();
+    renderKeypadDisplay();
+
+    if (dom.keypadModal) {
+      dom.keypadModal.classList.add('active');
+      dom.keypadModal.setAttribute('aria-hidden', 'false');
+    }
+    if (dom.keypadHintBox) {
+      if (keypadAttempts >= 2) {
+        dom.keypadHintBox.textContent = '// CIPHER HINT: The digits are 7 - 3 - 9 (rounds 1, 2, 3 in order).';
+        dom.keypadHintBox.classList.remove('d-none');
+      } else {
+        dom.keypadHintBox.classList.add('d-none');
+      }
+    }
+    if (dom.keypadFeedback) {
+      dom.keypadFeedback.textContent = '// ENTER THE 3 RELAY DIGITS';
+      dom.keypadFeedback.className = 'keypad-feedback';
+    }
+    if (dom.keypadStatusBadge) dom.keypadStatusBadge.textContent = 'STATUS: LOCKED';
+    if (window.audioManager) window.audioManager.playModalOpen();
+
+    if (typeof gsap !== 'undefined' && dom.keypadCard) {
+      gsap.fromTo(dom.keypadCard,
+        { opacity: 0, scale: 0.92, y: 24 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'power3.out' }
+      );
+    }
+  }
+
+  function closeKeypadModal() {
+    if (!isKeypadOpen) return;
+    isKeypadOpen = false;
+
+    if (typeof gsap !== 'undefined' && dom.keypadCard) {
+      gsap.to(dom.keypadCard, {
+        opacity: 0, scale: 0.94, y: 16, duration: 0.3, ease: 'power2.in',
+        onComplete: () => {
+          if (dom.keypadModal) {
+            dom.keypadModal.classList.remove('active');
+            dom.keypadModal.setAttribute('aria-hidden', 'true');
+          }
+        }
+      });
+    } else {
+      if (dom.keypadModal) {
+        dom.keypadModal.classList.remove('active');
+        dom.keypadModal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    if (window.audioManager) window.audioManager.playModalClose();
+    unlockBodyScroll();
+  }
+
+  function renderKeypadDisplay() {
+    if (!dom.keypadDisplay) return;
+    const padded = (keypadEntry + '___').slice(0, 3);
+    dom.keypadDisplay.textContent = padded.split('').join(' ');
+  }
+
+  function handleKeypadPress(key) {
+    if (!window.gameManager) return;
+    const chip = window.gameManager.getState().goldChip;
+    if (!chip) return;
+
+    if (key === 'CLR') {
+      keypadEntry = '';
+      renderKeypadDisplay();
+      if (dom.keypadFeedback) {
+        dom.keypadFeedback.textContent = '// ENTER THE 3 RELAY DIGITS';
+        dom.keypadFeedback.className = 'keypad-feedback';
+      }
+      if (window.audioManager) window.audioManager.playTerminalKeystroke();
+      return;
+    }
+
+    if (key === 'OK') {
+      if (keypadEntry.length < 3) {
+        if (dom.keypadFeedback) {
+          dom.keypadFeedback.textContent = '// INCOMPLETE CODE — 3 DIGITS REQUIRED';
+          dom.keypadFeedback.className = 'keypad-feedback denied';
+        }
+        if (window.audioManager) window.audioManager.playLockedSound();
+        return;
+      }
+      if (keypadEntry === '739') {
+        if (window.audioManager) window.audioManager.playResonanceSuccess();
+        if (dom.keypadFeedback) {
+          dom.keypadFeedback.textContent = '// CIPHER VERIFIED — VAULT OPENING';
+          dom.keypadFeedback.className = 'keypad-feedback granted';
+        }
+        if (dom.keypadStatusBadge) dom.keypadStatusBadge.textContent = 'STATUS: OPEN';
+        if (window.trackEvent) window.trackEvent('vault_unlocked');
+        setTimeout(() => {
+          closeKeypadModal();
+          triggerVaultSequence();
+        }, 800);
+      } else {
+        keypadAttempts += 1;
+        keypadEntry = '';
+        renderKeypadDisplay();
+        if (window.audioManager) window.audioManager.playLockedSound();
+        if (dom.keypadFeedback) {
+          dom.keypadFeedback.textContent = '// ACCESS DENIED — WRONG CIPHER';
+          dom.keypadFeedback.className = 'keypad-feedback denied';
+        }
+        if (keypadAttempts >= 2 && dom.keypadHintBox) {
+          dom.keypadHintBox.textContent = '// CIPHER HINT: The digits are 7 - 3 - 9 (rounds 1, 2, 3 in order).';
+          dom.keypadHintBox.classList.remove('d-none');
+        }
+      }
+      return;
+    }
+
+    if (keypadEntry.length < 3) {
+      keypadEntry += key;
+      renderKeypadDisplay();
+      if (window.audioManager) window.audioManager.playTerminalKeystroke();
+    }
+  }
+
+  /**
+   * Room 03 door cinematic: wheel spins, bolts retract, vault opens.
+   */
+  function triggerVaultSequence() {
+    if (isRoomTransitionActive || isEscapeSequenceActive) return;
+    isRoomTransitionActive = true;
+    isEscapeSequenceActive = true;
+
+    [dom.nodeSignalConsole, dom.nodeVaultDoor, dom.nodeVaultArchive].forEach(el => {
+      if (el) el.style.pointerEvents = 'none';
+    });
+
+    if (window.audioManager) window.audioManager.playDoorPowerUp();
+
+    if (!isGsapReady() || !dom.nodeVaultDoor) {
+      if (dom.vaultBolts) dom.vaultBolts.forEach(b => { if (b) b.classList.add('retracted'); });
+      enterRoomById('tunnels', true);
+      return;
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    tl.call(() => {
+      if (dom.vaultAccessSub) dom.vaultAccessSub.textContent = '// LOCK WHEEL DISENGAGING';
+      if (window.audioManager) window.audioManager.playLockRelease(1);
+    })
+      .to(dom.vaultWheel, { rotate: 360, duration: 1.5, ease: 'power2.inOut' })
+      .call(() => {
+        if (dom.vaultBolts[0]) dom.vaultBolts[0].classList.add('retracted');
+        if (window.audioManager) window.audioManager.playLockRelease(2);
+      })
+      .to(dom.vaultWheel, { rotate: 720, duration: 1.4, ease: 'power2.inOut' })
+      .call(() => {
+        if (dom.vaultBolts[1]) dom.vaultBolts[1].classList.add('retracted');
+        if (dom.vaultBolts[2]) dom.vaultBolts[2].classList.add('retracted');
+        if (window.audioManager) window.audioManager.playLockRelease(3);
+      })
+      .to(dom.vaultWheel, { rotate: 900, duration: 1.0, ease: 'power1.inOut' })
+      .call(() => {
+        if (dom.vaultAccessSub) dom.vaultAccessSub.textContent = '// BOLTS RETRACTED — VAULT OPEN';
+        if (dom.vaultWheelIcon) dom.vaultWheelIcon.textContent = '⌾';
+        if (window.audioManager) window.audioManager.playDoorSlideOpen();
+      })
+      .to(dom.nodeVaultDoor, { scale: 1.04, duration: 0.4 })
+      .call(() => {
+        enterRoomById('tunnels', true);
+      });
+  }
+
+  // --------------------------------------------------------------------------
+  // ROOM 04 — COOLING TUNNELS
+  // --------------------------------------------------------------------------
+
+  function updateTunnelsVisuals() {
+    if (!window.gameManager) return;
+    const state = window.gameManager.getState();
+    const fuses = state.fusesLit || [];
+    const booster = Boolean(state.boosterClaimed);
+    const ready = booster;
+
+    if (dom.tunnelsFuseReadout) dom.tunnelsFuseReadout.textContent = `${fuses.length} / 3`;
+
+    if (dom.nodePipePanel) {
+      if (booster) {
+        dom.nodePipePanel.classList.add('solved');
+        if (dom.pipeObjIndicator) dom.pipeObjIndicator.className = 'node-status-indicator emerald';
+        if (dom.pipeTapHint) dom.pipeTapHint.textContent = IS_TOUCH_DEVICE ? '// TAP TO REVIEW' : '// CLICK TO REVIEW';
+      } else if (dom.pipeObjIndicator) {
+        dom.pipeObjIndicator.className = 'node-status-indicator red';
+      }
+    }
+
+    if (dom.nodePressureGate) {
+      if (ready) {
+        dom.nodePressureGate.classList.add('door-ready');
+        if (dom.gateNodeTitle) dom.gateNodeTitle.textContent = 'HYDRAULIC GATE // BOOST READY';
+        if (dom.gateStatusIndicator) dom.gateStatusIndicator.className = 'node-status-indicator emerald';
+        if (dom.gateAccessLabel) {
+          dom.gateAccessLabel.textContent = 'GATE STATUS: PUMP REQUIRED';
+          dom.gateAccessLabel.style.color = 'var(--accent-amber)';
+        }
+        if (dom.gateAccessSub) {
+          dom.gateAccessSub.textContent = '// BOOSTER EQUIPPED — HOLD TO PUMP';
+          dom.gateAccessSub.style.color = 'var(--accent-emerald)';
+        }
+        if (dom.gateTapHint) dom.gateTapHint.textContent = IS_TOUCH_DEVICE ? '// TAP TO START BOOST' : '// CLICK TO START BOOST';
+      } else {
+        dom.nodePressureGate.classList.remove('door-ready');
+        if (dom.gateNodeTitle) dom.gateNodeTitle.textContent = 'HYDRAULIC GATE';
+        if (dom.gateStatusIndicator) dom.gateStatusIndicator.className = 'node-status-indicator red';
+        if (dom.gateAccessLabel) {
+          dom.gateAccessLabel.textContent = 'GATE STATUS: SEALED';
+          dom.gateAccessLabel.style.color = 'var(--text-secondary)';
+        }
+        if (dom.gateAccessSub) {
+          dom.gateAccessSub.textContent = booster ? '// BOOSTER EMPTY — REBUILD PRESSURE' : '// HYDRAULICS DEAD — NEEDS PRESSURE BOOSTER';
+          dom.gateAccessSub.style.color = 'var(--accent-red)';
+        }
+        if (dom.gateTapHint) {
+          dom.gateTapHint.textContent = booster
+            ? '// EQUIP THE BOOSTER AND PUMP'
+            : `// LIGHT ${3 - fuses.length} MORE FUSE${3 - fuses.length === 1 ? '' : 'S'}`;
+        }
+      }
+    }
+  }
+
+  function openPipeModal() {
+    if (isPipeOpen || isEscapeSequenceActive) return;
+    isPipeOpen = true;
+    lockBodyScroll();
+
+    const allFuses = window.gameManager?.getState().fusesLit.length >= 3;
+    const booster = window.gameManager?.getState().boosterClaimed;
+    renderPipeGrid();
+
+    if (dom.pipeGoldStage) {
+      if ((booster || allFuses) && !booster) {
+        dom.pipeGoldStage.classList.remove('d-none');
+      } else {
+        dom.pipeGoldStage.classList.add('d-none');
+      }
+    }
+
+    if (dom.pipeModal) {
+      dom.pipeModal.classList.add('active');
+      dom.pipeModal.setAttribute('aria-hidden', 'false');
+    }
+    if (window.audioManager) window.audioManager.playModalOpen();
+
+    if (typeof gsap !== 'undefined' && dom.pipeCard) {
+      gsap.fromTo(dom.pipeCard,
+        { opacity: 0, scale: 0.92, y: 24 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'power3.out' }
+      );
+    }
+  }
+
+  function closePipeModal() {
+    if (!isPipeOpen) return;
+    isPipeOpen = false;
+
+    if (typeof gsap !== 'undefined' && dom.pipeCard) {
+      gsap.to(dom.pipeCard, {
+        opacity: 0, scale: 0.94, y: 16, duration: 0.3, ease: 'power2.in',
+        onComplete: () => {
+          if (dom.pipeModal) {
+            dom.pipeModal.classList.remove('active');
+            dom.pipeModal.setAttribute('aria-hidden', 'true');
+          }
+        }
+      });
+    } else {
+      if (dom.pipeModal) {
+        dom.pipeModal.classList.remove('active');
+        dom.pipeModal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    if (window.audioManager) window.audioManager.playModalClose();
+    unlockBodyScroll();
+    updateTunnelsVisuals();
+    updateHUD();
+  }
+
+  function renderPipeGrid() {
+    if (!window.puzzleManager || !dom.pipeRowsEl) return;
+    const snapshot = window.puzzleManager.getPipeGridSnapshot();
+    if (!snapshot) {
+      window.puzzleManager.startPipeSession();
+      return renderPipeGrid();
+    }
+
+    dom.pipeRowsEl.innerHTML = '';
+
+    snapshot.forEach((rowTiles, rowIdx) => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'pipe-row';
+      rowEl.dataset.row = String(rowIdx);
+
+      const source = document.createElement('div');
+      source.className = 'pipe-endpoint source-hot';
+      source.innerHTML = '<span class="endpoint-glyph">☢</span><span>SOURCE<br>' + (rowIdx + 1) + '</span>';
+      rowEl.appendChild(source);
+
+      const tileRow = document.createElement('div');
+      tileRow.className = 'pipe-tile-row';
+
+      rowTiles.forEach((tile, tileIdx) => {
+        const tileBtn = document.createElement('button');
+        tileBtn.type = 'button';
+        tileBtn.className = 'pipe-tile';
+        tileBtn.setAttribute('aria-label', `Valve row ${rowIdx + 1} position ${tileIdx + 1}`);
+        tileBtn.dataset.row = String(rowIdx);
+        tileBtn.dataset.tile = String(tileIdx);
+
+        const body = document.createElement('span');
+        body.className = 'valve-body';
+        body.style.transform = `rotate(${tile.current * 90}deg)`;
+        tileBtn.appendChild(body);
+
+        if (tile.current % 2 === 0) tileBtn.classList.add('aligned');
+        if (window.puzzleManager.isPipeRowFlowing(rowIdx)) {
+          tileBtn.classList.add('flowing');
+          rowEl.classList.add('flowing');
+        }
+
+        tileRow.appendChild(tileBtn);
+      });
+
+      rowEl.appendChild(tileRow);
+
+      const fuse = document.createElement('div');
+      fuse.className = 'pipe-endpoint fuse-endpoint' + (window.puzzleManager.isPipeRowFlowing(rowIdx) ? ' fuse-lit' : '');
+      fuse.innerHTML = '<span class="endpoint-glyph">⚡</span><span>FUSE<br>' + (rowIdx + 1) + '</span>';
+      rowEl.appendChild(fuse);
+
+      dom.pipeRowsEl.appendChild(rowEl);
+    });
+
+    const flowingCount = [0, 1, 2].filter(r => window.puzzleManager.isPipeRowFlowing(r)).length;
+    if (dom.pipeStatusBadge) dom.pipeStatusBadge.textContent = `FUSES: ${Math.max(flowingCount, window.gameManager?.getState().fusesLit.length || 0)} / 3`;
+  }
+
+  function handleValveRotate(row, tile) {
+    if (!window.puzzleManager) return;
+    const result = window.puzzleManager.rotateValve(row, tile);
+    if (!result) return;
+
+    if (window.audioManager) window.audioManager.playTerminalKeystroke();
+
+    // Update the rotated tile inline (no full re-render → keeps animation smooth)
+    const tileBtn = dom.pipeRowsEl?.querySelector(`.pipe-tile[data-row="${row}"][data-tile="${tile}"]`);
+    if (tileBtn) {
+      const body = tileBtn.querySelector('.valve-body');
+      if (body) body.style.transform = `rotate(${result.current * 90}deg)`;
+      if (result.current % 2 === 0) {
+        tileBtn.classList.add('aligned');
+      } else {
+        tileBtn.classList.remove('aligned');
+      }
+    }
+
+    if (result.rowFlowing) {
+      const rowEl = dom.pipeRowsEl?.querySelector(`.pipe-row[data-row="${row}"]`);
+      if (rowEl) {
+        rowEl.classList.add('flowing');
+        const fuseEl = rowEl.querySelector('.fuse-endpoint');
+        if (fuseEl) fuseEl.classList.add('fuse-lit');
+      }
+      if (window.audioManager) window.audioManager.playTargetHit('standard', 1);
+
+      const fuseId = `fuse_${row + 1}`;
+      if (!window.gameManager.getState().fusesLit.includes(fuseId)) {
+        window.gameManager.lightFuse(fuseId);
+        if (window.trackEvent) window.trackEvent('fuse_lit', { count: window.gameManager.getState().fusesLit.length });
+        showToast(`// COOLANT FUSE ${row + 1} LIT • ${window.gameManager.getState().fusesLit.length} / 3`);
+      }
+    }
+
+    if (result.allRowsFlowing) {
+      setTimeout(() => {
+        if (dom.pipeGoldStage) dom.pipeGoldStage.classList.remove('d-none');
+        if (dom.pipeStatusBadge) dom.pipeStatusBadge.textContent = 'FUSES: 3 / 3';
+        if (window.audioManager) window.audioManager.playArcadeVictory();
+        showToast('// ALL FUSES LIT • PRESSURE BOOSTER READY');
+      }, 500);
+    }
+
+    updateTunnelsVisuals();
+    updateHUD();
+  }
+
+  function handleClaimBooster() {
+    if (!window.gameManager) return;
+    const claimed = window.gameManager.claimBooster();
+    if (!claimed) return;
+
+    if (window.audioManager) window.audioManager.playKeyExtractChime();
+    showToast('// PRESSURE BOOSTER SECURED • +200 PTS');
+    if (window.trackEvent) window.trackEvent('booster_claimed');
+
+    if (dom.pipeGoldStage) dom.pipeGoldStage.classList.add('d-none');
+    updateTunnelsVisuals();
+    updateHUD();
+    setTimeout(() => {
+      closePipeModal();
+      showToast('// TAKE THE BOOSTER TO THE HYDRAULIC GATE');
+    }, 1100);
+  }
+
+  /**
+   * Room 04 door: boost pump interaction. First click equips the booster,
+   * then holding the pump button fills the pressure gauge against leaks.
+   */
+  function handleGateClick() {
+    if (!window.gameManager || isRoomTransitionActive || isEscapeSequenceActive) return;
+    const state = window.gameManager.getState();
+
+    if (!state.boosterClaimed) {
+      if (window.audioManager) window.audioManager.playLockedSound();
+      const copy = DOOR_LOCKED_COPY.tunnels;
+      openModal(
+        '// HYDRAULIC GATE // GATE-H',
+        `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
+         <p class="text-secondary small mb-0">${copy.body}</p>`,
+        `<div class="text-muted">// Gate Diagnostics:</div>` +
+          copy.diag.map(d => `<div>${d}</div>`).join('') +
+          `<div class="text-warning mt-2">&gt; "Light all 3 coolant fuses to rebuild the pressure booster."</div>`
+      );
+      return;
+    }
+
+    // Equip mode: reveal the pressure UI and start pumping
+    if (dom.gatePressureWrap) dom.gatePressureWrap.classList.remove('d-none');
+    if (dom.gateTapHint) dom.gateTapHint.textContent = IS_TOUCH_DEVICE ? '// HOLD TO PUMP — REACH 100%' : '// HOLD TO PUMP — REACH 100%';
+    startBoostPumping();
+  }
+
+  function startBoostPumping() {
+    if (boostPumpInterval) return;
+    boostPressure = boostPressure || 0;
+    boostPumping = false;
+
+    if (dom.btnBoostPump) {
+      dom.btnBoostPump.disabled = false;
+    }
+
+    const tick = () => {
+      if (isRoomTransitionActive) return stopBoostPumping();
+      if (boostPumping) {
+        boostPressure = Math.min(100, boostPressure + 3.4);
+      } else {
+        boostPressure = Math.max(0, boostPressure - 1.15);
+      }
+      renderBoostGauge();
+      if (boostPressure >= 100) {
+        stopBoostPumping();
+        triggerGateBlast();
+      }
+    };
+
+    boostPumpInterval = setInterval(tick, 90);
+  }
+
+  function stopBoostPumping() {
+    if (boostPumpInterval) {
+      clearInterval(boostPumpInterval);
+      boostPumpInterval = null;
+    }
+    boostPumping = false;
+  }
+
+  function renderBoostGauge() {
+    if (dom.gatePressureFill) dom.gatePressureFill.style.width = `${boostPressure}%`;
+    if (dom.gatePressureValue) {
+      dom.gatePressureValue.textContent = `${Math.round(boostPressure)}%`;
+      dom.gatePressureValue.style.color = boostPressure > 70 ? 'var(--accent-emerald)' : boostPressure > 35 ? 'var(--accent-amber)' : 'var(--accent-red)';
+    }
+    if (dom.gateAccessLabel) {
+      dom.gateAccessLabel.textContent = boostPressure >= 100 ? 'GATE STATUS: OPENING' : `PRESSURE: ${Math.round(boostPressure)}%`;
+    }
+  }
+
+  function bindBoostPumpEvents() {
+    if (!dom.btnBoostPump) return;
+    const start = (e) => {
+      e.preventDefault();
+      boostPumping = true;
+      dom.btnBoostPump.classList.add('pumping');
+    };
+    const stop = () => {
+      boostPumping = false;
+      dom.btnBoostPump.classList.remove('pumping');
+    };
+
+    dom.btnBoostPump.addEventListener('pointerdown', start);
+    dom.btnBoostPump.addEventListener('pointerup', stop);
+    dom.btnBoostPump.addEventListener('pointerleave', stop);
+    dom.btnBoostPump.addEventListener('pointercancel', stop);
+  }
+
+  /**
+   * Room 04 door cinematic: steam blasts, gates fly open.
+   */
+  function triggerGateBlast() {
+    if (isRoomTransitionActive || isEscapeSequenceActive) return;
+    isRoomTransitionActive = true;
+    isEscapeSequenceActive = true;
+
+    stopBoostPumping();
+    if (dom.btnBoostPump) dom.btnBoostPump.disabled = true;
+
+    if (window.audioManager) window.audioManager.playDoorPowerUp();
+
+    if (!isGsapReady() || !dom.nodePressureGate) {
+      if (dom.nodePressureGate) dom.nodePressureGate.classList.add('blasting');
+      enterRoomById('core', true);
+      return;
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    tl.call(() => {
+      if (dom.gateAccessLabel) dom.gateAccessLabel.textContent = 'GATE STATUS: CRITICAL';
+      if (dom.gateAccessSub) dom.gateAccessSub.textContent = '// OVERPRESSURE WARNING';
+      if (window.audioManager) window.audioManager.playTimerWarning();
+    })
+      .to(dom.gatePressureFill, { backgroundColor: '#00ff88', duration: 0.3 })
+      .call(() => {
+        if (dom.nodePressureGate) dom.nodePressureGate.classList.add('blasting');
+        if (dom.gateAccessLabel) dom.gateAccessLabel.textContent = 'GATE: BLASTING OPEN';
+        if (dom.gateAccessSub) dom.gateAccessSub.textContent = '// STEAM VENTS ENGAGED';
+        if (window.audioManager) window.audioManager.playDoorSlideOpen();
+        if (window.trackEvent) window.trackEvent('gate_blasted');
+      })
+      .to(dom.gatePanelLeft, { x: '-104%', duration: 1.1, ease: 'power3.inOut' }, '+=0.35')
+      .to(dom.gatePanelRight, { x: '104%', duration: 1.1, ease: 'power3.inOut' }, '<')
+      .to(dom.nodePressureGate, {
+        x: () => (Math.random() - 0.5) * 6,
+        y: () => (Math.random() - 0.5) * 4,
+        repeat: 8,
+        yoyo: true,
+        duration: 0.07,
+        ease: 'none'
+      }, '<')
+      .set(dom.nodePressureGate, { x: 0, y: 0 })
+      .call(() => {
+        enterRoomById('core', true);
+      });
+  }
+
+  // --------------------------------------------------------------------------
+  // ROOM 05 — THE CORE
+  // --------------------------------------------------------------------------
+
+  function updateCoreVisuals() {
+    if (!window.gameManager) return;
+    const state = window.gameManager.getState();
+    const frags = state.fragmentsCollected || [];
+    const ready = frags.length >= 3;
+
+    dom.fragmentNodes.forEach((fragEl, i) => {
+      if (!fragEl) return;
+      const fragId = `frag_${i + 1}`;
+      if (frags.includes(fragId)) {
+        fragEl.classList.add('recovered');
+        fragEl.style.pointerEvents = 'none';
+      }
+    });
+
+    if (dom.coreInventoryReadout) dom.coreInventoryReadout.textContent = `FRAGMENTS: ${frags.length} / 3`;
+
+    if (dom.nodeCoreConsole) {
+      if (ready) {
+        dom.nodeCoreConsole.classList.add('door-ready');
+        if (dom.coreNodeTitle) dom.coreNodeTitle.textContent = 'CORE CONSOLE // READY';
+        if (dom.coreStatusIndicator) dom.coreStatusIndicator.className = 'node-status-indicator emerald';
+        if (dom.coreAccessSub) {
+          dom.coreAccessSub.textContent = '// FRAGMENTS SEATED — IGNITE THE CORE';
+          dom.coreAccessSub.style.color = 'var(--accent-emerald)';
+        }
+        if (dom.coreTapHint) dom.coreTapHint.textContent = IS_TOUCH_DEVICE ? '// TAP TO IGNITE' : '// CLICK TO IGNITE';
+      } else {
+        dom.nodeCoreConsole.classList.remove('door-ready');
+        if (dom.coreNodeTitle) dom.coreNodeTitle.textContent = 'CORE IGNITION CONSOLE';
+        if (dom.coreStatusIndicator) dom.coreStatusIndicator.className = 'node-status-indicator red';
+        if (dom.coreAccessSub) {
+          dom.coreAccessSub.textContent = '// REACTOR DORMANT — INSERT FRAGMENTS';
+          dom.coreAccessSub.style.color = 'var(--accent-red)';
+        }
+        if (dom.coreTapHint) dom.coreTapHint.textContent = `// REQUIRES ${3 - frags.length} MORE FRAGMENT${3 - frags.length === 1 ? '' : 'S'}`;
+      }
+    }
+  }
+
+  function handleFragmentCollect(fragIndex) {
+    if (!window.gameManager) return;
+    const fragId = `frag_${fragIndex + 1}`;
+    const collected = window.gameManager.collectFragment(fragId);
+    if (!collected) return;
+
+    if (window.audioManager) window.audioManager.playBonusTargetHit();
+
+    const fragEl = dom.fragmentNodes[fragIndex];
+    if (fragEl) {
+      fragEl.classList.add('recovered');
+      fragEl.style.pointerEvents = 'none';
+    }
+
+    if (window.trackEvent) window.trackEvent('fragment_collected', { count: (window.gameManager.getState().fragmentsCollected || []).length });
+    showToast(`// CORE FRAGMENT RECOVERED • ${(window.gameManager.getState().fragmentsCollected || []).length} / 3`);
+
+    updateCoreVisuals();
+    updateHUD();
+  }
+
+  function openCoreModal() {
+    if (isCoreOpen || isEscapeSequenceActive) return;
+    isCoreOpen = true;
+    lockBodyScroll();
+
+    const state = window.gameManager ? window.gameManager.getState() : { fragmentsCollected: [], goldChip: false, keysCollected: [] };
+    const frags = (state.fragmentsCollected || []).length;
+
+    if (dom.coreInvFragments) {
+      dom.coreInvFragments.textContent = `◆ FRAGMENTS ${frags}/3`;
+      dom.coreInvFragments.classList.toggle('ready', frags >= 3);
+    }
+    if (dom.coreInvChip) {
+      dom.coreInvChip.classList.toggle('ready', Boolean(state.goldChip));
+    }
+    if (dom.coreInvKeys) {
+      const keys = (state.keysCollected || []).length;
+      dom.coreInvKeys.textContent = `⚿ CIPHER KEYS ${keys}/3`;
+      dom.coreInvKeys.classList.toggle('ready', keys >= 3);
+    }
+
+    if (dom.coreModal) {
+      dom.coreModal.classList.add('active');
+      dom.coreModal.setAttribute('aria-hidden', 'false');
+    }
+    if (window.audioManager) window.audioManager.playModalOpen();
+
+    if (typeof gsap !== 'undefined' && dom.coreCard) {
+      gsap.fromTo(dom.coreCard,
+        { opacity: 0, scale: 0.92, y: 24 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'power3.out' }
+      );
+    }
+  }
+
+  function closeCoreModal() {
+    if (!isCoreOpen) return;
+    isCoreOpen = false;
+    stopCoreDecay();
+
+    if (typeof gsap !== 'undefined' && dom.coreCard) {
+      gsap.to(dom.coreCard, {
+        opacity: 0, scale: 0.94, y: 16, duration: 0.3, ease: 'power2.in',
+        onComplete: () => {
+          if (dom.coreModal) {
+            dom.coreModal.classList.remove('active');
+            dom.coreModal.setAttribute('aria-hidden', 'true');
+          }
+        }
+      });
+    } else {
+      if (dom.coreModal) {
+        dom.coreModal.classList.remove('active');
+        dom.coreModal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    if (window.audioManager) window.audioManager.playModalClose();
+    unlockBodyScroll();
+    updateCoreVisuals();
+    updateHUD();
+  }
+
+  function startCoreSession() {
+    if (!window.puzzleManager) return;
+    window.puzzleManager.startCoreSession();
+    renderCoreEnergy();
+    if (dom.coreStatusBadge) dom.coreStatusBadge.textContent = 'STATUS: CHARGING';
+    if (dom.coreInstruction) {
+      dom.coreInstruction.textContent = 'Fragments seated. Charge decays fast — TAP the button as hard as you can to reach 100%.';
+    }
+    if (dom.btnChannelEnergy) dom.btnChannelEnergy.disabled = false;
+
+    stopCoreDecay();
+    coreDecayInterval = setInterval(() => {
+      if (!isCoreOpen) return stopCoreDecay();
+      const energy = window.puzzleManager.decayCoreEnergy();
+      if (energy !== null) renderCoreEnergy();
+    }, 100);
+  }
+
+  function stopCoreDecay() {
+    if (coreDecayInterval) {
+      clearInterval(coreDecayInterval);
+      coreDecayInterval = null;
+    }
+  }
+
+  function renderCoreEnergy() {
+    if (!window.puzzleManager) return;
+    const core = window.puzzleManager.getCoreState();
+    if (!core) return;
+
+    if (dom.coreEnergyFill) dom.coreEnergyFill.style.width = `${Math.round(core.energy)}%`;
+    if (dom.coreEnergyValue) dom.coreEnergyValue.textContent = `${Math.round(core.energy)}%`;
+    if (dom.coreTapCounter) dom.coreTapCounter.textContent = `TAPS: ${core.taps}`;
+
+    if (core.reached || core.solved) {
+      if (dom.coreStatusBadge) dom.coreStatusBadge.textContent = 'STATUS: CRITICAL MASS';
+      if (dom.btnChannelEnergy) dom.btnChannelEnergy.disabled = true;
+      stopCoreDecay();
+      if (dom.coreIgnitionStage && dom.coreIgnitionStage.classList.contains('d-none')) {
+        dom.coreIgnitionStage.classList.remove('d-none');
+        if (window.audioManager) window.audioManager.playArcadeVictory();
+      }
+    }
+  }
+
+  function handleChannelEnergy() {
+    if (!window.puzzleManager) return;
+    const core = window.puzzleManager.getCoreState();
+    if (!core) return;
+
+    if (!core.active && !core.solved) {
+      startCoreSession();
+      return;
+    }
+    if (!core.active) return;
+
+    const result = window.puzzleManager.tapCoreEnergy();
+    if (!result) return;
+
+    if (dom.btnChannelEnergy) {
+      dom.btnChannelEnergy.classList.add('zap');
+      setTimeout(() => {
+        if (dom.btnChannelEnergy) dom.btnChannelEnergy.classList.remove('zap');
+      }, 110);
+    }
+    if (window.audioManager) window.audioManager.playTargetTelegraph();
+
+    renderCoreEnergy();
+  }
+
+  /**
+   * Room 05 finale: core overload + launch cinematic, then the result
+   * screen router shows the final victory (last room).
+   */
+  function triggerCoreLaunch() {
+    if (isRoomTransitionActive || isEscapeSequenceActive) return;
+    isRoomTransitionActive = true;
+    isEscapeSequenceActive = true;
+
+    if (!window.gameManager) { finishCoreLaunchFallback(); return; }
+
+    window.gameManager.addScore(500);
+    if (window.trackEvent) window.trackEvent('core_ignited');
+
+    closeCoreModal();
+
+    [dom.nodeCoreLog, dom.nodeCoreConsole].forEach(el => {
+      if (el) el.style.pointerEvents = 'none';
+    });
+
+    if (window.audioManager) window.audioManager.playEscapeInit();
+
+    if (!isGsapReady() || !dom.stageCore) {
+      finishCoreLaunchFallback();
+      return;
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    tl.call(() => {
+      if (dom.coreAccessSub) dom.coreAccessSub.textContent = '// CRITICAL MASS — IGNITION SEQUENCE';
+      if (dom.coreHeartIcon) dom.coreHeartIcon.style.color = '#ffffff';
+    })
+      .to(dom.coreReactorHeart, { scale: 1.5, duration: 0.5, ease: 'power2.in' })
+      .to(dom.coreReactorHeart, { scale: 1, duration: 0.35 })
+      .to(dom.coreReactorHeart, { scale: 1.8, duration: 0.5, ease: 'power2.in' })
+      .call(() => {
+        if (dom.coreAccessSub) dom.coreAccessSub.textContent = '// CORE OVERLOAD — LAUNCH IMMINENT';
+        if (window.audioManager) window.audioManager.playDoorPowerUp();
+      })
+      .to(dom.nodeCoreConsole, {
+        x: () => (Math.random() - 0.5) * 8,
+        y: () => (Math.random() - 0.5) * 6,
+        repeat: 10,
+        yoyo: true,
+        duration: 0.08,
+        ease: 'none'
+      })
+      .set(dom.nodeCoreConsole, { x: 0, y: 0 })
+      .to(dom.coreReactorHeart, { scale: 3.2, opacity: 0.9, duration: 0.8, ease: 'power3.in' })
+      .to(dom.stageCore, { scale: 1.25, opacity: 0.85, duration: 1.6, ease: 'power3.in' }, '<')
+      .to(dom.escapeWhiteWash, { opacity: 1, duration: 0.8, ease: 'power2.in' }, '-=0.7')
+      .call(() => {
+        showEscapeResultScreen(true);
+      });
+  }
+
+  function finishCoreLaunchFallback() {
+    if (dom.stageCore) dom.stageCore.style.opacity = '0.85';
+    if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '1';
+    if (window.audioManager) window.audioManager.stopAmbientDrone();
+    showEscapeResultScreen(true);
+  }
+
+  // --------------------------------------------------------------------------
+  // GOLD TOKENS
+  // --------------------------------------------------------------------------
+
+  /**
+   * Restore gold token collected states from the save (mid-run reloads).
+   */
+  function refreshGoldTokenVisuals() {
+    if (!window.gameManager) return;
+    const tokens = window.gameManager.getState().goldTokens || [];
+    Object.entries(GOLD_TOKEN_ELEMENTS).forEach(([roomId, getter]) => {
+      const el = getter();
+      if (!el) return;
+      if (tokens.includes(roomId)) {
+        el.classList.add('collected');
+        el.style.pointerEvents = 'none';
+        const label = el.querySelector('.gold-token-label');
+        if (label) label.textContent = '◉ GOLD';
+      } else {
+        el.classList.remove('collected');
+        el.style.pointerEvents = 'auto';
+        const label = el.querySelector('.gold-token-label');
+        if (label) label.textContent = '?';
+      }
+    });
+  }
+
+  function handleGoldTokenCollect(roomId, el) {
+    if (!window.gameManager) return;
+    const collected = window.gameManager.collectGoldToken(roomId);
+    if (!collected) return;
+
+    if (window.audioManager) window.audioManager.playKeyExtractChime();
+    if (el) el.classList.add('collected');
+    if (el) {
+      const label = el.querySelector('.gold-token-label');
+      if (label) label.textContent = '◉ GOLD';
+    }
+
+    const total = (window.gameManager.getState().goldTokens || []).length;
+    if (window.trackEvent) window.trackEvent('gold_token_collected', { room: roomId, count: total });
+    showToast(`// GOLD TOKEN SECURED • ${total}/5 • +100 PTS`);
+    updateHUD();
+  }
+
+  // --------------------------------------------------------------------------
+  // SHOW ESCAPE RESULT SCREEN — routes between room transition and victory
+  // --------------------------------------------------------------------------
+
+  function isFinalRoomComplete() {
+    if (!window.gameManager) return false;
+    const roomId = currentRoomId;
+    const idx = ROOM_SEQUENCE.indexOf(roomId);
+    return idx >= ROOM_SEQUENCE.length - 1;
+  }
+
+  function beginNextRoomTransition() {
+    const nextIdx = Math.min(ROOM_SEQUENCE.length - 1, ROOM_SEQUENCE.indexOf(currentRoomId) + 1);
+    const nextRoom = ROOM_SEQUENCE[nextIdx];
+
+    // Record the finished room's time
+    const startedAt = roomEntryTimestamps[currentRoomId];
+    if (startedAt && window.gameManager) {
+      window.gameManager.recordRoomTime(currentRoomId, Date.now() - startedAt);
+    }
+
+    // Story beat: the first door does NOT escape — it descends.
+    setTimeout(() => {
+      enterRoomById(nextRoom, true);
+      if (nextRoom === 'orbatrium') {
+        setTimeout(() => {
+          showToast('// TWIST: THAT DOOR WAS NOT THE EXIT — DESCENDING TO SUB-LEVEL 02');
+        }, 2600);
+      }
+    }, 650);
+  }
+
   setupEventListeners();
 
   /**
@@ -368,6 +2533,11 @@ document.addEventListener('DOMContentLoaded', () => {
             dom.gameWorld.setAttribute('aria-hidden', 'false');
           }
           isTransitioning = false;
+          // Post-entry onboarding/timer hook. Optional so the cinematic stays
+          // runnable in isolated environments (regression harnesses) as well.
+          if (typeof afterEnterGameWorld === 'function') {
+            afterEnterGameWorld();
+          }
         }
       });
 
@@ -407,7 +2577,67 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.gameWorld.style.opacity = '1';
       }
       isTransitioning = false;
+      if (typeof afterEnterGameWorld === 'function') {
+        afterEnterGameWorld();
+      }
     }
+  }
+
+  /**
+   * Runs once the player lands in the game world (fresh entry).
+   * Starts the HUD timer, arms the idle nudge and opens the mission
+   * briefing automatically for first-time players.
+   */
+  function afterEnterGameWorld() {
+    startHudTimer();
+    scheduleNudgeHint();
+    restoreSavedRoomStage();
+
+    if (!hasSeenOnboarding()) {
+      setTimeout(() => {
+        if (!isEscapeSequenceActive) showMissionBriefing('first-run');
+      }, 450);
+    }
+  }
+
+  /**
+   * v3: resume a saved run in the room the player actually reached.
+   * The DOM always boots on the Lobby stage, so a mid-run reload must swap
+   * the visible stage to match the persisted currentRoom.
+   */
+  function restoreSavedRoomStage() {
+    if (!window.gameManager) return;
+    const st = window.gameManager.getState();
+    if (!st.gameStarted || st.gameCompleted) return;
+
+    const savedRoom = ROOM_SEQUENCE.includes(st.currentRoom) ? st.currentRoom : 'lobby';
+    currentRoomId = savedRoom;
+
+    if (savedRoom !== 'lobby') {
+      roomEntryTimestamps[savedRoom] = roomEntryTimestamps[savedRoom] || Date.now();
+      window.gameManager.enterRoom(savedRoom);
+
+      ROOM_SEQUENCE.forEach((rid) => {
+        const el = ROOM_STAGE_ELEMENTS[rid]?.();
+        if (el) {
+          el.style.display = 'none';
+          el.classList.remove('active');
+          el.setAttribute('aria-hidden', 'true');
+        }
+      });
+
+      const toEl = ROOM_STAGE_ELEMENTS[savedRoom]?.();
+      if (toEl) {
+        toEl.style.display = 'flex';
+        toEl.classList.add('active');
+        toEl.setAttribute('aria-hidden', 'false');
+      }
+
+      showToast(`// SESSION RESTORED • RESUMING ${window.gameManager.rooms[savedRoom]?.number || ''}`);
+    }
+
+    refreshRoomVisuals();
+    updateHUD();
   }
 
   /**
@@ -417,15 +2647,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.gameManager) return;
     const state = window.gameManager.getState();
     const roomInfo = inSector02 ? window.gameManager.rooms.sector02 : window.gameManager.getCurrentRoomInfo();
+    const progress = inSector02
+      ? { have: state.keysCollected.length, total: 3, label: 'KEYS' }
+      : window.gameManager.getRoomProgress(currentRoomId);
 
     if (dom.hudRoomBadge) dom.hudRoomBadge.textContent = roomInfo.number;
     if (dom.hudRoomName) dom.hudRoomName.textContent = roomInfo.name;
-    if (dom.hudKeysCounter) dom.hudKeysCounter.textContent = `${state.keysCollected.length} / 3`;
+    if (dom.hudKeysCounter) dom.hudKeysCounter.textContent = `${progress.have} / ${progress.total}`;
+    if (dom.hudCollectibleLabel) dom.hudCollectibleLabel.textContent = progress.label;
+    updateHudTimerDisplay();
+    renderObjectives();
 
     if (dom.keySlots) {
       dom.keySlots.forEach((slot, index) => {
         if (slot) {
-          if (index < state.keysCollected.length) {
+          if (index < progress.have) {
             slot.classList.add('collected');
           } else {
             slot.classList.remove('collected');
@@ -435,7 +2671,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (dom.hudAllKeysBanner) {
-      if (state.keysCollected.length === 3 && !inSector02) {
+      const readyText = ROOM_READY_BANNERS[currentRoomId] || '• ALL 3 ACCESS KEYS RECOVERED •';
+      if (progress.have >= progress.total && !inSector02) {
+        if (dom.hudAllKeysBanner.textContent !== readyText) {
+          dom.hudAllKeysBanner.textContent = readyText;
+        }
         dom.hudAllKeysBanner.classList.remove('d-none');
       } else {
         dom.hudAllKeysBanner.classList.add('d-none');
@@ -453,6 +2693,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const key2Found = state.keysCollected.includes('key_02');
     const key3Found = state.keysCollected.includes('key_03');
     const allKeysFound = state.keysCollected.length >= 3;
+    const inspectWording = IS_TOUCH_DEVICE ? '// TAP TO INSPECT' : '// CLICK TO INSPECT';
 
     // Resonator (Key 01)
     if (dom.nodeStrangeObject) {
@@ -471,6 +2712,15 @@ document.addEventListener('DOMContentLoaded', () => {
           dom.resonatorObjHint.style.color = 'var(--text-muted)';
         }
       }
+    }
+
+    if (dom.resonatorTapHint) dom.resonatorTapHint.textContent = inspectWording;
+    if (dom.terminalTapHint) dom.terminalTapHint.textContent = inspectWording;
+    if (dom.arcadeTapHint) dom.arcadeTapHint.textContent = inspectWording;
+    if (dom.doorTapHint) {
+      dom.doorTapHint.textContent = allKeysFound
+        ? (IS_TOUCH_DEVICE ? '// TAP TO ESCAPE' : '// CLICK TO ESCAPE')
+        : `// REQUIRES ${3 - state.keysCollected.length} MORE KEY${3 - state.keysCollected.length === 1 ? '' : 'S'}`;
     }
 
     // Terminal (Key 02)
@@ -900,11 +3150,46 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showEscapeResultScreen(playFinalChord = true) {
+    // v3 ROUTER: in the five sub-level structure the Security Barrier is NOT
+    // the final exit. Rooms 01-04 door openings route into the next sub-level;
+    // only the Core launch (last room) reaches the victory screen.
+    if (!isFinalRoomComplete()) {
+      beginNextRoomTransition();
+      return;
+    }
+    showFinalVictoryScreen(playFinalChord);
+  }
+
+  function showFinalVictoryScreen(playFinalChord = true) {
     if (!window.gameManager) return;
     const finalState = window.gameManager.completeGame();
 
     if (dom.gameWorld) dom.gameWorld.style.display = 'none';
     if (dom.escapeSequenceBanner) dom.escapeSequenceBanner.style.display = 'none';
+    if (dom.roomIntroBanner) dom.roomIntroBanner.style.display = 'none';
+
+    stopHudTimer();
+    stopBoostPumping();
+    stopCoreDecay();
+    stopSignalPlayback();
+    clearNudgeHint();
+    closeObjectivesPanel();
+
+    // Personal best time record (persists across resets)
+    let isNewRecord = false;
+    let bestMs = getBestTimeMs();
+    const finalMs = parseClockToMs(finalState.finalTime);
+    if (finalMs !== null && finalMs > 0) {
+      incrementRunCounter();
+      if (bestMs === null || finalMs < bestMs) {
+        bestMs = finalMs;
+        saveBestTimeMs(bestMs);
+        isNewRecord = true;
+      }
+    }
+
+    // Rank (S/A/B/C) from total completion time
+    const rank = window.gameManager.computeRank(finalMs);
 
     // Populate Results safely
     if (dom.statTime) {
@@ -913,12 +3198,56 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.statScore) {
       dom.statScore.textContent = typeof finalState.score === 'number' ? finalState.score : 900;
     }
-    if (dom.statKeys) {
-      const keysCount = Array.isArray(finalState.keysCollected) ? finalState.keysCollected.length : 3;
-      dom.statKeys.textContent = `${keysCount} / 3`;
+    if (dom.statGold) {
+      const goldCount = Array.isArray(finalState.goldTokens) ? finalState.goldTokens.length : 0;
+      dom.statGold.textContent = `${goldCount} / 5`;
     }
     if (dom.statArcade) {
       dom.statArcade.textContent = typeof finalState.arcadeBestScore === 'number' ? finalState.arcadeBestScore : 0;
+    }
+
+    // Rank badge
+    if (dom.resultRankBadge && dom.resultRankValue) {
+      if (rank) {
+        dom.resultRankValue.textContent = rank;
+        dom.resultRankBadge.dataset.rank = rank;
+        dom.resultRankBadge.classList.remove('rank-badge-hidden');
+      } else {
+        dom.resultRankBadge.classList.add('rank-badge-hidden');
+      }
+    }
+
+    // Per-room records line
+    if (dom.resultRoomRecords) {
+      const rooms = window.gameManager.rooms;
+      const lines = [];
+      ROOM_SEQUENCE.forEach((roomId) => {
+        const ms = finalState.roomBestTimes?.[roomId];
+        if (ms) {
+          lines.push(`${rooms[roomId]?.number || roomId}: ${formatMsToClock(ms)}`);
+        }
+      });
+      if (finalState.bestRank) {
+        lines.unshift(`BEST RANK: ${finalState.bestRank}`);
+      }
+      dom.resultRoomRecords.textContent = lines.length ? lines.join('  •  ') : '';
+    }
+
+    // New Record badge + Personal Best line
+    if (dom.resultRecordBadge) {
+      if (isNewRecord) {
+        dom.resultRecordBadge.classList.remove('d-none');
+      } else {
+        dom.resultRecordBadge.classList.add('d-none');
+      }
+    }
+    if (dom.resultBestLine && dom.resultBestValue) {
+      if (bestMs !== null) {
+        dom.resultBestValue.textContent = formatMsToClock(bestMs);
+        dom.resultBestLine.classList.remove('d-none');
+      } else {
+        dom.resultBestLine.classList.add('d-none');
+      }
     }
 
     // Adapt Secret Button state on result screen
@@ -960,13 +3289,33 @@ document.addEventListener('DOMContentLoaded', () => {
   function handlePlayAgain() {
     isEscapeSequenceActive = false;
     inSector02 = false;
+    isRoomTransitionActive = false;
+    isSignalOpen = false;
+    isKeypadOpen = false;
+    isPipeOpen = false;
+    isCoreOpen = false;
     unlockBodyScroll();
+
+    stopHudTimer();
+    stopBoostPumping();
+    stopCoreDecay();
+    stopSignalPlayback();
+    clearNudgeHint();
+    closeObjectivesPanel();
+    hideMissionBriefing(false);
 
     if (window.gameManager) {
       window.gameManager.resetState();
     }
 
-    // Reset Door DOM state
+    // Reset v3 room runtime
+    currentRoomId = 'lobby';
+    roomEntryTimestamps = {};
+    keypadEntry = '';
+    keypadAttempts = 0;
+    boostPressure = 0;
+
+    // Reset Door DOM state (Room 01 blast door)
     if (dom.doorPanelLeft) dom.doorPanelLeft.style.transform = 'none';
     if (dom.doorPanelRight) dom.doorPanelRight.style.transform = 'none';
     if (dom.doorRadiantAperture) dom.doorRadiantAperture.style.opacity = '0';
@@ -978,10 +3327,111 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.lockClamp2) dom.lockClamp2.classList.remove('released');
     if (dom.lockClamp3) dom.lockClamp3.classList.remove('released');
 
-    // Reset Interactive Nodes Pointer Events
+    // Reset Interactive Nodes Pointer Events (Room 01)
     [dom.nodeTerminal, dom.nodeStrangeObject, dom.nodeArcade, dom.nodeDoor].forEach(el => {
       if (el) el.style.pointerEvents = 'auto';
     });
+
+    // ---- Reset Room 02 (Orb Atrium) ----
+    dom.orbNodes.forEach(orbEl => {
+      if (!orbEl) return;
+      orbEl.classList.remove('caught');
+      orbEl.style.pointerEvents = 'auto';
+    });
+    if (dom.nodeLiftDoor) {
+      dom.nodeLiftDoor.classList.remove('door-ready', 'opening');
+      dom.nodeLiftDoor.style.pointerEvents = 'auto';
+    }
+    dom.liftSockets.forEach(s => { if (s) s.classList.remove('filled'); });
+    if (dom.liftIrisIcon) dom.liftIrisIcon.textContent = '◇';
+    if (dom.liftPlatform) dom.liftPlatform.style.transform = 'none';
+    if (dom.nodeAtriumConsole) dom.nodeAtriumConsole.style.pointerEvents = 'auto';
+
+    // ---- Reset Room 03 (Signal Vault) ----
+    if (dom.nodeSignalConsole) {
+      dom.nodeSignalConsole.classList.remove('solved');
+      dom.nodeSignalConsole.style.pointerEvents = 'auto';
+    }
+    if (dom.nodeVaultDoor) {
+      dom.nodeVaultDoor.classList.remove('door-ready');
+      dom.nodeVaultDoor.style.pointerEvents = 'auto';
+    }
+    if (dom.nodeVaultArchive) dom.nodeVaultArchive.style.pointerEvents = 'auto';
+    dom.vaultBolts.forEach(b => { if (b) b.classList.remove('retracted'); });
+    if (dom.vaultWheel) dom.vaultWheel.style.transform = 'none';
+    if (dom.vaultWheelIcon) dom.vaultWheelIcon.textContent = '☸';
+    if (dom.signalGoldStage) dom.signalGoldStage.classList.add('d-none');
+    if (dom.keypadModal) {
+      dom.keypadModal.classList.remove('active');
+      dom.keypadModal.setAttribute('aria-hidden', 'true');
+    }
+
+    // ---- Reset Room 04 (Cooling Tunnels) ----
+    if (dom.nodePipePanel) {
+      dom.nodePipePanel.classList.remove('solved');
+      dom.nodePipePanel.style.pointerEvents = 'auto';
+    }
+    if (dom.nodePressureGate) {
+      dom.nodePressureGate.classList.remove('door-ready', 'blasting');
+      dom.nodePressureGate.style.pointerEvents = 'auto';
+    }
+    if (dom.nodeTunnelsHatch) dom.nodeTunnelsHatch.style.pointerEvents = 'auto';
+    if (dom.gatePanelLeft) dom.gatePanelLeft.style.transform = 'none';
+    if (dom.gatePanelRight) dom.gatePanelRight.style.transform = 'none';
+    if (dom.gatePressureWrap) dom.gatePressureWrap.classList.add('d-none');
+    if (dom.gatePressureFill) {
+      dom.gatePressureFill.style.width = '0%';
+      dom.gatePressureFill.style.backgroundColor = '';
+    }
+    if (dom.gatePressureValue) dom.gatePressureValue.textContent = '0%';
+    if (dom.btnBoostPump) {
+      dom.btnBoostPump.disabled = false;
+      dom.btnBoostPump.classList.remove('pumping');
+    }
+    if (dom.pipeModal) {
+      dom.pipeModal.classList.remove('active');
+      dom.pipeModal.setAttribute('aria-hidden', 'true');
+    }
+    if (dom.pipeRowsEl) dom.pipeRowsEl.innerHTML = '';
+    if (dom.pipeGoldStage) dom.pipeGoldStage.classList.add('d-none');
+
+    // ---- Reset Room 05 (The Core) ----
+    dom.fragmentNodes.forEach(fragEl => {
+      if (!fragEl) return;
+      fragEl.classList.remove('recovered');
+      fragEl.style.pointerEvents = 'auto';
+    });
+    if (dom.nodeCoreConsole) {
+      dom.nodeCoreConsole.classList.remove('door-ready');
+      dom.nodeCoreConsole.style.pointerEvents = 'auto';
+    }
+    if (dom.nodeCoreLog) dom.nodeCoreLog.style.pointerEvents = 'auto';
+    if (dom.coreReactorHeart) dom.coreReactorHeart.style.transform = 'none';
+    if (dom.coreHeartIcon) dom.coreHeartIcon.style.color = '';
+    if (dom.coreEnergyFill) dom.coreEnergyFill.style.width = '0%';
+    if (dom.coreEnergyValue) dom.coreEnergyValue.textContent = '0%';
+    if (dom.coreTapCounter) dom.coreTapCounter.textContent = 'TAPS: 0';
+    if (dom.coreIgnitionStage) dom.coreIgnitionStage.classList.add('d-none');
+    if (dom.btnChannelEnergy) dom.btnChannelEnergy.disabled = false;
+    if (dom.coreModal) {
+      dom.coreModal.classList.remove('active');
+      dom.coreModal.setAttribute('aria-hidden', 'true');
+    }
+
+    // ---- Reset gold tokens ----
+    [dom.goldTokenLobby, dom.goldTokenOrbatrium, dom.goldTokenVault, dom.goldTokenTunnels, dom.goldTokenCore].forEach(tokenEl => {
+      if (!tokenEl) return;
+      tokenEl.classList.remove('collected');
+      tokenEl.style.pointerEvents = 'auto';
+      const label = tokenEl.querySelector('.gold-token-label');
+      if (label) label.textContent = '?';
+    });
+
+    // Reset signal modal
+    if (dom.signalModal) {
+      dom.signalModal.classList.remove('active');
+      dom.signalModal.setAttribute('aria-hidden', 'true');
+    }
 
     // Reset Stage Lobby Scale / Opacity
     if (dom.stageLobby) {
@@ -989,6 +3439,13 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.stageLobby.style.transform = 'none';
       dom.stageLobby.style.opacity = '1';
     }
+    [dom.stageOrbatrium, dom.stageVault, dom.stageTunnels, dom.stageCore].forEach(stageEl => {
+      if (!stageEl) return;
+      stageEl.style.display = 'none';
+      stageEl.classList.remove('active');
+      stageEl.setAttribute('aria-hidden', 'true');
+      stageEl.style.opacity = '';
+    });
     if (dom.stageSector02) {
       dom.stageSector02.style.display = 'none';
       dom.stageSector02.classList.remove('active');
@@ -997,6 +3454,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.obsRevealStage.classList.remove('active');
       dom.obsRevealStage.style.opacity = '0';
     }
+    if (dom.roomIntroBanner) dom.roomIntroBanner.style.display = 'none';
     if (dom.layerBg) dom.layerBg.style.opacity = '1';
     if (dom.mainGameHud) dom.mainGameHud.style.opacity = '1';
 
@@ -1582,7 +4040,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const type = window.puzzleManager.getRandomTargetType();
     const targetDef = window.puzzleManager.getPuzzle('key_03')?.targetTypes[type];
-    const size = targetDef?.size || 55;
+    // Touch targets get a generous size boost for mobile ergonomics
+    const size = (targetDef?.size || 55) * (IS_TOUCH_DEVICE ? 1.3 : 1);
 
     const margin = size + 20;
     const posX = Math.random() * (width - margin * 2) + margin;
@@ -1592,6 +4051,8 @@ document.addEventListener('DOMContentLoaded', () => {
     targetEl.className = `arcade-target ${type} telegraphing`;
     targetEl.style.left = `${posX}px`;
     targetEl.style.top = `${posY}px`;
+    targetEl.style.width = `${size}px`;
+    targetEl.style.height = `${size}px`;
     targetEl.dataset.type = type;
     targetEl.setAttribute('role', 'button');
     targetEl.setAttribute('aria-label', `Target ${type}`);
@@ -1600,6 +4061,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="target-reticle-ring"></div>
       <div class="target-core-dot"></div>
     `;
+
+    // Ambient cursor hover feedback for dynamically spawned targets (desktop)
+    if (!IS_TOUCH_DEVICE) {
+      targetEl.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      targetEl.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    }
 
     dom.arcadePlayfield.appendChild(targetEl);
     activeTargets.add(targetEl);
@@ -1803,7 +4270,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleClaimKey3() {
     if (!window.gameManager) return;
-    window.gameManager.collectKey('key_03');
+    const gained = window.gameManager.collectKey('key_03');
+    if (gained) showToast('// KEY 03 SECURED • +300 PTS');
 
     if (window.audioManager) {
       window.audioManager.playDoorUnlockResonance();
@@ -2007,7 +4475,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // button stays focusable while the cipher is unsolved. Gate on the puzzle state.
     const key02Puzzle = window.puzzleManager.getPuzzle('key_02');
     if (!key02Puzzle || !key02Puzzle.solved) return;
-    window.gameManager.collectKey('key_02');
+    const gained = window.gameManager.collectKey('key_02');
+    if (gained) showToast('// KEY 02 SECURED • +300 PTS');
 
     closeTerminalModal();
     updateHUD();
@@ -2187,7 +4656,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // See handleClaimKey2: the hidden claim button must not bypass the resonance puzzle.
     const key01Puzzle = window.puzzleManager.getPuzzle('key_01');
     if (!key01Puzzle || !key01Puzzle.solved) return;
-    window.gameManager.collectKey('key_01');
+    const gained = window.gameManager.collectKey('key_01');
+    if (gained) showToast('// KEY 01 SECURED • +300 PTS');
 
     closeResonatorModal();
     updateHUD();
@@ -2198,7 +4668,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // STANDARD INSPECTION MODAL (FOR OBJECT DIAGNOSTICS)
   // =========================================================================
 
-  function openModal(title, bodyHtml, diagHtml) {
+  function openModal(title, bodyHtml, diagHtml, actionLabel, onAction) {
     if (!dom.modalOverlay || !dom.modalCard || isEscapeSequenceActive) return;
     isModalOpen = true;
     lockBodyScroll();
@@ -2206,6 +4676,13 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.modalTitle.textContent = title;
     dom.modalBody.innerHTML = bodyHtml;
     dom.modalDiagLog.innerHTML = diagHtml;
+
+    // Optional custom action button (e.g. RESET MISSION confirmation)
+    pendingModalAction = typeof onAction === 'function' ? onAction : null;
+    if (dom.btnModalAction) {
+      dom.btnModalAction.textContent = actionLabel || 'DISMISS';
+      dom.btnModalAction.classList.toggle('modal-action-danger', Boolean(actionLabel && actionLabel !== 'DISMISS'));
+    }
 
     dom.modalOverlay.classList.add('active');
     dom.modalOverlay.setAttribute('aria-hidden', 'false');
@@ -2224,6 +4701,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeModal() {
     if (!dom.modalOverlay || !isModalOpen) return;
     isModalOpen = false;
+    pendingModalAction = null;
 
     if (window.audioManager) {
       window.audioManager.playModalClose();
@@ -2254,6 +4732,31 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
+   * Aborts the current run and returns to the intro screen, with a
+   * cyber-styled confirmation instead of a native browser dialog.
+   */
+  function handleHudResetRequest() {
+    if (isEscapeSequenceActive || isBriefingOpen) return;
+    const state = window.gameManager ? window.gameManager.getState() : null;
+    const keysCount = state ? state.keysCollected.length : 0;
+
+    openModal(
+      '// MISSION RESET // CONFIRM',
+      `<h4 class="h5 fw-bold text-light mb-2 font-monospace">ABORT CURRENT RUN?</h4>
+       <p class="text-secondary small mb-0">This will erase all progress for this run — keys recovered: <b class="text-warning">${keysCount} / 3</b> and your elapsed time. Your arcade high score and secret discoveries are kept.</p>`,
+      `<div class="text-muted">// Reset Diagnostics:</div>
+       <div>&gt; Run Progress: <span class="text-danger fw-bold">WILL BE ERASED</span></div>
+       <div>&gt; Arcade Best Score: PRESERVED</div>
+       <div>&gt; Sector 02 Clearance: PRESERVED`,
+      'RESET MISSION',
+      () => {
+        showToast('// MISSION RESET • RETURNING TO ENTRY POINT');
+        handlePlayAgain();
+      }
+    );
+  }
+
+  /**
    * Setup UI Event Listeners (Bound once for complete lifecycle safety)
    */
   function setupEventListeners() {
@@ -2276,6 +4779,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
+
+    // 2b. HUD Objectives / Help / Reset buttons
+    if (dom.btnHudObjectives) {
+      dom.btnHudObjectives.addEventListener('click', () => {
+        if (isObjectivesOpen) {
+          closeObjectivesPanel();
+        } else {
+          openObjectivesPanel();
+        }
+      });
+    }
+
+    if (dom.btnObjectivesClose) {
+      dom.btnObjectivesClose.addEventListener('click', closeObjectivesPanel);
+    }
+
+    if (dom.btnHudHelp) {
+      dom.btnHudHelp.addEventListener('click', () => {
+        if (!isBriefingOpen) showMissionBriefing('resume');
+      });
+    }
+
+    if (dom.btnHudReset) {
+      dom.btnHudReset.addEventListener('click', handleHudResetRequest);
+    }
+
+    if (dom.btnBriefingStart) {
+      dom.btnBriefingStart.addEventListener('click', () => {
+        hideMissionBriefing(true);
+      });
+    }
+
+    // Close the objectives panel when clicking outside of it
+    document.addEventListener('click', (e) => {
+      if (!isObjectivesOpen || !dom.objectivesPanel) return;
+      if (dom.objectivesPanel.contains(e.target) || dom.btnHudObjectives.contains(e.target)) return;
+      closeObjectivesPanel();
+    });
 
     // 3. Central Door Click (Escape Sequence Trigger when 3/3 keys recovered)
     if (dom.nodeDoor) {
@@ -2511,26 +5052,352 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 9. Standard Modal Close Controls
     if (dom.btnModalClose) dom.btnModalClose.addEventListener('click', closeModal);
-    if (dom.btnModalAction) dom.btnModalAction.addEventListener('click', closeModal);
+    if (dom.btnModalAction) {
+      dom.btnModalAction.addEventListener('click', () => {
+        const action = pendingModalAction;
+        closeModal();
+        if (typeof action === 'function') action();
+      });
+    }
     if (dom.modalOverlay) {
       dom.modalOverlay.addEventListener('click', (e) => {
         if (e.target === dom.modalOverlay) closeModal();
       });
     }
 
-    // Escape Key Handler
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !isEscapeSequenceActive) {
-        if (inSector02 && dom.obsRevealStage && dom.obsRevealStage.classList.contains('active')) {
-          dom.obsRevealStage.classList.remove('active');
-          return;
+    // 10. v3 MULTI-ROOM INTERACTIONS
+    // Room 02: orb catching + lift door + lore + gold token
+    dom.orbNodes.forEach((orbEl, i) => {
+      if (!orbEl) return;
+      orbEl.addEventListener('click', () => handleOrbCatch(i));
+      orbEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleOrbCatch(i);
         }
-        if (inSector02) leaveSector02();
-        if (isArcadeOpen) closeArcadeModal();
-        if (isTerminalOpen) closeTerminalModal();
-        if (isResonatorOpen) closeResonatorModal();
-        if (isModalOpen) closeModal();
+      });
+    });
+
+    if (dom.nodeLiftDoor) {
+      dom.nodeLiftDoor.addEventListener('click', () => {
+        const ready = window.gameManager?.isRoomDoorReady('orbatrium');
+        if (ready) {
+          triggerLiftSequence();
+        } else {
+          if (window.audioManager) window.audioManager.playLockedSound();
+          const copy = DOOR_LOCKED_COPY.orbatrium;
+          openModal(
+            '// GRAVITY LIFT // SUB-LEVEL 02',
+            `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
+             <p class="text-secondary small mb-0">${copy.body}</p>`,
+            `<div class="text-muted">// Lift Diagnostics:</div>` +
+              copy.diag.map(d => `<div>${d}</div>`).join('') +
+              `<div class="text-success mt-2">&gt; "Catch the drifting plasma orbs in the atrium."</div>`
+          );
+        }
+      });
+      dom.nodeLiftDoor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          dom.nodeLiftDoor.click();
+        }
+      });
+    }
+
+    if (dom.nodeAtriumConsole) {
+      dom.nodeAtriumConsole.addEventListener('click', () => {
+        if (window.audioManager) window.audioManager.playTerminalBeep();
+        openModal(
+          '// GRAVITY CONSOLE // ATRIUM',
+          `<h4 class="h5 fw-bold text-success mb-2 font-monospace">LIFT POWER SYSTEM</h4>
+           <p class="text-secondary small mb-0">The gravity lift converts raw plasma orbs into counter-gravitational charge. The previous keeper left three orbs drifting in the atrium garden.</p>`,
+          `<div class="text-muted">// Console Readout:</div>
+           <div>&gt; Orbs Detected: <span class="text-warning fw-bold">${(window.gameManager?.getState().orbsCollected || []).length} / 3</span></div>
+           <div>&gt; Lift Status: ${(window.gameManager?.isRoomDoorReady('orbatrium')) ? '<span class="text-success fw-bold">READY</span>' : '<span class="text-danger fw-bold">NO POWER</span>'}</div>
+           <div class="text-success mt-2">&gt; "Catch all 3 orbs and the lift will engage."</div>`
+        );
+      });
+    }
+
+    // Room 03: signal relay + vault door + lore + gold token
+    if (dom.nodeSignalConsole) {
+      dom.nodeSignalConsole.addEventListener('click', openSignalModal);
+      dom.nodeSignalConsole.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openSignalModal();
+        }
+      });
+    }
+
+    if (dom.btnSignalClose) dom.btnSignalClose.addEventListener('click', closeSignalModal);
+    if (dom.signalModal) {
+      dom.signalModal.addEventListener('click', (e) => {
+        if (e.target === dom.signalModal) closeSignalModal();
+      });
+    }
+    if (dom.btnSignalPlay) dom.btnSignalPlay.addEventListener('click', handleSignalPlay);
+    if (dom.btnSignalReplay) dom.btnSignalReplay.addEventListener('click', handleSignalReplay);
+    if (dom.btnClaimGoldChip) dom.btnClaimGoldChip.addEventListener('click', handleClaimGoldChip);
+
+    dom.signalTowerCards.forEach((towerEl) => {
+      if (!towerEl) return;
+      towerEl.addEventListener('click', () => {
+        const idx = parseInt(towerEl.dataset.tower, 10);
+        if (!Number.isNaN(idx)) handleSignalTowerClick(idx);
+      });
+    });
+
+    if (dom.nodeVaultDoor) {
+      dom.nodeVaultDoor.addEventListener('click', () => {
+        const state = window.gameManager?.getState();
+        if (!state) return;
+        if (state.goldChip && state.signalRoundsWon >= 3) {
+          openKeypadModal();
+        } else {
+          if (window.audioManager) window.audioManager.playLockedSound();
+          const copy = DOOR_LOCKED_COPY.vault;
+          openModal(
+            '// CIPHER VAULT // ARCHIVE 9',
+            `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
+             <p class="text-secondary small mb-0">${copy.body}</p>`,
+            `<div class="text-muted">// Vault Diagnostics:</div>` +
+              copy.diag.map(d => `<div>${d}</div>`).join('') +
+              `<div class="text-warning mt-2">&gt; "Open the Signal Relay console and mirror the ghost songs."</div>`
+          );
+        }
+      });
+      dom.nodeVaultDoor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          dom.nodeVaultDoor.click();
+        }
+      });
+    }
+
+    if (dom.btnKeypadClose) dom.btnKeypadClose.addEventListener('click', closeKeypadModal);
+    if (dom.keypadModal) {
+      dom.keypadModal.addEventListener('click', (e) => {
+        if (e.target === dom.keypadModal) closeKeypadModal();
+      });
+    }
+    dom.keypadKeys.forEach((keyBtn) => {
+      if (!keyBtn) return;
+      keyBtn.addEventListener('click', () => {
+        handleKeypadPress(keyBtn.dataset.key);
+      });
+    });
+
+    // Room 04: pipe panel + gate + lore + gold token
+    if (dom.nodePipePanel) {
+      dom.nodePipePanel.addEventListener('click', openPipeModal);
+      dom.nodePipePanel.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPipeModal();
+        }
+      });
+    }
+
+    if (dom.btnPipeClose) dom.btnPipeClose.addEventListener('click', closePipeModal);
+    if (dom.pipeModal) {
+      dom.pipeModal.addEventListener('click', (e) => {
+        if (e.target === dom.pipeModal) closePipeModal();
+      });
+    }
+    if (dom.btnPipeRealign) {
+      dom.btnPipeRealign.addEventListener('click', () => {
+        if (!window.puzzleManager) return;
+        window.puzzleManager.startPipeSession();
+        renderPipeGrid();
+        if (window.audioManager) window.audioManager.playTerminalScan();
+      });
+    }
+    if (dom.btnClaimBooster) dom.btnClaimBooster.addEventListener('click', handleClaimBooster);
+
+    if (dom.pipeRowsEl) {
+      dom.pipeRowsEl.addEventListener('click', (e) => {
+        const tileBtn = e.target.closest('.pipe-tile');
+        if (!tileBtn) return;
+        const row = parseInt(tileBtn.dataset.row, 10);
+        const tile = parseInt(tileBtn.dataset.tile, 10);
+        if (!Number.isNaN(row) && !Number.isNaN(tile)) handleValveRotate(row, tile);
+      });
+    }
+
+    if (dom.nodePressureGate) {
+      dom.nodePressureGate.addEventListener('click', handleGateClick);
+      dom.nodePressureGate.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleGateClick();
+        }
+      });
+    }
+    bindBoostPumpEvents();
+
+    // Room 05: fragments + core console + lore + gold token
+    dom.fragmentNodes.forEach((fragEl, i) => {
+      if (!fragEl) return;
+      fragEl.addEventListener('click', () => handleFragmentCollect(i));
+      fragEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleFragmentCollect(i);
+        }
+      });
+    });
+
+    if (dom.nodeCoreConsole) {
+      dom.nodeCoreConsole.addEventListener('click', () => {
+        const ready = window.gameManager?.isRoomDoorReady('core');
+        if (ready) {
+          openCoreModal();
+          startCoreSession();
+        } else {
+          if (window.audioManager) window.audioManager.playLockedSound();
+          const copy = DOOR_LOCKED_COPY.core;
+          openModal(
+            '// CORE IGNITION // REACTOR TERMINUS',
+            `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
+             <p class="text-secondary small mb-0">${copy.body}</p>`,
+            `<div class="text-muted">// Reactor Diagnostics:</div>` +
+              copy.diag.map(d => `<div>${d}</div>`).join('') +
+              `<div class="text-info mt-2">&gt; "Tap the glowing shards scattered on the reactor floor."</div>`
+          );
+        }
+      });
+      dom.nodeCoreConsole.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          dom.nodeCoreConsole.click();
+        }
+      });
+    }
+
+    if (dom.btnCoreClose) dom.btnCoreClose.addEventListener('click', closeCoreModal);
+    if (dom.coreModal) {
+      dom.coreModal.addEventListener('click', (e) => {
+        if (e.target === dom.coreModal) closeCoreModal();
+      });
+    }
+    if (dom.btnChannelEnergy) dom.btnChannelEnergy.addEventListener('click', handleChannelEnergy);
+    if (dom.btnTriggerLaunch) dom.btnTriggerLaunch.addEventListener('click', triggerCoreLaunch);
+
+    // Lore nodes (vault archive / tunnels hatch / core log)
+    if (dom.nodeVaultArchive) {
+      dom.nodeVaultArchive.addEventListener('click', () => {
+        if (window.audioManager) window.audioManager.playTerminalBeep();
+        openModal(
+          '// ARCHIVE SHELF 9-C // MAINTENANCE',
+          `<h4 class="h5 fw-bold text-warning mb-2 font-monospace">ARCHIVE RECORD 9-C</h4>
+           <p class="text-secondary small mb-0">Dusty maintenance binders. A margin note reads: "The relay console replays the same ghost songs every night. Someone wrote the digits down — then the archive was sealed."</p>`,
+          `<div class="text-muted">// Shelf Inventory:</div>
+           <div>&gt; Binder: RELAY TUNING 1978-1994</div>
+           <div>&gt; Binder: <span class="text-warning fw-bold">VAULT CIPHER FRAGMENTS</span></div>
+           <div class="text-warning mt-2">&gt; "Win the relay rounds — the digits are the price of the vault."</div>`
+        );
+      });
+    }
+
+    if (dom.nodeTunnelsHatch) {
+      dom.nodeTunnelsHatch.addEventListener('click', () => {
+        if (window.audioManager) window.audioManager.playTerminalBeep();
+        openModal(
+          '// MAINTENANCE HATCH // TUNNEL 4',
+          `<h4 class="h5 fw-bold text-warning mb-2 font-monospace">TUNNEL 4 SERVICE LOG</h4>
+           <p class="text-secondary small mb-0">A rusted service cart sits half-in the hatch. The hydraulic gate has been sealed since the last pressure test failed — the pumps were never reconnected.</p>`,
+          `<div class="text-muted">// Service Log:</div>
+           <div>&gt; Last Pressure Test: <span class="text-danger fw-bold">FAILED</span></div>
+           <div>&gt; Coolant Valves: MISALIGNED</div>
+           <div class="text-danger mt-2">&gt; "Align the valves. Build the pressure. Do not stop pumping."</div>`
+        );
+      });
+    }
+
+    if (dom.nodeCoreLog) {
+      dom.nodeCoreLog.addEventListener('click', () => {
+        if (window.audioManager) window.audioManager.playMonitorGlitch();
+        openModal(
+          '// REACTOR LOG // FINAL ENTRY',
+          `<h4 class="h5 fw-bold text-violet mb-2 font-monospace">REACTOR LOG 0x05</h4>
+           <p class="text-secondary small mb-0">"If you are reading this, you made it further than the others. The core does not destroy the website — it launches you out of it. Three fragments. One ignition. No second attempt."</p>`,
+          `<div class="text-muted">// Core Telemetry:</div>
+           <div>&gt; Fragments: <span class="text-warning fw-bold">${(window.gameManager?.getState().fragmentsCollected || []).length} / 3</span></div>
+           <div>&gt; Ignition Status: <span class="text-danger fw-bold">DORMANT</span></div>
+           <div class="text-violet mt-2">&gt; "Channel every spark. The core remembers hesitation."</div>`
+        );
+      });
+    }
+
+    // Gold tokens (all five rooms)
+    const goldTokenBindings = [
+      ['lobby', dom.goldTokenLobby],
+      ['orbatrium', dom.goldTokenOrbatrium],
+      ['vault', dom.goldTokenVault],
+      ['tunnels', dom.goldTokenTunnels],
+      ['core', dom.goldTokenCore]
+    ];
+    goldTokenBindings.forEach(([roomId, tokenEl]) => {
+      if (!tokenEl) return;
+      tokenEl.addEventListener('click', () => handleGoldTokenCollect(roomId, tokenEl));
+      tokenEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleGoldTokenCollect(roomId, tokenEl);
+        }
+      });
+    });
+
+    // Escape Key Handler — closes only the TOP-MOST visible layer
+    window.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || isEscapeSequenceActive) return;
+
+      if (isBriefingOpen) {
+        hideMissionBriefing(true);
+        return;
       }
+      if (isObjectivesOpen) {
+        closeObjectivesPanel();
+        return;
+      }
+      if (inSector02 && dom.obsRevealStage && dom.obsRevealStage.classList.contains('active')) {
+        dom.obsRevealStage.classList.remove('active');
+        return;
+      }
+      if (isCoreOpen) {
+        closeCoreModal();
+        return;
+      }
+      if (isPipeOpen) {
+        closePipeModal();
+        return;
+      }
+      if (isKeypadOpen) {
+        closeKeypadModal();
+        return;
+      }
+      if (isSignalOpen) {
+        closeSignalModal();
+        return;
+      }
+      if (isModalOpen) {
+        closeModal();
+        return;
+      }
+      if (isArcadeOpen) {
+        closeArcadeModal();
+        return;
+      }
+      if (isTerminalOpen) {
+        closeTerminalModal();
+        return;
+      }
+      if (isResonatorOpen) {
+        closeResonatorModal();
+        return;
+      }
+      if (inSector02) leaveSector02();
     });
   }
 

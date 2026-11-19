@@ -28,7 +28,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ESCAPE THE WEBSITE — An Interactive Web Escape Game</title>
-  <meta name="description" content="ESCAPE THE WEBSITE is a cinematic interactive puzzle game. Explore a mysterious digital world, solve three hidden challenges, recover the keys, and escape.">
+  <meta name="description" content="ESCAPE THE WEBSITE is a cinematic interactive escape game. Descend through five sub-levels — catch plasma orbs, crack the vault cipher, boost the hydraulic gate and ignite the core to escape.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#020408">
   <meta name="google-site-verification" content="IHLIzwNtl0F5s1oQw2sBVoUtSdA8Ous8xC7bWpfHl-s" />
@@ -45,7 +45,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ESCAPE THE WEBSITE">
   <meta property="og:title" content="ESCAPE THE WEBSITE — An Interactive Web Escape Game">
-  <meta property="og:description" content="ESCAPE THE WEBSITE is a cinematic interactive puzzle game. Explore a mysterious digital world, solve three hidden challenges, recover the keys, and escape.">
+  <meta property="og:description" content="ESCAPE THE WEBSITE is a cinematic interactive escape game. Descend through five sub-levels — catch plasma orbs, crack the vault cipher, boost the hydraulic gate and ignite the core to escape.">
   <meta property="og:url" content="https://escape-the-website.onrender.com/">
   <meta property="og:image" content="https://escape-the-website.onrender.com/assets/images/og-preview.png">
   <meta property="og:image:type" content="image/png">
@@ -57,7 +57,7 @@
   <!-- Twitter / X Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ESCAPE THE WEBSITE — An Interactive Web Escape Game">
-  <meta name="twitter:description" content="ESCAPE THE WEBSITE is a cinematic interactive puzzle game. Explore a mysterious digital world, solve three hidden challenges, recover the keys, and escape.">
+  <meta name="twitter:description" content="ESCAPE THE WEBSITE is a cinematic interactive escape game. Descend through five sub-levels — catch plasma orbs, crack the vault cipher, boost the hydraulic gate and ignite the core to escape.">
   <meta name="twitter:image" content="https://escape-the-website.onrender.com/assets/images/og-preview.png">
   <meta name="twitter:image:alt" content="ESCAPE THE WEBSITE - Cinematic Interactive Escape Game Preview">
 
@@ -69,7 +69,7 @@
     "@id": "https://escape-the-website.onrender.com/#website",
     "name": "ESCAPE THE WEBSITE",
     "url": "https://escape-the-website.onrender.com/",
-    "description": "ESCAPE THE WEBSITE is a cinematic interactive puzzle game. Explore a mysterious digital world, solve three hidden challenges, recover the keys, and escape.",
+    "description": "ESCAPE THE WEBSITE is a cinematic interactive escape game. Descend through five sub-levels — catch plasma orbs, crack the vault cipher, boost the hydraulic gate and ignite the core to escape.",
     "inLanguage": "en"
   }
   </script>
@@ -109,7 +109,7 @@
       </h1>
 
       <p class="intro-subtitle" id="intro-subtitle">
-        There are <span class="key-highlight">3 keys</span> hidden somewhere inside.
+        The exit is <span class="key-highlight">5 sub-levels</span> down. Every room hides a different puzzle.
       </p>
 
       <div class="intro-cta-wrapper" id="intro-cta">
@@ -122,7 +122,7 @@
       <!-- Accessible Semantic Crawler Summary -->
       <div class="visually-hidden">
         <h2>About ESCAPE THE WEBSITE</h2>
-        <p>ESCAPE THE WEBSITE is an interactive cinematic digital escape game. Explore a mysterious digital environment, solve three hidden challenges, recover the cipher keys, and escape through the central security barrier.</p>
+        <p>ESCAPE THE WEBSITE is an interactive cinematic digital escape game. Descend through five sub-levels, solve each room's puzzle, collect keys, orbs, signals, fuses and core fragments, and escape through the reactor core.</p>
       </div>
     </div>
   </section>
@@ -141,9 +141,8 @@
         <div class="hud-all-keys-banner d-none" id="hud-all-keys-banner">
           &bull; ALL 3 ACCESS KEYS RECOVERED &bull;
         </div>
-
-        <div class="hud-keys-panel" title="Keys Collected">
-          <span class="hud-keys-label">KEYS</span>
+        <div class="hud-keys-panel" title="Room Collectibles">
+          <span class="hud-keys-label" id="hud-collectible-label">KEYS</span>
           <div class="key-slots">
             <span class="key-slot-icon" id="key-slot-1"></span>
             <span class="key-slot-icon" id="key-slot-2"></span>
@@ -152,16 +151,151 @@
           <span class="hud-keys-counter" id="hud-keys-counter">0 / 3</span>
         </div>
 
+        <div class="hud-timer-panel" id="hud-timer-panel" title="Mission Time">
+          <span class="hud-timer-label">T+</span>
+          <span class="hud-timer-value" id="hud-timer">00:00</span>
+        </div>
+
+        <button type="button" id="btn-hud-objectives" class="hud-icon-btn hud-objectives-btn" title="Mission Objectives" aria-label="Open Mission Objectives" aria-expanded="false">
+          <span class="hud-icon-btn-glyph">☰</span>
+          <span class="hud-icon-btn-text">OBJECTIVES</span>
+        </button>
+
+        <button type="button" id="btn-hud-help" class="hud-icon-btn hud-help-btn" title="How To Play" aria-label="How To Play">
+          <span class="hud-icon-btn-glyph">?</span>
+        </button>
+
+        <button type="button" id="btn-hud-reset" class="hud-icon-btn hud-reset-btn" title="Restart Mission" aria-label="Restart Mission">
+          <span class="hud-icon-btn-glyph">⟳</span>
+        </button>
+
         <button type="button" id="btn-toggle-audio" class="hud-audio-btn" title="Toggle Sound Subsystem">
-          SOUND <span id="audio-status-label">ON</span>
+          <span class="hud-audio-text">SOUND</span> <span id="audio-status-label">ON</span>
         </button>
       </div>
+
+      <!-- Mission Objectives Dropdown Panel -->
+      <div class="objectives-panel d-none" id="objectives-panel" aria-hidden="true">
+        <div class="objectives-panel-header">
+          <span class="objectives-panel-title">// MISSION OBJECTIVES</span>
+          <button type="button" class="objectives-panel-close" id="btn-objectives-close" aria-label="Close Objectives">✕</button>
+        </div>
+        <ul class="objectives-list" id="objectives-list">
+          <li class="objective-item" id="obj-key-1">
+            <span class="objective-check" aria-hidden="true"></span>
+            <div class="objective-text">
+              <span class="objective-name">KEY 01 &bull; HARMONIC RESONATOR</span>
+              <span class="objective-desc">Calibrate the dormant anomaly node</span>
+            </div>
+            <span class="objective-status pending" id="obj-key-1-status">PENDING</span>
+          </li>
+          <li class="objective-item" id="obj-key-2">
+            <span class="objective-check" aria-hidden="true"></span>
+            <div class="objective-text">
+              <span class="objective-name">KEY 02 &bull; MAINFRAME TERMINAL</span>
+              <span class="objective-desc">Derive the override cipher (LOGS + SCAN)</span>
+            </div>
+            <span class="objective-status pending" id="obj-key-2-status">PENDING</span>
+          </li>
+          <li class="objective-item" id="obj-key-3">
+            <span class="objective-check" aria-hidden="true"></span>
+            <div class="objective-text">
+              <span class="objective-name">KEY 03 &bull; DEFENSE ARCADE</span>
+              <span class="objective-desc">Score 1200+ in System Defense</span>
+            </div>
+            <span class="objective-status pending" id="obj-key-3-status">PENDING</span>
+          </li>
+          <li class="objective-item final" id="obj-escape">
+            <span class="objective-check" aria-hidden="true"></span>
+            <div class="objective-text">
+              <span class="objective-name">FINAL &bull; SECURITY BARRIER</span>
+              <span class="objective-desc">Escape through the central blast door</span>
+            </div>
+            <span class="objective-status locked" id="obj-escape-status">LOCKED</span>
+          </li>
+          <li class="objective-item secret" id="obj-secret">
+            <span class="objective-check" aria-hidden="true"></span>
+            <div class="objective-text">
+              <span class="objective-name">SECRET &bull; ???</span>
+              <span class="objective-desc">A hidden sub-sector exists. Listen closely.</span>
+            </div>
+            <span class="objective-status hidden-secret" id="obj-secret-status">HIDDEN</span>
+          </li>
+        </ul>
+        <div class="objectives-panel-footer">TIP: CLICK / TAP ANY NODE IN THE ROOM TO INSPECT IT</div>
+      </div>
     </header>
+
+    <!-- Mission Briefing / How-To-Play Overlay -->
+    <div id="briefing-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="briefing-card">
+        <div class="briefing-eyebrow">// MISSION BRIEFING &bull; READ CAREFULLY</div>
+        <h2 class="briefing-title">HOW TO ESCAPE</h2>
+        <p class="briefing-sub">
+          You are locked inside this website — and the real exit is
+          <b class="text-info">FIVE SUB-LEVELS</b> down. Every room hides a different
+          puzzle, its own collectibles, and its own way of opening.
+        </p>
+
+        <div class="briefing-steps-grid">
+          <div class="briefing-step-card">
+            <div class="briefing-step-num">01</div>
+            <div class="briefing-step-body">
+              <span class="briefing-step-name">INSPECT EVERYTHING</span>
+              <span class="briefing-step-desc">Click or tap the glowing nodes in each room. Hints are always on screen — nothing needs guessing.</span>
+            </div>
+          </div>
+
+          <div class="briefing-step-card">
+            <div class="briefing-step-num">02</div>
+            <div class="briefing-step-body">
+              <span class="briefing-step-name">FIND 3 ITEMS PER ROOM</span>
+              <span class="briefing-step-desc">ROOM 01: 3 cipher keys &bull; ROOM 02: 3 drifting orbs &bull; ROOM 03: 3 relay signals &bull; ROOM 04: 3 coolant fuses &bull; ROOM 05: 3 core fragments.</span>
+            </div>
+          </div>
+
+          <div class="briefing-step-card">
+            <div class="briefing-step-num">03</div>
+            <div class="briefing-step-body">
+              <span class="briefing-step-name">EVERY DOOR OPENS DIFFERENTLY</span>
+              <span class="briefing-step-desc">Blast locks &bull; gravity lift &bull; vault keypad &bull; hydraulic BOOST pump &bull; core ignition. Watch the room — it tells you how.</span>
+            </div>
+          </div>
+
+          <div class="briefing-step-card">
+            <div class="briefing-step-num">04</div>
+            <div class="briefing-step-body">
+              <span class="briefing-step-name">DESCEND &bull; COLLECT GOLD</span>
+              <span class="briefing-step-desc">One hidden GOLD TOKEN waits in every room (+100 pts). Finish all 5 rooms for a S–C RANK and your personal records.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="briefing-controls-row">
+          <span class="briefing-chip"><b>ESC</b> close panels</span>
+          <span class="briefing-chip"><b>HELP (?)</b> reopen this briefing</span>
+          <span class="briefing-chip"><b>⟳</b> restart mission</span>
+          <span class="briefing-chip"><b>PROGRESS</b> auto-saves</span>
+        </div>
+
+        <button type="button" class="btn-enter-website briefing-start-btn" id="btn-briefing-start">
+          <span id="briefing-start-label">BEGIN DESCENT</span>
+          <div class="btn-glow-pulse"></div>
+        </button>
+      </div>
+    </div>
 
     <!-- Escape Sequence Overlay Banner -->
     <div id="escape-sequence-banner">
       <div class="escape-banner-eyebrow" id="escape-banner-eyebrow">// ESCAPE PROTOCOL INITIATED</div>
       <h2 class="escape-banner-title" id="escape-banner-title">ALL 3 ACCESS KEYS VERIFIED</h2>
+    </div>
+
+    <!-- Room Introduction Banner (per sub-level onboarding) -->
+    <div id="room-intro-banner">
+      <div class="room-intro-eyebrow" id="room-intro-eyebrow">// SUB-LEVEL CLEARED</div>
+      <h2 class="room-intro-title" id="room-intro-title">ROOM 02 &bull; THE ORB ATRIUM</h2>
+      <p class="room-intro-hint" id="room-intro-hint">Catch the 3 drifting plasma orbs to power the gravity lift.</p>
     </div>
 
     <!-- ROOM 01: The Lobby -->
@@ -208,6 +342,7 @@
 
               <div class="door-access-label" id="door-access-label">ACCESS LEVEL: UNKNOWN</div>
               <div class="door-access-sub" id="door-access-sub">// SEALED BY PROTOCOL</div>
+              <span class="node-tap-hint" id="door-tap-hint">// REQUIRES 3 CIPHER KEYS</span>
             </div>
           </div>
 
@@ -217,6 +352,7 @@
               <span class="node-title">TERMINAL // 0x7F</span>
               <span class="node-status-indicator active" id="terminal-obj-indicator"></span>
             </div>
+            <span class="node-tap-hint" id="terminal-tap-hint">// CLICK TO INSPECT</span>
             <div class="terminal-screen-preview">
               <div class="terminal-code-line text-muted">&gt; sys.auth_daemon --chk</div>
               <div class="terminal-code-line text-warning" id="terminal-preview-status">&gt; [!] ACCESS RESTRICTED</div>
@@ -233,6 +369,7 @@
               <span class="node-title">ANOMALY // RESONATOR</span>
               <span class="node-status-indicator amber" id="resonator-obj-indicator"></span>
             </div>
+            <span class="node-tap-hint" id="resonator-tap-hint">// CLICK TO INSPECT</span>
             <div class="strange-object-preview">
               <div class="crystal-matrix-icon">
                 <span class="crystal-glyph-inner" id="resonator-glyph-core">◈</span>
@@ -247,6 +384,7 @@
               <span class="node-title">DEFENSE CONSOLE</span>
               <span class="node-status-indicator amber" id="arcade-obj-indicator"></span>
             </div>
+            <span class="node-tap-hint" id="arcade-tap-hint">// CLICK TO INSPECT</span>
             <div class="arcade-screen-preview">
               <div class="arcade-marquee" id="arcade-preview-marquee">SYSTEM DEFENSE</div>
               <div class="arcade-crt-frame" id="arcade-preview-frame">
@@ -254,6 +392,11 @@
                 <div class="arcade-status-tag" id="arcade-preview-tag">STATUS: READY</div>
               </div>
             </div>
+          </div>
+
+          <div class="interactive-node node-gold-token" id="gold-token-lobby" role="button" tabindex="0" aria-label="Something glimmers here" title="Something glimmers...">
+            <span class="gold-token-shimmer"></span>
+            <span class="gold-token-label">?</span>
           </div>
 
         </div>
@@ -318,6 +461,308 @@
       </div>
     </section>
 
+    <!-- ROOM 02: THE ORB ATRIUM (Sub-Level 02 — catch 3 drifting plasma orbs) -->
+    <section class="room-stage room-stage-alt" id="stage-orbatrium" aria-hidden="true" style="display:none;">
+      <div class="parallax-layer orbatrium-bg-layer">
+        <div class="orbatrium-atmos-glow"></div>
+        <div class="orbatrium-floor-grid"></div>
+      </div>
+
+      <div class="parallax-layer orbatrium-mid-layer">
+        <div class="orbatrium-composition-grid" id="orbatrium-grid">
+
+          <div class="orbatrium-header-block">
+            <span class="room-sub-eyebrow">// SUB-LEVEL 02 &bull; GRAVITATIONAL GARDEN</span>
+            <h2 class="room-sub-title">THE ORB ATRIUM</h2>
+            <p class="room-sub-hint">Three plasma orbs drift through the atrium. <b class="text-success">Catch all 3</b> to power the gravity lift. A gold token hides somewhere here.</p>
+          </div>
+
+          <div class="orb-field" id="orb-field" aria-label="Drifting plasma orbs">
+            <button type="button" class="orb-catcher orb-drift-a" id="orb-node-1" aria-label="Catch plasma orb 1">
+              <span class="orb-core"></span>
+              <span class="orb-ring"></span>
+              <span class="orb-tap-hint">// TAP TO CATCH</span>
+            </button>
+            <button type="button" class="orb-catcher orb-drift-b" id="orb-node-2" aria-label="Catch plasma orb 2">
+              <span class="orb-core"></span>
+              <span class="orb-ring"></span>
+              <span class="orb-tap-hint">// TAP TO CATCH</span>
+            </button>
+            <button type="button" class="orb-catcher orb-drift-c" id="orb-node-3" aria-label="Catch plasma orb 3">
+              <span class="orb-core"></span>
+              <span class="orb-ring"></span>
+              <span class="orb-tap-hint">// TAP TO CATCH</span>
+            </button>
+          </div>
+
+          <div class="orbatrium-side-row">
+            <div class="interactive-node node-atrium-console" id="node-atrium-console" role="button" tabindex="0" aria-label="Inspect Gravity Console">
+              <div class="node-header">
+                <span class="node-title text-success">// GRAVITY CONSOLE</span>
+                <span class="node-status-indicator active"></span>
+              </div>
+              <span class="node-tap-hint">// CLICK TO INSPECT</span>
+              <div class="atrium-console-screen">
+                <div>&gt; LIFT STATUS: <span class="text-danger">NO POWER</span></div>
+                <div>&gt; ORBS DETECTED: <span class="text-warning" id="atrium-orb-readout">0 / 3</span></div>
+                <div>&gt; FLORA: PLASMA ORCHIDS</div>
+              </div>
+            </div>
+
+            <div class="interactive-node node-gold-token" id="gold-token-orbatrium" role="button" tabindex="0" aria-label="Something glimmers here" title="Something glimmers...">
+              <span class="gold-token-shimmer"></span>
+              <span class="gold-token-label">?</span>
+            </div>
+          </div>
+
+          <!-- GRAVITY LIFT DOOR -->
+          <div class="interactive-node node-lift-door" id="node-lift-door" role="button" tabindex="0" aria-label="Gravity Lift">
+            <div class="node-header">
+              <span class="node-title" id="lift-node-title">GRAVITY LIFT</span>
+              <span class="node-status-indicator red" id="lift-status-indicator"></span>
+            </div>
+            <div class="lift-portal-visual" id="lift-portal-visual">
+              <div class="lift-socket-row">
+                <div class="lift-socket" id="lift-socket-1" title="Orb Socket 01"><span class="lift-socket-core"></span></div>
+                <div class="lift-socket" id="lift-socket-2" title="Orb Socket 02"><span class="lift-socket-core"></span></div>
+                <div class="lift-socket" id="lift-socket-3" title="Orb Socket 03"><span class="lift-socket-core"></span></div>
+              </div>
+              <div class="lift-shaft-frame" id="lift-shaft-frame">
+                <div class="lift-descent-glow" id="lift-descent-glow"></div>
+                <div class="lift-iris-hatch" id="lift-iris-hatch">
+                  <span class="lift-iris-icon" id="lift-iris-icon">&#x25FB;</span>
+                </div>
+                <div class="lift-platform" id="lift-platform"><span class="lift-platform-label">LIFT</span></div>
+              </div>
+            </div>
+            <div class="lift-access-label" id="lift-access-label">LIFT POWER: 0 / 3</div>
+            <div class="lift-access-sub" id="lift-access-sub">// GRAVITY ENGINE OFFLINE</div>
+            <span class="node-tap-hint" id="lift-tap-hint">// REQUIRES 3 PLASMA ORBS</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOM 03: THE SIGNAL VAULT (Sub-Level 03 — memory relay + vault keypad) -->
+    <section class="room-stage room-stage-alt" id="stage-vault" aria-hidden="true" style="display:none;">
+      <div class="parallax-layer vault-bg-layer">
+        <div class="vault-atmos-glow"></div>
+        <div class="vault-ring-echo"></div>
+      </div>
+
+      <div class="parallax-layer vault-mid-layer">
+        <div class="vault-composition-grid" id="vault-grid">
+
+          <div class="vault-header-block">
+            <span class="room-sub-eyebrow">// SUB-LEVEL 03 &bull; CIPHER ARCHIVE</span>
+            <h2 class="room-sub-title">THE SIGNAL VAULT</h2>
+            <p class="room-sub-hint">The <b class="text-warning">Signal Relay</b> replays ghost signals in a fixed order. Mirror each song — every round you win reveals one <b class="text-warning">cipher digit</b> for the vault door.</p>
+          </div>
+
+          <div class="vault-side-row">
+            <div class="interactive-node node-signal-console" id="node-signal-console" role="button" tabindex="0" aria-label="Access Signal Relay Console">
+              <div class="node-header">
+                <span class="node-title text-warning">// SIGNAL RELAY</span>
+                <span class="node-status-indicator amber" id="signal-obj-indicator"></span>
+              </div>
+              <span class="node-tap-hint" id="signal-tap-hint">// CLICK TO INSPECT</span>
+              <div class="signal-console-screen">
+                <div>&gt; RELAY ROUNDS WON: <span class="text-warning" id="vault-round-readout">0 / 3</span></div>
+                <div>&gt; CIPHER FRAGMENTS: <span class="text-info" id="vault-digit-readout">- - -</span></div>
+              </div>
+            </div>
+
+            <div class="interactive-node node-lore" id="node-vault-archive" role="button" tabindex="0" aria-label="Inspect Archive Shelf">
+              <div class="node-header">
+                <span class="node-title text-secondary">// ARCHIVE SHELF 9-C</span>
+                <span class="node-status-indicator amber"></span>
+              </div>
+              <span class="node-tap-hint">// CLICK TO INSPECT</span>
+              <div class="lore-visual">&#128218;</div>
+            </div>
+
+            <div class="interactive-node node-gold-token" id="gold-token-vault" role="button" tabindex="0" aria-label="Something glimmers here" title="Something glimmers...">
+              <span class="gold-token-shimmer"></span>
+              <span class="gold-token-label">?</span>
+            </div>
+          </div>
+
+          <!-- CIPHER VAULT DOOR -->
+          <div class="interactive-node node-vault-door" id="node-vault-door" role="button" tabindex="0" aria-label="Cipher Vault Door">
+            <div class="node-header">
+              <span class="node-title" id="vault-node-title">CIPHER VAULT DOOR</span>
+              <span class="node-status-indicator red" id="vault-door-status-indicator"></span>
+            </div>
+            <div class="vault-door-visual" id="vault-door-visual">
+              <div class="vault-door-ring" id="vault-door-ring">
+                <div class="vault-wheel" id="vault-wheel">
+                  <span class="vault-spoke"></span><span class="vault-spoke"></span><span class="vault-spoke"></span>
+                  <span class="vault-spoke"></span><span class="vault-spoke"></span><span class="vault-spoke"></span>
+                  <div class="vault-wheel-core" id="vault-wheel-core"><span id="vault-wheel-icon">&#9919;</span></div>
+                </div>
+              </div>
+              <div class="vault-bolt-row">
+                <span class="vault-bolt" id="vault-bolt-1"></span>
+                <span class="vault-bolt" id="vault-bolt-2"></span>
+                <span class="vault-bolt" id="vault-bolt-3"></span>
+              </div>
+            </div>
+            <div class="vault-door-readout" id="vault-door-readout">CODE: ? ? ?</div>
+            <div class="vault-access-sub" id="vault-access-sub">// WIN RELAY ROUNDS TO REVEAL DIGITS</div>
+            <span class="node-tap-hint" id="vault-door-tap-hint">// REQUIRES THE 3-DIGIT CIPHER</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOM 04: THE COOLING TUNNELS (Sub-Level 04 — valve grid + BOOST pump) -->
+    <section class="room-stage room-stage-alt" id="stage-tunnels" aria-hidden="true" style="display:none;">
+      <div class="parallax-layer tunnels-bg-layer">
+        <div class="tunnels-atmos-glow"></div>
+        <div class="tunnels-pipe-shadow"></div>
+      </div>
+
+      <div class="parallax-layer tunnels-mid-layer">
+        <div class="tunnels-composition-grid" id="tunnels-grid">
+
+          <div class="tunnels-header-block">
+            <span class="room-sub-eyebrow">// SUB-LEVEL 04 &bull; HYDRAULIC SECTOR</span>
+            <h2 class="room-sub-title">THE COOLING TUNNELS</h2>
+            <p class="room-sub-hint">Rotate the <b class="text-danger">coolant valves</b> until each row flows into its fuse. All 3 fuses lit earn the <b class="text-danger">PRESSURE BOOSTER</b> — the only way to open the hydraulic gate.</p>
+          </div>
+
+          <div class="tunnels-side-row">
+            <div class="interactive-node node-pipe-panel" id="node-pipe-panel" role="button" tabindex="0" aria-label="Access Coolant Valve Grid">
+              <div class="node-header">
+                <span class="node-title text-danger">// COOLANT VALVES</span>
+                <span class="node-status-indicator red" id="pipe-obj-indicator"></span>
+              </div>
+              <span class="node-tap-hint" id="pipe-tap-hint">// CLICK TO INSPECT</span>
+              <div class="pipe-console-screen">
+                <div>&gt; FUSES LIT: <span class="text-danger" id="tunnels-fuse-readout">0 / 3</span></div>
+                <div>&gt; PRESSURE: <span class="text-warning">NOMINAL-LOW</span></div>
+              </div>
+            </div>
+
+            <div class="interactive-node node-lore" id="node-tunnels-hatch" role="button" tabindex="0" aria-label="Inspect Maintenance Hatch">
+              <div class="node-header">
+                <span class="node-title text-secondary">// MAINTENANCE HATCH</span>
+                <span class="node-status-indicator amber"></span>
+              </div>
+              <span class="node-tap-hint">// CLICK TO INSPECT</span>
+              <div class="lore-visual">&#128663;</div>
+            </div>
+
+            <div class="interactive-node node-gold-token" id="gold-token-tunnels" role="button" tabindex="0" aria-label="Something glimmers here" title="Something glimmers...">
+              <span class="gold-token-shimmer"></span>
+              <span class="gold-token-label">?</span>
+            </div>
+          </div>
+
+          <!-- HYDRAULIC PRESSURE GATE + BOOST PUMP -->
+          <div class="interactive-node node-pressure-gate" id="node-pressure-gate" role="button" tabindex="0" aria-label="Hydraulic Pressure Gate">
+            <div class="node-header">
+              <span class="node-title" id="gate-node-title">HYDRAULIC GATE</span>
+              <span class="node-status-indicator red" id="gate-status-indicator"></span>
+            </div>
+            <div class="gate-visual" id="gate-visual">
+              <div class="gate-steam-jet jet-left" id="gate-steam-left"></div>
+              <div class="gate-steam-jet jet-right" id="gate-steam-right"></div>
+              <div class="gate-frame">
+                <div class="gate-panel gate-panel-left" id="gate-panel-left"></div>
+                <div class="gate-panel gate-panel-right" id="gate-panel-right"></div>
+                <div class="gate-core-warning" id="gate-core-warning">&#9888;</div>
+              </div>
+            </div>
+            <div class="gate-pressure-wrap d-none" id="gate-pressure-wrap">
+              <div class="gate-pressure-top">
+                <span class="gate-pressure-label">HYDRAULIC PRESSURE</span>
+                <span class="gate-pressure-value" id="gate-pressure-value">0%</span>
+              </div>
+              <div class="gate-pressure-track">
+                <div class="gate-pressure-fill" id="gate-pressure-fill"></div>
+              </div>
+              <button type="button" class="btn-boost-pump" id="btn-boost-pump">&#128293; HOLD TO PUMP BOOST</button>
+              <div class="gate-pressure-sub">// LEAKS CONSTANTLY — KEEP PUMPING TO 100%</div>
+            </div>
+            <div class="gate-access-label" id="gate-access-label">GATE STATUS: SEALED</div>
+            <div class="gate-access-sub" id="gate-access-sub">// HYDRAULICS DEAD — NEEDS PRESSURE BOOSTER</div>
+            <span class="node-tap-hint" id="gate-tap-hint">// LIGHT 3 FUSES TO EARN THE BOOSTER</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOM 05: THE CORE (Sub-Level 05 — fragments + ignition launch) -->
+    <section class="room-stage room-stage-alt" id="stage-core" aria-hidden="true" style="display:none;">
+      <div class="parallax-layer core-bg-layer">
+        <div class="core-atmos-glow"></div>
+        <div class="core-pulse-rings"></div>
+      </div>
+
+      <div class="parallax-layer core-mid-layer">
+        <div class="core-composition-grid" id="core-grid">
+
+          <div class="core-header-block">
+            <span class="room-sub-eyebrow">// SUB-LEVEL 05 &bull; REACTOR TERMINUS</span>
+            <h2 class="room-sub-title">THE CORE</h2>
+            <p class="room-sub-hint">Three <b class="text-info">core fragments</b> shattered across the reactor floor. Recover all 3, then <b class="text-violet">CHANNEL ENERGY</b> at the core console to force the final ignition.</p>
+          </div>
+
+          <div class="core-fragment-field" id="core-fragment-field">
+            <button type="button" class="fragment-shard fragment-drift-a" id="fragment-node-1" aria-label="Collect core fragment 1">
+              <span class="fragment-core">&#9670;</span>
+              <span class="fragment-tap-hint">// TAP TO RECOVER</span>
+            </button>
+            <button type="button" class="fragment-shard fragment-drift-b" id="fragment-node-2" aria-label="Collect core fragment 2">
+              <span class="fragment-core">&#9670;</span>
+              <span class="fragment-tap-hint">// TAP TO RECOVER</span>
+            </button>
+            <button type="button" class="fragment-shard fragment-drift-c" id="fragment-node-3" aria-label="Collect core fragment 3">
+              <span class="fragment-core">&#9670;</span>
+              <span class="fragment-tap-hint">// TAP TO RECOVER</span>
+            </button>
+          </div>
+
+          <div class="core-side-row">
+            <div class="interactive-node node-lore" id="node-core-log" role="button" tabindex="0" aria-label="Inspect Reactor Log">
+              <div class="node-header">
+                <span class="node-title text-secondary">// REACTOR LOG</span>
+                <span class="node-status-indicator violet"></span>
+              </div>
+              <span class="node-tap-hint">// CLICK TO INSPECT</span>
+              <div class="lore-visual">&#128220;</div>
+            </div>
+
+            <div class="interactive-node node-gold-token" id="gold-token-core" role="button" tabindex="0" aria-label="Something glimmers here" title="Something glimmers...">
+              <span class="gold-token-shimmer"></span>
+              <span class="gold-token-label">?</span>
+            </div>
+          </div>
+
+          <!-- CORE CONSOLE (FINAL DOOR) -->
+          <div class="interactive-node node-core-console" id="node-core-console" role="button" tabindex="0" aria-label="Core Ignition Console">
+            <div class="node-header">
+              <span class="node-title" id="core-node-title">CORE IGNITION CONSOLE</span>
+              <span class="node-status-indicator red" id="core-status-indicator"></span>
+            </div>
+            <div class="core-reactor-visual" id="core-reactor-visual">
+              <div class="core-reactor-ring ring-outer"></div>
+              <div class="core-reactor-ring ring-inner" id="core-reactor-ring"></div>
+              <div class="core-reactor-heart" id="core-reactor-heart"><span class="core-heart-icon" id="core-heart-icon">&#10038;</span></div>
+            </div>
+            <div class="core-inventory-readout" id="core-inventory-readout">FRAGMENTS: 0 / 3</div>
+            <div class="core-access-sub" id="core-access-sub">// REACTOR DORMANT — INSERT FRAGMENTS</div>
+            <span class="node-tap-hint" id="core-tap-hint">// REQUIRES 3 CORE FRAGMENTS</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- The Secret Reveal Overlay Stage ("YOU THOUGHT YOU ESCAPED?") -->
@@ -360,7 +805,13 @@
         YOU ESCAPED.
       </h1>
 
+      <div class="result-rank-badge rank-badge-hidden" id="result-rank-badge">
+        <span class="result-rank-label">RANK</span>
+        <span class="result-rank-value" id="result-rank-value">S</span>
+      </div>
+
       <div class="result-stats-card">
+        <div class="result-record-badge d-none" id="result-record-badge">★ NEW RECORD ESCAPE TIME</div>
         <div class="result-stat-grid">
           <div class="result-stat-box">
             <span class="result-stat-label">TIME</span>
@@ -371,14 +822,16 @@
             <span class="result-stat-value cyan" id="stat-score">900</span>
           </div>
           <div class="result-stat-box">
-            <span class="result-stat-label">KEYS</span>
-            <span class="result-stat-value" id="stat-keys">3 / 3</span>
+            <span class="result-stat-label">GOLD</span>
+            <span class="result-stat-value amber" id="stat-gold">0 / 5</span>
           </div>
           <div class="result-stat-box">
             <span class="result-stat-label">ARCADE BEST</span>
-            <span class="result-stat-value amber" id="stat-arcade">0000</span>
+            <span class="result-stat-value violet" id="stat-arcade">0000</span>
           </div>
         </div>
+        <div class="result-best-line d-none" id="result-best-line">PERSONAL BEST: <span id="result-best-value">--:--</span></div>
+        <div class="result-records-line" id="result-room-records"></div>
       </div>
 
       <div class="result-actions-group">
@@ -595,6 +1048,170 @@
         <button type="button" class="btn btn-sm btn-outline-secondary font-monospace" id="btn-modal-action">
           DISMISS
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM 03: Signal Relay Memory Modal -->
+  <div id="signal-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="signal-relay-card" id="signal-card">
+      <div class="signal-header">
+        <div class="signal-title-group">
+          <span class="signal-title">// SIGNAL RELAY // GHOST SONGS</span>
+          <span class="signal-round-badge" id="signal-round-badge">ROUND 0 / 3</span>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-signal-close" aria-label="Close Signal Relay">✕ ESC</button>
+      </div>
+
+      <div class="signal-instruction" id="signal-instruction">
+        Watch the towers glow, then repeat the pattern in the same order. Each round won reveals one vault cipher digit.
+      </div>
+
+      <div class="signal-towers-grid" id="signal-towers-grid">
+        <button type="button" class="signal-tower" data-tower="0" aria-label="Signal Tower 1">
+          <span class="signal-tower-lamp"></span>
+          <span class="signal-tower-glyph">I</span>
+          <span class="signal-tower-id">TOWER 01</span>
+        </button>
+        <button type="button" class="signal-tower" data-tower="1" aria-label="Signal Tower 2">
+          <span class="signal-tower-lamp"></span>
+          <span class="signal-tower-glyph">II</span>
+          <span class="signal-tower-id">TOWER 02</span>
+        </button>
+        <button type="button" class="signal-tower" data-tower="2" aria-label="Signal Tower 3">
+          <span class="signal-tower-lamp"></span>
+          <span class="signal-tower-glyph">III</span>
+          <span class="signal-tower-id">TOWER 03</span>
+        </button>
+        <button type="button" class="signal-tower" data-tower="3" aria-label="Signal Tower 4">
+          <span class="signal-tower-lamp"></span>
+          <span class="signal-tower-glyph">IV</span>
+          <span class="signal-tower-id">TOWER 04</span>
+        </button>
+      </div>
+
+      <div class="signal-status-row">
+        <span class="signal-status-text" id="signal-status-text">// RELAY IDLE — PRESS PLAY SEQUENCE</span>
+        <span class="signal-input-tracker" id="signal-input-tracker"></span>
+      </div>
+
+      <div class="signal-hint-box d-none" id="signal-hint-box"></div>
+
+      <div class="signal-actions">
+        <button type="button" class="btn-term-send" id="btn-signal-play">▶ PLAY SEQUENCE</button>
+        <button type="button" class="btn btn-outline-info font-monospace px-3" id="btn-signal-replay" aria-label="Replay sequence">↻ REPLAY</button>
+      </div>
+
+      <div class="signal-fragments-readout" id="signal-fragments-readout">
+        <span class="signal-fragments-label">CIPHER FRAGMENTS:</span>
+        <span class="signal-fragments-value" id="signal-digits-value">- - -</span>
+      </div>
+
+      <div class="signal-gold-stage d-none" id="signal-gold-stage">
+        <div class="gold-radiant-core"><span class="gold-radiant-icon">◉</span></div>
+        <h3 class="key-extract-title">GOLD DATACHIP RECOVERED</h3>
+        <p class="key-extract-sub">All relay songs mirrored. The vault cipher is complete — the GOLD DATACHIP is yours, and the vault door awaits the code.</p>
+        <button type="button" class="btn-claim-key" id="btn-claim-gold-chip">CLAIM GOLD DATACHIP &bull; +200 PTS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM 03: Vault Keypad Modal -->
+  <div id="vault-keypad-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="keypad-card" id="keypad-card">
+      <div class="keypad-header">
+        <div class="keypad-title-group">
+          <span class="keypad-title">// VAULT ENTRY // CIPHER LOCK</span>
+          <span class="keypad-status-badge" id="keypad-status-badge">STATUS: LOCKED</span>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-keypad-close" aria-label="Close Keypad">✕ ESC</button>
+      </div>
+
+      <div class="keypad-display" id="keypad-display">_ _ _</div>
+      <div class="keypad-feedback" id="keypad-feedback">// ENTER THE 3 RELAY DIGITS</div>
+      <div class="keypad-hint-box d-none" id="keypad-hint-box"></div>
+
+      <div class="keypad-grid" id="keypad-grid">
+        <button type="button" class="keypad-key" data-key="1">1</button>
+        <button type="button" class="keypad-key" data-key="2">2</button>
+        <button type="button" class="keypad-key" data-key="3">3</button>
+        <button type="button" class="keypad-key" data-key="4">4</button>
+        <button type="button" class="keypad-key" data-key="5">5</button>
+        <button type="button" class="keypad-key" data-key="6">6</button>
+        <button type="button" class="keypad-key" data-key="7">7</button>
+        <button type="button" class="keypad-key" data-key="8">8</button>
+        <button type="button" class="keypad-key" data-key="9">9</button>
+        <button type="button" class="keypad-key keypad-key-clear" data-key="CLR">CLR</button>
+        <button type="button" class="keypad-key" data-key="0">0</button>
+        <button type="button" class="keypad-key keypad-key-ok" data-key="OK">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM 04: Coolant Valve Grid Modal -->
+  <div id="pipe-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="pipe-grid-card" id="pipe-card">
+      <div class="pipe-header">
+        <div class="pipe-title-group">
+          <span class="pipe-title">// COOLANT GRID // VALVE ALIGNMENT</span>
+          <span class="pipe-status-badge" id="pipe-status-badge">FUSES: 0 / 3</span>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-pipe-close" aria-label="Close Valve Grid">✕ ESC</button>
+      </div>
+
+      <div class="pipe-instruction">Tap a valve to rotate it 90°. When a whole row aligns, coolant flows and its fuse lights up.</div>
+
+      <div class="pipe-rows" id="pipe-rows"></div>
+
+      <div class="pipe-actions">
+        <button type="button" class="btn btn-outline-secondary font-monospace px-3" id="btn-pipe-realign">↻ RE-SCRAMBLE VALVES</button>
+      </div>
+
+      <div class="pipe-gold-stage d-none" id="pipe-gold-stage">
+        <div class="booster-radiant-core"><span class="booster-radiant-icon">⚡</span></div>
+        <h3 class="key-extract-title">PRESSURE BOOSTER READY</h3>
+        <p class="key-extract-sub">All three fuses are burning and the booster is charged. Take it to the hydraulic gate and pump the pressure to the max.</p>
+        <button type="button" class="btn-claim-key" id="btn-claim-booster">CLAIM PRESSURE BOOSTER &bull; +200 PTS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM 05: Core Ignition Modal -->
+  <div id="core-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="core-ignition-card" id="core-card">
+      <div class="core-header">
+        <div class="core-title-group">
+          <span class="core-modal-title">// CORE IGNITION // FINAL PROTOCOL</span>
+          <span class="core-status-badge" id="core-status-badge">STATUS: DORMANT</span>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-core-close" aria-label="Close Core Console">✕ ESC</button>
+      </div>
+
+      <div class="core-inventory-row" id="core-inventory-row">
+        <span class="core-inv-item" id="core-inv-fragments">◆ FRAGMENTS 0/3</span>
+        <span class="core-inv-item" id="core-inv-chip">◉ GOLD DATACHIP</span>
+        <span class="core-inv-item" id="core-inv-keys">⚿ CIPHER KEYS 3/3</span>
+      </div>
+
+      <div class="core-gauge-wrap">
+        <div class="core-gauge-top">
+          <span class="core-gauge-label">CORE CHARGE</span>
+          <span class="core-gauge-value" id="core-energy-value">0%</span>
+        </div>
+        <div class="core-gauge-track">
+          <div class="core-gauge-fill" id="core-energy-fill"></div>
+        </div>
+      </div>
+
+      <div class="core-instruction" id="core-instruction">Insert the fragments and channel raw energy into the core. Charge decays fast — TAP as hard as you can.</div>
+
+      <button type="button" class="btn-channel-energy" id="btn-channel-energy">⚡ CHANNEL ENERGY</button>
+      <div class="core-tap-counter" id="core-tap-counter">TAPS: 0</div>
+
+      <div class="core-ignition-stage d-none" id="core-ignition-stage">
+        <div class="ignition-radiant-core"><span class="ignition-radiant-icon">✷</span></div>
+        <h3 class="key-extract-title">CRITICAL MASS REACHED</h3>
+        <button type="button" class="btn-claim-key" id="btn-trigger-launch">INITIATE ESCAPE LAUNCH &bull; +500 PTS</button>
       </div>
     </div>
   </div>
