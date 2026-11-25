@@ -2,29 +2,30 @@
  * Escape The Website - Game Engine & Multi-Room Transition Architecture (v3)
  * Manages the active session, persistent state, inventory, time tracking,
  * arcade scores, secret discovery, the FIVE sub-level room progression
- * (Lobby -> Orb Atrium -> Signal Vault -> Cooling Tunnels -> The Core),
- * gold token collectibles, rank records and room lifecycles.
+ * (The Threshold -> Orb Atrium -> Signal Vault -> Cooling Tunnels -> The Lobby),
+ * archived Core preservation, gold token collectibles, rank records and room lifecycles.
  */
 
-const STORAGE_KEY = 'escape_the_website_save_v2';
+const STORAGE_KEY = 'escape_the_website_save_v3';
+const STORAGE_KEY_V2 = 'escape_the_website_save_v2';
 const BEST_TIME_STORAGE_KEY = 'escape_the_website_best_time_v1';
 const RUNS_STORAGE_KEY = 'escape_the_website_runs_v1';
 
 class GameManager {
   constructor() {
-    // Sub-Level registry: five rooms + the hidden Sector 02 secret.
+    // Sub-Level registry: five main rooms + archived Core + hidden Sector 02 secret.
     // `collectible` describes what must be found in the room before its door opens.
     this.rooms = {
-      lobby: {
-        id: 'lobby',
+      entry: {
+        id: 'entry',
         index: 0,
         number: 'ROOM 01',
-        name: 'THE LOBBY',
-        subtitle: 'Sub-Level 01 • Mainframe Terminal',
-        description: 'An abandoned digital chamber humming with dormant power conduits. Multiple access ports lie dormant.',
+        name: 'THE THRESHOLD',
+        subtitle: 'Sub-Level 01 • System Access Port',
+        description: 'The outer threshold of the website. Activate all three dormant access nodes to power the descent hatch.',
         locked: false,
         ambientColor: '#00f0ff',
-        collectibleLabel: 'KEYS',
+        collectibleLabel: 'NODES',
         collectibleTotal: 3
       },
       orbatrium: {
@@ -63,13 +64,26 @@ class GameManager {
         collectibleLabel: 'FUSES',
         collectibleTotal: 3
       },
-      core: {
-        id: 'core',
+      lobby: {
+        id: 'lobby',
         index: 4,
         number: 'ROOM 05',
+        name: 'THE LOBBY',
+        subtitle: 'Sub-Level 05 • Final Security Barrier',
+        description: 'The final mainframe stronghold. Recover all three cipher keys to override the reinforced Security Barrier and escape.',
+        locked: true,
+        ambientColor: '#00f0ff',
+        collectibleLabel: 'KEYS',
+        collectibleTotal: 3
+      },
+      core: {
+        id: 'core',
+        index: -2,
+        archived: true,
+        number: 'ARCHIVE',
         name: 'THE CORE',
-        subtitle: 'Sub-Level 05 • Reactor Terminus',
-        description: 'The reactor heart of the website. Three shattered fragments power the final ignition. This is the real exit.',
+        subtitle: 'Archived Sector • Reactor Terminus',
+        description: 'The reactor heart of the website, preserved in archive stasis for bonus challenges.',
         locked: true,
         ambientColor: '#a855f7',
         collectibleLabel: 'FRAGMENTS',
@@ -89,13 +103,13 @@ class GameManager {
       }
     };
 
-    const goldRooms = ['lobby', 'orbatrium', 'vault', 'tunnels', 'core'];
+    const goldRooms = ['entry', 'orbatrium', 'vault', 'tunnels', 'lobby'];
     this.goldRooms = goldRooms;
 
     this.initialState = {
-      version: 2,
-      // Room 01
-      keysCollected: [],
+      version: 3,
+      // Room 01 (The Threshold)
+      entryNodesCollected: [],
       // Room 02
       orbsCollected: [],
       // Room 03
@@ -104,16 +118,18 @@ class GameManager {
       // Room 04
       fusesLit: [],
       boosterClaimed: false,
-      // Room 05
+      // Room 05 (The Lobby)
+      keysCollected: [],
+      // Archived Core
       fragmentsCollected: [],
-      // Cross-room collectible (one hidden token per room)
+      // Cross-room collectible (one hidden token per active room)
       goldTokens: [],
       goldRooms: goldRooms,
       // Session
       score: 0,
-      currentRoom: 'lobby',
+      currentRoom: 'entry',
       currentRoomIndex: 0,
-      unlockedRooms: ['lobby'],
+      unlockedRooms: ['entry'],
       gameStarted: false,
       gameCompleted: false,
       gameStartTime: null,
@@ -129,7 +145,16 @@ class GameManager {
     };
 
     // Working state
-    this.state = { ...this.initialState, keysCollected: [], orbsCollected: [], fusesLit: [], fragmentsCollected: [], goldTokens: [], roomBestTimes: {} };
+    this.state = {
+      ...this.initialState,
+      entryNodesCollected: [],
+      keysCollected: [],
+      orbsCollected: [],
+      fusesLit: [],
+      fragmentsCollected: [],
+      goldTokens: [],
+      roomBestTimes: {}
+    };
     this.listeners = new Set();
   }
 
@@ -142,8 +167,13 @@ class GameManager {
       this.state = this.freshState();
     }
 
-    // Sync puzzle states from loaded keys
+    // Sync puzzle states from loaded collectibles
     if (window.puzzleManager) {
+      (this.state.entryNodesCollected || []).forEach(nodeId => {
+        if (typeof window.puzzleManager.activateEntryNode === 'function') {
+          window.puzzleManager.activateEntryNode(nodeId);
+        }
+      });
       if (this.state.keysCollected.includes('key_01')) {
         window.puzzleManager.setSolved('key_01', true);
       }
@@ -176,13 +206,14 @@ class GameManager {
     return {
       ...this.initialState,
       ...meta,
+      entryNodesCollected: [],
       keysCollected: [],
       orbsCollected: [],
       fusesLit: [],
       fragmentsCollected: [],
       goldTokens: [],
-      unlockedRooms: meta.secretDiscovered ? ['lobby', 'sector02'] : ['lobby'],
-      currentRoom: 'lobby',
+      unlockedRooms: meta.secretDiscovered ? ['entry', 'sector02'] : ['entry'],
+      currentRoom: 'entry',
       currentRoomIndex: 0
     };
   }
@@ -364,7 +395,30 @@ class GameManager {
   // =========================================================================
 
   /**
-   * Award a collected key (guards against duplicate points)
+   * Room 01 (The Threshold): activate an access node
+   */
+  collectEntryNode(nodeId) {
+    if (!this.state.entryNodesCollected) this.state.entryNodesCollected = [];
+    if (!this.state.entryNodesCollected.includes(nodeId)) {
+      this.state.entryNodesCollected.push(nodeId);
+      this.addScore(100);
+
+      if (window.puzzleManager && typeof window.puzzleManager.activateEntryNode === 'function') {
+        window.puzzleManager.activateEntryNode(nodeId);
+      }
+
+      this.saveState();
+      this.notify('ENTRY_NODE_COLLECTED', { nodeId, count: this.state.entryNodesCollected.length });
+      if (this.state.entryNodesCollected.length === 3) {
+        this.notify('ROOM_COLLECTIBLES_COMPLETE', { roomId: 'entry' });
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Award a collected key (Room 05 — The Lobby; guards against duplicate points)
    */
   collectKey(keyId) {
     if (!this.state.keysCollected.includes(keyId)) {
@@ -489,7 +543,7 @@ class GameManager {
    * Collect the hidden gold token of a room (+100 pts, one per room)
    */
   collectGoldToken(roomId) {
-    if (this.goldRooms.includes(roomId) && !this.state.goldTokens.includes(roomId)) {
+    if ((this.goldRooms.includes(roomId) || roomId === 'core') && !this.state.goldTokens.includes(roomId)) {
       this.state.goldTokens.push(roomId);
       this.addScore(100);
       this.saveState();
@@ -509,12 +563,13 @@ class GameManager {
     const s = this.state;
     let have = 0;
     switch (roomId) {
-      case 'lobby': have = s.keysCollected.length; break;
-      case 'orbatrium': have = s.orbsCollected.length; break;
-      case 'vault': have = s.signalRoundsWon; break;
-      case 'tunnels': have = s.fusesLit.length; break;
-      case 'core': have = s.fragmentsCollected.length; break;
-      default: have = s.keysCollected.length;
+      case 'entry': have = (s.entryNodesCollected || []).length; break;
+      case 'lobby': have = (s.keysCollected || []).length; break;
+      case 'orbatrium': have = (s.orbsCollected || []).length; break;
+      case 'vault': have = s.signalRoundsWon || 0; break;
+      case 'tunnels': have = (s.fusesLit || []).length; break;
+      case 'core': have = (s.fragmentsCollected || []).length; break;
+      default: have = (s.entryNodesCollected || []).length;
     }
     return { have, total: room.collectibleTotal, label: room.collectibleLabel };
   }
@@ -574,30 +629,126 @@ class GameManager {
   }
 
   /**
-   * Load game state from localStorage (v2 schema; older saves are discarded)
+   * Deterministically migrate a v2 save object into v3 schema.
+   * Preserves all earned scores, meta-records, collectibles, secret status,
+   * and maps the old progression order into the new 5-room order cleanly.
+   */
+  migrateV2ToV3(parsed) {
+    const arr = (v) => Array.isArray(v) ? [...v] : [];
+    const secret = Boolean(parsed.secretDiscovered);
+    const completed = Boolean(parsed.gameCompleted);
+    const oldRoom = parsed.currentRoom || 'lobby';
+    const oldUnlocked = arr(parsed.unlockedRooms);
+
+    let nextRoom = 'entry';
+    let nextIndex = 0;
+    let entryNodes = arr(parsed.entryNodesCollected);
+    const unlockedSet = new Set(['entry']);
+
+    if (secret || oldUnlocked.includes('sector02')) {
+      unlockedSet.add('sector02');
+    }
+
+    if (completed) {
+      nextRoom = 'lobby';
+      nextIndex = 4;
+      entryNodes = ['node_1', 'node_2', 'node_3'];
+      ['entry', 'orbatrium', 'vault', 'tunnels', 'lobby'].forEach(r => unlockedSet.add(r));
+      if (oldUnlocked.includes('core')) unlockedSet.add('core');
+    } else if (oldRoom === 'orbatrium') {
+      nextRoom = 'orbatrium';
+      nextIndex = 1;
+      entryNodes = ['node_1', 'node_2', 'node_3'];
+      unlockedSet.add('orbatrium');
+    } else if (oldRoom === 'vault') {
+      nextRoom = 'vault';
+      nextIndex = 2;
+      entryNodes = ['node_1', 'node_2', 'node_3'];
+      ['orbatrium', 'vault'].forEach(r => unlockedSet.add(r));
+    } else if (oldRoom === 'tunnels') {
+      nextRoom = 'tunnels';
+      nextIndex = 3;
+      entryNodes = ['node_1', 'node_2', 'node_3'];
+      ['orbatrium', 'vault', 'tunnels'].forEach(r => unlockedSet.add(r));
+    } else if (oldRoom === 'core') {
+      // Old Room 05 Core is now archived; route safely to final Room 05 Lobby
+      nextRoom = 'lobby';
+      nextIndex = 4;
+      entryNodes = ['node_1', 'node_2', 'node_3'];
+      ['orbatrium', 'vault', 'tunnels', 'lobby', 'core'].forEach(r => unlockedSet.add(r));
+    } else {
+      // Old Room 01 Lobby (or unknown) starts in new Room 01 Entry while preserving earned items & meta
+      nextRoom = 'entry';
+      nextIndex = 0;
+    }
+
+    return {
+      ...this.initialState,
+      ...parsed,
+      version: 3,
+      entryNodesCollected: entryNodes,
+      keysCollected: arr(parsed.keysCollected),
+      orbsCollected: arr(parsed.orbsCollected),
+      fusesLit: arr(parsed.fusesLit),
+      fragmentsCollected: arr(parsed.fragmentsCollected),
+      goldTokens: arr(parsed.goldTokens),
+      goldRooms: [...this.goldRooms],
+      currentRoom: nextRoom,
+      currentRoomIndex: nextIndex,
+      unlockedRooms: Array.from(unlockedSet),
+      roomBestTimes: (parsed.roomBestTimes && typeof parsed.roomBestTimes === 'object') ? { ...parsed.roomBestTimes } : {}
+    };
+  }
+
+  /**
+   * Load game state from localStorage (v3 schema, with deterministic v2->v3 migration; v1 discarded)
    */
   loadState() {
     try {
       if (typeof localStorage === 'undefined') return false;
-      const data = localStorage.getItem(STORAGE_KEY);
-      if (data) {
-        const parsed = JSON.parse(data);
-        if (!parsed || parsed.version !== 2) {
-          return false; // legacy v1 save — start clean
+      const arr = (v) => Array.isArray(v) ? [...v] : [];
+      const dataV3 = localStorage.getItem(STORAGE_KEY);
+      if (dataV3) {
+        const parsed = JSON.parse(dataV3);
+        if (parsed && parsed.version === 3) {
+          const roomDef = this.rooms[parsed.currentRoom];
+          const safeRoom = (roomDef && roomDef.index >= 0) ? parsed.currentRoom : 'entry';
+          const safeIndex = this.rooms[safeRoom] ? this.rooms[safeRoom].index : 0;
+          this.state = {
+            ...this.initialState,
+            ...parsed,
+            version: 3,
+            currentRoom: safeRoom,
+            currentRoomIndex: safeIndex,
+            entryNodesCollected: arr(parsed.entryNodesCollected),
+            keysCollected: arr(parsed.keysCollected),
+            orbsCollected: arr(parsed.orbsCollected),
+            fusesLit: arr(parsed.fusesLit),
+            fragmentsCollected: arr(parsed.fragmentsCollected),
+            goldTokens: arr(parsed.goldTokens),
+            goldRooms: [...this.goldRooms],
+            unlockedRooms: arr(parsed.unlockedRooms).length ? arr(parsed.unlockedRooms) : ['entry'],
+            roomBestTimes: (parsed.roomBestTimes && typeof parsed.roomBestTimes === 'object') ? { ...parsed.roomBestTimes } : {}
+          };
+          return true;
         }
-        const arr = (v) => Array.isArray(v) ? [...v] : [];
-        this.state = {
-          ...this.initialState,
-          ...parsed,
-          keysCollected: arr(parsed.keysCollected),
-          orbsCollected: arr(parsed.orbsCollected),
-          fusesLit: arr(parsed.fusesLit),
-          fragmentsCollected: arr(parsed.fragmentsCollected),
-          goldTokens: arr(parsed.goldTokens),
-          unlockedRooms: arr(parsed.unlockedRooms).length ? arr(parsed.unlockedRooms) : ['lobby'],
-          roomBestTimes: (parsed.roomBestTimes && typeof parsed.roomBestTimes === 'object') ? { ...parsed.roomBestTimes } : {}
-        };
-        return true;
+        if (parsed && parsed.version === 2) {
+          this.state = this.migrateV2ToV3(parsed);
+          this.saveState();
+          return true;
+        }
+        return false; // legacy v1 save — start clean
+      }
+
+      const dataV2 = localStorage.getItem(STORAGE_KEY_V2);
+      if (dataV2) {
+        const parsedV2 = JSON.parse(dataV2);
+        if (parsedV2 && parsedV2.version === 2) {
+          this.state = this.migrateV2ToV3(parsedV2);
+          this.saveState();
+          return true;
+        }
+        return false; // legacy v1 save — start clean
       }
     } catch (e) {
       this.state = this.freshState();
@@ -614,6 +765,7 @@ class GameManager {
     try {
       if (typeof localStorage !== 'undefined' && localStorage) {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_KEY_V2);
       }
     } catch (e) {
       // Storage unavailable (private mode / quota) — continue with reset.
@@ -636,6 +788,7 @@ class GameManager {
   getState() {
     return {
       ...this.state,
+      entryNodesCollected: [...(this.state.entryNodesCollected || [])],
       keysCollected: [...this.state.keysCollected],
       orbsCollected: [...this.state.orbsCollected],
       fusesLit: [...this.state.fusesLit],
@@ -647,7 +800,7 @@ class GameManager {
   }
 
   /**
-   * Check if all 3 keys are recovered (Room 01 door)
+   * Check if all 3 keys are recovered (Room 05 Lobby door)
    */
   hasAllKeys() {
     return this.state.keysCollected.length >= 3;
@@ -657,7 +810,7 @@ class GameManager {
    * Get current room information
    */
   getCurrentRoomInfo() {
-    return this.rooms[this.state.currentRoom] || this.rooms.lobby;
+    return this.rooms[this.state.currentRoom] || this.rooms.entry;
   }
 }
 

@@ -134,15 +134,15 @@
     <header class="game-hud" id="main-game-hud">
       <div class="hud-location">
         <span class="hud-room-badge" id="hud-room-badge">ROOM 01</span>
-        <span class="hud-room-name" id="hud-room-name">THE LOBBY</span>
+        <span class="hud-room-name" id="hud-room-name">THE THRESHOLD</span>
       </div>
 
       <div class="hud-meta-group">
         <div class="hud-all-keys-banner d-none" id="hud-all-keys-banner">
-          &bull; ALL 3 ACCESS KEYS RECOVERED &bull;
+          &bull; ALL 3 ACCESS NODES ONLINE &bull;
         </div>
         <div class="hud-keys-panel" title="Room Collectibles">
-          <span class="hud-keys-label" id="hud-collectible-label">KEYS</span>
+          <span class="hud-keys-label" id="hud-collectible-label">NODES</span>
           <div class="key-slots">
             <span class="key-slot-icon" id="key-slot-1"></span>
             <span class="key-slot-icon" id="key-slot-2"></span>
@@ -250,7 +250,7 @@
             <div class="briefing-step-num">02</div>
             <div class="briefing-step-body">
               <span class="briefing-step-name">FIND 3 ITEMS PER ROOM</span>
-              <span class="briefing-step-desc">ROOM 01: 3 cipher keys &bull; ROOM 02: 3 drifting orbs &bull; ROOM 03: 3 relay signals &bull; ROOM 04: 3 coolant fuses &bull; ROOM 05: 3 core fragments.</span>
+              <span class="briefing-step-desc">ROOM 01: 3 access nodes &bull; ROOM 02: 3 drifting orbs &bull; ROOM 03: 3 relay signals &bull; ROOM 04: 3 coolant fuses &bull; ROOM 05: 3 cipher keys.</span>
             </div>
           </div>
 
@@ -258,7 +258,7 @@
             <div class="briefing-step-num">03</div>
             <div class="briefing-step-body">
               <span class="briefing-step-name">EVERY DOOR OPENS DIFFERENTLY</span>
-              <span class="briefing-step-desc">Blast locks &bull; gravity lift &bull; vault keypad &bull; hydraulic BOOST pump &bull; core ignition. Watch the room — it tells you how.</span>
+              <span class="briefing-step-desc">Threshold hatch &bull; gravity lift &bull; vault keypad &bull; hydraulic BOOST pump &bull; final Security Barrier. Watch the room &mdash; it tells you how.</span>
             </div>
           </div>
 
@@ -298,8 +298,161 @@
       <p class="room-intro-hint" id="room-intro-hint">Catch the 3 drifting plasma orbs to power the gravity lift.</p>
     </div>
 
-    <!-- ROOM 01: The Lobby -->
-    <section class="room-stage" id="stage-lobby">
+    <!-- ROOM 01: THE THRESHOLD (Beginner Starting Room) -->
+    <section class="room-stage room-stage-alt active" id="stage-entry" aria-hidden="false">
+      <div class="parallax-layer entry-bg-layer">
+        <div class="entry-atmos-glow"></div>
+        <div class="entry-floor-grid"></div>
+        <div class="entry-scan-beam"></div>
+      </div>
+
+      <div class="parallax-layer entry-mid-layer">
+        <div class="entry-composition-grid" id="entry-grid">
+
+          <div class="entry-header-block">
+            <div class="entry-eyebrow-row">
+              <span class="room-sub-eyebrow">// SUB-LEVEL 01 &bull; SYSTEM ACCESS PORT</span>
+              <span class="entry-step-guide" aria-label="Room guide">
+                <span class="entry-step-pill active" id="entry-step-1">1. POWER 3 NODES</span>
+                <span class="entry-step-arrow" aria-hidden="true">&rarr;</span>
+                <span class="entry-step-pill" id="entry-step-2">2. ENTER HATCH</span>
+              </span>
+            </div>
+            <h2 class="room-sub-title">THE THRESHOLD</h2>
+            <p class="room-sub-hint">You are sealed inside the outer shell. <b class="text-info">Activate all 3 Access Nodes</b> to power the Exit Hatch and descend.</p>
+
+            <div class="entry-progress-panel" aria-live="polite">
+              <div class="entry-progress-top">
+                <span class="entry-progress-caption">THRESHOLD POWER GRID</span>
+                <span class="entry-progress-badge" id="entry-progress-badge">0 / 3 NODES ONLINE</span>
+              </div>
+              <div class="entry-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" id="entry-progress-bar">
+                <div class="entry-progress-fill" id="entry-progress-fill"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="entry-nodes-grid" id="entry-nodes-grid" aria-label="Threshold Access Nodes">
+            <button type="button" class="interactive-node entry-node-card" id="entry-node-1" data-entry-node="node_1" data-node-theme="alpha" aria-label="Activate Access Node Alpha (1 of 3)" aria-pressed="false">
+              <div class="node-header">
+                <span class="node-title">NODE ALPHA</span>
+                <span class="node-status-indicator amber" id="entry-node-indicator-1"></span>
+              </div>
+              <div class="entry-node-body">
+                <div class="entry-node-orb">
+                  <span class="entry-node-ring" aria-hidden="true"></span>
+                  <span class="entry-node-ripple" aria-hidden="true"></span>
+                  <svg class="entry-node-svg" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                    <circle cx="18" cy="18" r="11" stroke="currentColor" stroke-width="1.8" stroke-dasharray="4 3"/>
+                    <circle cx="18" cy="18" r="4.5" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="entry-node-meta">
+                  <span class="entry-node-role">01 &bull; PRIMARY BUS</span>
+                  <div class="entry-node-status" id="entry-node-status-1">// TAP TO ACTIVATE</div>
+                </div>
+              </div>
+            </button>
+
+            <button type="button" class="interactive-node entry-node-card" id="entry-node-2" data-entry-node="node_2" data-node-theme="beta" aria-label="Activate Access Node Beta (2 of 3)" aria-pressed="false">
+              <div class="node-header">
+                <span class="node-title">NODE BETA</span>
+                <span class="node-status-indicator amber" id="entry-node-indicator-2"></span>
+              </div>
+              <div class="entry-node-body">
+                <div class="entry-node-orb">
+                  <span class="entry-node-ring" aria-hidden="true"></span>
+                  <span class="entry-node-ripple" aria-hidden="true"></span>
+                  <svg class="entry-node-svg" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                    <rect x="10" y="10" width="16" height="16" rx="2" transform="rotate(45 18 18)" stroke="currentColor" stroke-width="1.8"/>
+                    <circle cx="18" cy="18" r="3.5" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="entry-node-meta">
+                  <span class="entry-node-role">02 &bull; SYNC RELAY</span>
+                  <div class="entry-node-status" id="entry-node-status-2">// TAP TO ACTIVATE</div>
+                </div>
+              </div>
+            </button>
+
+            <button type="button" class="interactive-node entry-node-card" id="entry-node-3" data-entry-node="node_3" data-node-theme="gamma" aria-label="Activate Access Node Gamma (3 of 3)" aria-pressed="false">
+              <div class="node-header">
+                <span class="node-title">NODE GAMMA</span>
+                <span class="node-status-indicator amber" id="entry-node-indicator-3"></span>
+              </div>
+              <div class="entry-node-body">
+                <div class="entry-node-orb">
+                  <span class="entry-node-ring" aria-hidden="true"></span>
+                  <span class="entry-node-ripple" aria-hidden="true"></span>
+                  <svg class="entry-node-svg" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                    <polygon points="18,6 29,26 7,26" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    <circle cx="18" cy="20" r="3.2" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="entry-node-meta">
+                  <span class="entry-node-role">03 &bull; HATCH LOCK</span>
+                  <div class="entry-node-status" id="entry-node-status-3">// TAP TO ACTIVATE</div>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div class="entry-side-row">
+            <div class="interactive-node node-entry-console" id="node-entry-console" role="button" tabindex="0" aria-label="Inspect Threshold Console">
+              <div class="node-header">
+                <span class="node-title text-info">// THRESHOLD CONSOLE</span>
+                <span class="node-status-indicator active"></span>
+              </div>
+              <span class="node-tap-hint">// CLICK TO INSPECT</span>
+              <div class="atrium-console-screen">
+                <div>&gt; NODES ONLINE: <span class="text-info fw-bold" id="entry-progress-readout">0 / 3</span></div>
+                <div>&gt; EXIT HATCH: <span class="text-warning" id="entry-console-status">AWAITING POWER</span></div>
+                <div>&gt; NEXT ACTION: <span class="text-info" id="entry-next-action">ACTIVATE ALL 3 NODES</span></div>
+              </div>
+            </div>
+
+            <div class="interactive-node node-gold-token" id="gold-token-entry" role="button" tabindex="0" aria-label="Something glimmers here" title="Something glimmers...">
+              <span class="gold-token-shimmer"></span>
+              <span class="gold-token-label">?</span>
+            </div>
+          </div>
+
+          <!-- THRESHOLD EXIT HATCH -->
+          <div class="interactive-node node-entry-door" id="node-entry-door" role="button" tabindex="0" aria-label="Threshold Exit Hatch — Locked, 0 of 3 nodes online">
+            <div class="node-header">
+              <span class="node-title" id="entry-door-title">EXIT HATCH</span>
+              <span class="node-status-indicator red" id="entry-status-indicator"></span>
+            </div>
+            <div class="entry-portal-visual">
+              <div class="entry-cell-row" aria-label="Hatch power cells">
+                <div class="entry-cell-conduit" aria-hidden="true">
+                  <span class="entry-cell-conduit-fill" id="entry-conduit-fill"></span>
+                </div>
+                <div class="entry-cell" id="entry-cell-1" title="Node Alpha Cell"><span class="entry-cell-core"></span><span class="entry-cell-num">01</span></div>
+                <div class="entry-cell" id="entry-cell-2" title="Node Beta Cell"><span class="entry-cell-core"></span><span class="entry-cell-num">02</span></div>
+                <div class="entry-cell" id="entry-cell-3" title="Node Gamma Cell"><span class="entry-cell-core"></span><span class="entry-cell-num">03</span></div>
+              </div>
+              <div class="entry-hatch-frame" id="entry-hatch-frame">
+                <div class="entry-hatch-glow" id="entry-hatch-glow"></div>
+                <div class="entry-hatch-panel entry-hatch-left" id="entry-hatch-left"></div>
+                <div class="entry-hatch-panel entry-hatch-right" id="entry-hatch-right"></div>
+                <div class="entry-hatch-ring" id="entry-hatch-ring">
+                  <span class="entry-hatch-icon" id="entry-hatch-icon">✕</span>
+                </div>
+              </div>
+            </div>
+            <div class="entry-access-label" id="entry-access-label">HATCH POWER: 0 / 3</div>
+            <div class="entry-access-sub" id="entry-access-sub">// ACTIVATE ALL 3 NODES TO UNLOCK</div>
+            <div class="entry-door-cta" id="entry-door-cta">LOCKED &bull; 3 NODES NEEDED</div>
+            <span class="node-tap-hint" id="entry-tap-hint">// REQUIRES 3 ACCESS NODES</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOM 05: The Lobby (Final Challenge) -->
+    <section class="room-stage" id="stage-lobby" aria-hidden="true" style="display:none;">
       
       <!-- Background Architecture Layer -->
       <div class="parallax-layer layer-background" id="layer-bg">
@@ -378,18 +531,18 @@
             </div>
           </div>
 
-          <!-- 4. Arcade / Simulation Machine (KEY 03 - System Defense) -->
-          <div class="interactive-node node-arcade" id="node-arcade" role="button" tabindex="0" aria-label="Engage Defense Arcade Console">
+          <!-- 4. Arcade / Retro Pixel Maze Console (KEY 03) -->
+          <div class="interactive-node node-arcade" id="node-arcade" role="button" tabindex="0" aria-label="Launch Pixel Maze Console">
             <div class="node-header">
-              <span class="node-title">DEFENSE CONSOLE</span>
+              <span class="node-title">PIXEL MAZE</span>
               <span class="node-status-indicator amber" id="arcade-obj-indicator"></span>
             </div>
-            <span class="node-tap-hint" id="arcade-tap-hint">// CLICK TO INSPECT</span>
+            <span class="node-tap-hint" id="arcade-tap-hint">// CLICK TO PLAY</span>
             <div class="arcade-screen-preview">
-              <div class="arcade-marquee" id="arcade-preview-marquee">SYSTEM DEFENSE</div>
+              <div class="arcade-marquee" id="arcade-preview-marquee">MONOCHROME RUN</div>
               <div class="arcade-crt-frame" id="arcade-preview-frame">
-                <div class="arcade-power-icon" id="arcade-preview-icon">⚡</div>
-                <div class="arcade-status-tag" id="arcade-preview-tag">STATUS: READY</div>
+                <div class="arcade-power-icon" id="arcade-preview-icon">▓</div>
+                <div class="arcade-status-tag" id="arcade-preview-tag">DOTS: 0 / 3</div>
               </div>
             </div>
           </div>
@@ -477,21 +630,25 @@
             <p class="room-sub-hint">Three plasma orbs drift through the atrium. <b class="text-success">Catch all 3</b> to power the gravity lift. A gold token hides somewhere here.</p>
           </div>
 
-          <div class="orb-field" id="orb-field" aria-label="Drifting plasma orbs">
-            <button type="button" class="orb-catcher orb-drift-a" id="orb-node-1" aria-label="Catch plasma orb 1">
+          <div class="orb-field" id="orb-field" aria-label="Drifting pixel plasma orbs">
+            <div class="orb-field-hud">
+              <span class="orb-field-label">// PIXEL ENERGY ORBS</span>
+              <span class="orb-field-counter" id="orb-field-counter">0 / 3 CAUGHT</span>
+            </div>
+            <button type="button" class="orb-catcher orb-drift-a" id="orb-node-1" aria-label="Catch pixel plasma orb 1">
               <span class="orb-core"></span>
               <span class="orb-ring"></span>
-              <span class="orb-tap-hint">// TAP TO CATCH</span>
+              <span class="orb-tap-hint">// TAP ORB</span>
             </button>
-            <button type="button" class="orb-catcher orb-drift-b" id="orb-node-2" aria-label="Catch plasma orb 2">
+            <button type="button" class="orb-catcher orb-drift-b" id="orb-node-2" aria-label="Catch pixel plasma orb 2">
               <span class="orb-core"></span>
               <span class="orb-ring"></span>
-              <span class="orb-tap-hint">// TAP TO CATCH</span>
+              <span class="orb-tap-hint">// TAP ORB</span>
             </button>
-            <button type="button" class="orb-catcher orb-drift-c" id="orb-node-3" aria-label="Catch plasma orb 3">
+            <button type="button" class="orb-catcher orb-drift-c" id="orb-node-3" aria-label="Catch pixel plasma orb 3">
               <span class="orb-core"></span>
               <span class="orb-ring"></span>
-              <span class="orb-tap-hint">// TAP TO CATCH</span>
+              <span class="orb-tap-hint">// TAP ORB</span>
             </button>
           </div>
 
@@ -684,8 +841,8 @@
               <div class="gate-pressure-track">
                 <div class="gate-pressure-fill" id="gate-pressure-fill"></div>
               </div>
-              <button type="button" class="btn-boost-pump" id="btn-boost-pump">&#128293; HOLD TO PUMP BOOST</button>
-              <div class="gate-pressure-sub">// LEAKS CONSTANTLY — KEEP PUMPING TO 100%</div>
+              <button type="button" class="btn-boost-pump" id="btn-boost-pump">&#128293; TAP OR HOLD TO PRESSURIZE</button>
+              <div class="gate-pressure-sub">// NO DECAY — CHARGE PRESSURE TO 100%</div>
             </div>
             <div class="gate-access-label" id="gate-access-label">GATE STATUS: SEALED</div>
             <div class="gate-access-sub" id="gate-access-sub">// HYDRAULICS DEAD — NEEDS PRESSURE BOOSTER</div>
@@ -791,6 +948,55 @@
     </div>
   </div>
 
+  <!-- Full-Screen Multi-Room Cinematic Transition Overlay -->
+  <div id="room-transition-overlay" class="room-transition-overlay" aria-hidden="true" data-mode="">
+    <div class="rto-backdrop"></div>
+
+    <!-- Room 01 -> 02: Energy Gateway Portal -->
+    <div class="rto-scene rto-portal" aria-hidden="true">
+      <div class="rto-energy-ray ray-1"></div>
+      <div class="rto-energy-ray ray-2"></div>
+      <div class="rto-energy-ray ray-3"></div>
+      <div class="rto-portal-ring ring-outer"></div>
+      <div class="rto-portal-ring ring-inner"></div>
+      <div class="rto-portal-core"></div>
+    </div>
+
+    <!-- Room 02 -> 03: Gravity Lift Light Tunnel -->
+    <div class="rto-scene rto-gravity" aria-hidden="true">
+      <div class="rto-lift-shaft shaft-1"></div>
+      <div class="rto-lift-shaft shaft-2"></div>
+      <div class="rto-lift-shaft shaft-3"></div>
+      <div class="rto-lift-beam"></div>
+      <div class="rto-lift-streaks"></div>
+    </div>
+
+    <!-- Room 03 -> 04: Digital Decryption Matrix -->
+    <div class="rto-scene rto-decryption" aria-hidden="true">
+      <div class="rto-cyber-grid"></div>
+      <div class="rto-cipher-rings"></div>
+      <div class="rto-cipher-bars">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="rto-cipher-sweep"></div>
+    </div>
+
+    <!-- Room 04 -> 05: Hydraulic Pressure Release & Steam -->
+    <div class="rto-scene rto-hydraulic" aria-hidden="true">
+      <div class="rto-steam-cloud steam-left"></div>
+      <div class="rto-steam-cloud steam-right"></div>
+      <div class="rto-pressure-wave wave-1"></div>
+      <div class="rto-pressure-wave wave-2"></div>
+      <div class="rto-shutter shutter-left"></div>
+      <div class="rto-shutter shutter-right"></div>
+    </div>
+
+    <div class="rto-hud-caption" id="rto-hud-caption">
+      <span class="rto-hud-eyebrow" id="rto-hud-eyebrow">// TRANSITIONING</span>
+      <span class="rto-hud-title" id="rto-hud-title">SUB-LEVEL</span>
+    </div>
+  </div>
+
   <!-- White Washout Transition Layer -->
   <div id="escape-white-wash"></div>
 
@@ -851,72 +1057,82 @@
   <!-- Share Toast Feedback -->
   <div id="escape-toast">RESULT COPIED TO CLIPBOARD</div>
 
-  <!-- KEY 03: Arcade System Defense Modal -->
+  <!-- KEY 03: Monochrome Retro Pixel Maze Modal -->
   <div id="arcade-modal" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="arcade-arena-card" id="arcade-card">
+    <div class="arcade-arena-card maze-card" id="arcade-card">
       <div class="arcade-arena-header">
         <div class="arcade-arena-title-group">
-          <span class="arcade-arena-title">// SYSTEM DEFENSE // MATRIX</span>
+          <span class="arcade-arena-title">// PIXEL MAZE // PROTOCOL 03</span>
           <span class="arcade-best-badge" id="arcade-best-badge">BEST: 0000</span>
         </div>
-        <button type="button" class="btn-close-modal" id="btn-arcade-close" aria-label="Close Arcade">✕ ESC</button>
+        <button type="button" class="btn-close-modal" id="btn-arcade-close" aria-label="Close Pixel Maze">✕ ESC</button>
       </div>
 
-      <div class="arcade-hud-bar">
+      <div class="arcade-hud-bar maze-hud-bar">
         <div class="arcade-stat-item">
-          <span class="arcade-stat-label">SCORE:</span>
-          <span class="arcade-stat-val amber" id="arcade-score-val">0000</span>
+          <span class="arcade-stat-label">DOTS:</span>
+          <span class="arcade-stat-val" id="arcade-score-val">0 / 3</span>
         </div>
         <div class="arcade-stat-item">
-          <span class="arcade-stat-label">TIME:</span>
-          <span class="arcade-stat-val" id="arcade-time-val">20s</span>
+          <span class="arcade-stat-label">EXIT:</span>
+          <span class="arcade-stat-val" id="arcade-time-val">LOCKED</span>
         </div>
         <div class="arcade-stat-item">
-          <span class="arcade-stat-label">COMBO:</span>
-          <span class="arcade-stat-val emerald" id="arcade-combo-val">x1</span>
-        </div>
-        <div class="arcade-stat-item">
-          <span class="arcade-stat-label">TARGETS:</span>
+          <span class="arcade-stat-label">MOVES:</span>
           <span class="arcade-stat-val" id="arcade-targets-val">0</span>
         </div>
+        <button type="button" class="btn-maze-reset" id="btn-maze-restart" aria-label="Restart Maze">↻ RESET</button>
       </div>
 
-      <div class="arcade-playfield" id="arcade-playfield">
-        <div class="arcade-grid-mesh"></div>
-        <div class="arcade-countdown-overlay" id="arcade-countdown-overlay">
-          <div class="countdown-number" id="countdown-num">3</div>
-          <div class="countdown-subtext" id="countdown-sub">CALIBRATING TARGETING GRID...</div>
+      <div class="arcade-playfield maze-playfield" id="arcade-playfield">
+        <div class="maze-crt-scanlines" aria-hidden="true"></div>
+        <div class="maze-status-banner" id="maze-status-banner" aria-live="polite">
+          COLLECT ALL 3 ENERGY DOTS (•), THEN REACH EXIT (E)
+        </div>
+
+        <div class="maze-stage-wrap">
+          <div class="pixel-maze-board" id="pixel-maze-board" role="grid" aria-label="Monochrome Pixel Maze"></div>
+
+          <div class="maze-controls-bar">
+            <div class="maze-dpad" id="maze-dpad" aria-label="Directional Controls">
+              <button type="button" class="maze-dpad-btn up" data-dir="up" aria-label="Move Up">▲</button>
+              <button type="button" class="maze-dpad-btn left" data-dir="left" aria-label="Move Left">◀</button>
+              <button type="button" class="maze-dpad-btn down" data-dir="down" aria-label="Move Down">▼</button>
+              <button type="button" class="maze-dpad-btn right" data-dir="right" aria-label="Move Right">▶</button>
+            </div>
+            <div class="maze-controls-hint">ARROW KEYS / WASD &bull; SWIPE OR D-PAD</div>
+          </div>
         </div>
 
         <div class="arcade-summary-stage" id="arcade-summary-stage">
-          <h3 class="h4 fw-bold text-light mb-2 font-monospace" id="summary-status-title">SYSTEM DEFENSE COMPLETE</h3>
-          <p class="text-secondary small mb-3" id="summary-status-sub">Simulation evaluation finished.</p>
+          <h3 class="h4 fw-bold text-light mb-2 font-monospace" id="summary-status-title">MAZE PROTOCOL CLEARED</h3>
+          <p class="text-secondary small mb-3" id="summary-status-sub">All energy dots secured and exit reached.</p>
 
           <div class="arcade-summary-card">
             <div class="summary-stat-row">
               <span class="text-secondary">FINAL SCORE:</span>
-              <span class="text-warning fw-bold" id="summary-final-score">0</span>
+              <span class="text-light fw-bold" id="summary-final-score">0</span>
             </div>
             <div class="summary-stat-row">
-              <span class="text-secondary">TARGETS DESTROYED:</span>
+              <span class="text-secondary">TOTAL MOVES:</span>
               <span class="text-light" id="summary-targets-destroyed">0</span>
             </div>
             <div class="summary-stat-row">
-              <span class="text-secondary">MAX COMBO:</span>
-              <span class="text-success fw-bold" id="summary-max-combo">x1</span>
+              <span class="text-secondary">ENERGY DOTS:</span>
+              <span class="text-light fw-bold" id="summary-max-combo">3 / 3</span>
             </div>
             <div class="summary-stat-row">
-              <span class="text-secondary">ALL-TIME BEST:</span>
-              <span class="text-info fw-bold" id="summary-best-score">0</span>
+              <span class="text-secondary">BEST SCORE:</span>
+              <span class="text-light fw-bold" id="summary-best-score">0</span>
             </div>
           </div>
 
-          <div class="d-flex justify-content-center gap-3">
+          <div class="d-flex justify-content-center gap-3 flex-wrap">
             <button type="button" class="btn-claim-key d-none" id="btn-claim-key-3">
               CLAIM KEY 03 &bull; +300 PTS
             </button>
-            <button type="button" class="btn btn-outline-info font-monospace px-4 py-2" id="btn-arcade-retry">
-              RETRY SIMULATION
+            <button type="button" class="btn btn-outline-light font-monospace px-4 py-2" id="btn-arcade-retry">
+              PLAY AGAIN
             </button>
           </div>
         </div>
@@ -1064,7 +1280,13 @@
       </div>
 
       <div class="signal-instruction" id="signal-instruction">
-        Watch the towers glow, then repeat the pattern in the same order. Each round won reveals one vault cipher digit.
+        1. Press <b>PLAY SEQUENCE</b> &bull; 2. Watch the glowing towers &bull; 3. Repeat the exact order at your own pace.
+      </div>
+
+      <div class="signal-step-pills" id="signal-step-pills" aria-label="Round Progress">
+        <span class="signal-step-pill" id="signal-step-1">ROUND 1 &bull; DIGIT 1</span>
+        <span class="signal-step-pill" id="signal-step-2">ROUND 2 &bull; DIGIT 2</span>
+        <span class="signal-step-pill" id="signal-step-3">ROUND 3 &bull; DIGIT 3</span>
       </div>
 
       <div class="signal-towers-grid" id="signal-towers-grid">
@@ -1159,7 +1381,7 @@
         <button type="button" class="btn-close-modal" id="btn-pipe-close" aria-label="Close Valve Grid">✕ ESC</button>
       </div>
 
-      <div class="pipe-instruction">Tap a valve to rotate it 90°. When a whole row aligns, coolant flows and its fuse lights up.</div>
+      <div class="pipe-instruction">Connect each conduit from <b>SOURCE &#9762;</b> to <b>FUSE &#9889;</b>. Tap any valve to rotate it 90&deg; until coolant flows across the entire row.</div>
 
       <div class="pipe-rows" id="pipe-rows"></div>
 

@@ -21,7 +21,16 @@ class PuzzleManager {
    * Register default puzzle configurations
    */
   initPuzzles() {
-    // KEY 01: The Harmonic Resonator
+    // ROOM 01 (THE THRESHOLD): Beginner 3-Node Activation
+    this.registerPuzzle('entry_threshold', {
+      id: 'entry_threshold',
+      name: 'Threshold Access Nodes',
+      nodesRequired: 3,
+      activatedNodes: [],
+      solved: false
+    });
+
+    // ROOM 05 (THE LOBBY): KEY 01 — The Harmonic Resonator
     this.registerPuzzle('key_01', {
       id: 'key_01',
       name: 'The Harmonic Resonator',
@@ -49,11 +58,10 @@ class PuzzleManager {
       hintThreshold: 2
     });
 
-    // KEY 03: System Defense Arcade Game
+    // KEY 03: Retro Pixel Maze (Monochrome Arcade Challenge)
     this.registerPuzzle('key_03', {
       id: 'key_03',
-      name: 'System Defense Arcade',
-      durationSeconds: 20,
+      name: 'Pixel Maze Protocol',
       winThreshold: 1200,
       bestScore: 0,
       solved: false,
@@ -65,6 +73,7 @@ class PuzzleManager {
         targetsMissed: 0,
         active: false
       },
+      maze: null,
       targetTypes: {
         standard: {
           id: 'standard',
@@ -161,6 +170,28 @@ class PuzzleManager {
       currentInput: [],
       ...config
     });
+  }
+
+  // =========================================================================
+  // ROOM 01: THRESHOLD ACCESS NODES
+  // =========================================================================
+
+  activateEntryNode(nodeId) {
+    const puzzle = this.puzzles.get('entry_threshold');
+    if (!puzzle) return null;
+
+    if (!puzzle.activatedNodes.includes(nodeId)) {
+      puzzle.activatedNodes.push(nodeId);
+    }
+    if (puzzle.activatedNodes.length >= puzzle.nodesRequired) {
+      puzzle.solved = true;
+    }
+
+    return {
+      activatedCount: puzzle.activatedNodes.length,
+      required: puzzle.nodesRequired,
+      solved: puzzle.solved
+    };
   }
 
   // =========================================================================
@@ -511,6 +542,150 @@ class PuzzleManager {
   }
 
   // =========================================================================
+  // KEY 03: MONOCHROME PIXEL MAZE METHODS
+  // =========================================================================
+
+  /**
+   * Initialize or restart the compact 11x9 monochrome pixel maze.
+   * No timer or countdown: player navigates at their own pace.
+   */
+  startMazeSession() {
+    const puzzle = this.puzzles.get('key_03');
+    if (!puzzle) return null;
+
+    // 1 = pixel wall, 0 = corridor, S = start (1,1), D = 3 energy dots, E = exit (7,9)
+    const template = [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 'S', 0, 0, 1, 'D', 0, 0, 0, 0, 1],
+      [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+      [1, 0, 1, 'D', 0, 0, 0, 0, 1, 0, 1],
+      [1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+      [1, 0, 0, 0, 0, 'D', 1, 0, 0, 0, 1],
+      [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+      [1, 0, 0, 0, 1, 0, 0, 0, 1, 'E', 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ];
+
+    puzzle.maze = {
+      rows: 9,
+      cols: 11,
+      grid: template.map(r => [...r]),
+      player: { r: 1, c: 1 },
+      exit: { r: 7, c: 9 },
+      dotsTotal: 3,
+      dotsCollected: [],
+      moves: 0,
+      active: true,
+      won: false,
+      finalScore: 0
+    };
+
+    return this.getMazeState();
+  }
+
+  /**
+   * Attempt to move the pixel explorer by (dr, dc) one cell.
+   * Returns status: 'moved' | 'dot' | 'blocked' | 'exit_locked' | 'won' | 'inactive'
+   */
+  moveMazePlayer(dr, dc) {
+    const puzzle = this.puzzles.get('key_03');
+    if (!puzzle || !puzzle.maze || !puzzle.maze.active) {
+      return { status: 'inactive' };
+    }
+
+    const m = puzzle.maze;
+    const nr = m.player.r + (Math.sign(dr) || 0);
+    const nc = m.player.c + (Math.sign(dc) || 0);
+
+    if (nr < 0 || nr >= m.rows || nc < 0 || nc >= m.cols || m.grid[nr][nc] === 1) {
+      return {
+        status: 'blocked',
+        player: { ...m.player },
+        dotsCollected: [...m.dotsCollected],
+        dotsTotal: m.dotsTotal,
+        moves: m.moves
+      };
+    }
+
+    m.player = { r: nr, c: nc };
+    m.moves += 1;
+
+    const cell = m.grid[nr][nc];
+    const dotKey = `${nr},${nc}`;
+    let status = 'moved';
+
+    if (cell === 'D' && !m.dotsCollected.includes(dotKey)) {
+      m.dotsCollected.push(dotKey);
+      status = 'dot';
+    } else if (cell === 'E') {
+      if (m.dotsCollected.length < m.dotsTotal) {
+        return {
+          status: 'exit_locked',
+          dotsRemaining: m.dotsTotal - m.dotsCollected.length,
+          player: { ...m.player },
+          dotsCollected: [...m.dotsCollected],
+          dotsTotal: m.dotsTotal,
+          moves: m.moves
+        };
+      }
+
+      m.active = false;
+      m.won = true;
+      const isFirstClear = !puzzle.solved;
+      puzzle.solved = true;
+      const score = Math.max(1200, 1800 - m.moves * 8);
+      m.finalScore = score;
+      const isNewBest = score > puzzle.bestScore;
+      if (isNewBest) {
+        puzzle.bestScore = score;
+      }
+
+      return {
+        status: 'won',
+        player: { ...m.player },
+        dotsCollected: [...m.dotsCollected],
+        dotsTotal: m.dotsTotal,
+        moves: m.moves,
+        finalScore: score,
+        bestScore: puzzle.bestScore,
+        isNewBest,
+        isFirstClear,
+        keyId: 'key_03'
+      };
+    }
+
+    return {
+      status,
+      player: { ...m.player },
+      dotsCollected: [...m.dotsCollected],
+      dotsTotal: m.dotsTotal,
+      moves: m.moves,
+      exitUnlocked: m.dotsCollected.length >= m.dotsTotal
+    };
+  }
+
+  getMazeState() {
+    const puzzle = this.puzzles.get('key_03');
+    if (!puzzle || !puzzle.maze) return null;
+    const m = puzzle.maze;
+    return {
+      rows: m.rows,
+      cols: m.cols,
+      grid: m.grid.map(r => [...r]),
+      player: { ...m.player },
+      exit: { ...m.exit },
+      dotsTotal: m.dotsTotal,
+      dotsCollected: [...m.dotsCollected],
+      moves: m.moves,
+      active: m.active,
+      won: m.won,
+      finalScore: m.finalScore,
+      bestScore: puzzle.bestScore,
+      exitUnlocked: m.dotsCollected.length >= m.dotsTotal
+    };
+  }
+
+  // =========================================================================
   // ROOM 03: SIGNAL RELAY MEMORY METHODS
   // =========================================================================
 
@@ -650,13 +825,20 @@ class PuzzleManager {
     const puzzle = this.puzzles.get('pipe_grid');
     if (!puzzle) return null;
 
+    const shapesByRow = [
+      ['straight', 't_joint', 'straight'],
+      ['t_joint', 'straight', 't_joint'],
+      ['straight', 'bridge', 't_joint']
+    ];
+
     puzzle.grid = [];
     for (let row = 0; row < puzzle.rows; row++) {
       const rowTiles = [];
       for (let t = 0; t < puzzle.tilesPerRow; t++) {
         // Start vertical: odd rotation (1 or 3) so the pipe is misaligned.
         const current = Math.random() < 0.5 ? 1 : 3;
-        rowTiles.push({ correct: 0, current });
+        const shape = (shapesByRow[row] && shapesByRow[row][t]) || 'straight';
+        rowTiles.push({ correct: 0, current, shape });
       }
       puzzle.grid.push(rowTiles);
     }

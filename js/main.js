@@ -153,12 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btnArcadeClose: document.getElementById('btn-arcade-close'),
     arcadeScoreVal: document.getElementById('arcade-score-val'),
     arcadeTimeVal: document.getElementById('arcade-time-val'),
-    arcadeComboVal: document.getElementById('arcade-combo-val'),
     arcadeTargetsVal: document.getElementById('arcade-targets-val'),
     arcadePlayfield: document.getElementById('arcade-playfield'),
-    arcadeCountdownOverlay: document.getElementById('arcade-countdown-overlay'),
-    countdownNum: document.getElementById('countdown-num'),
-    countdownSub: document.getElementById('countdown-sub'),
+    pixelMazeBoard: document.getElementById('pixel-maze-board'),
+    mazeStatusBanner: document.getElementById('maze-status-banner'),
+    mazeDpad: document.getElementById('maze-dpad'),
+    btnMazeRestart: document.getElementById('btn-maze-restart'),
     arcadeSummaryStage: document.getElementById('arcade-summary-stage'),
     summaryStatusTitle: document.getElementById('summary-status-title'),
     summaryStatusSub: document.getElementById('summary-status-sub'),
@@ -172,12 +172,15 @@ document.addEventListener('DOMContentLoaded', () => {
     escapeSequenceBanner: document.getElementById('escape-sequence-banner'),
     escapeBannerEyebrow: document.getElementById('escape-banner-eyebrow'),
     escapeBannerTitle: document.getElementById('escape-banner-title'),
+    roomTransitionOverlay: document.getElementById('room-transition-overlay'),
+    rtoHudCaption: document.getElementById('rto-hud-caption'),
+    rtoHudEyebrow: document.getElementById('rto-hud-eyebrow'),
+    rtoHudTitle: document.getElementById('rto-hud-title'),
     escapeWhiteWash: document.getElementById('escape-white-wash'),
     // Final Escape Results Screen
     escapeResultScreen: document.getElementById('escape-result-screen'),
     statTime: document.getElementById('stat-time'),
     statScore: document.getElementById('stat-score'),
-    statKeys: document.getElementById('stat-keys'),
     statArcade: document.getElementById('stat-arcade'),
     btnPlayAgain: document.getElementById('btn-play-again'),
     btnShareScore: document.getElementById('btn-share-score'),
@@ -203,8 +206,53 @@ document.addEventListener('DOMContentLoaded', () => {
     resultRankValue: document.getElementById('result-rank-value'),
     statGold: document.getElementById('stat-gold'),
     resultRoomRecords: document.getElementById('result-room-records'),
+    // v3 Room 01 — The Threshold (Entry)
+    stageEntry: document.getElementById('stage-entry'),
+    entryNodes: [
+      document.getElementById('entry-node-1'),
+      document.getElementById('entry-node-2'),
+      document.getElementById('entry-node-3')
+    ],
+    entryNodeIndicators: [
+      document.getElementById('entry-node-indicator-1'),
+      document.getElementById('entry-node-indicator-2'),
+      document.getElementById('entry-node-indicator-3')
+    ],
+    entryNodeStatuses: [
+      document.getElementById('entry-node-status-1'),
+      document.getElementById('entry-node-status-2'),
+      document.getElementById('entry-node-status-3')
+    ],
+    nodeEntryConsole: document.getElementById('node-entry-console'),
+    entryProgressReadout: document.getElementById('entry-progress-readout'),
+    entryConsoleStatus: document.getElementById('entry-console-status'),
+    entryNextAction: document.getElementById('entry-next-action'),
+    entryProgressPanel: document.querySelector('#stage-entry .entry-progress-panel'),
+    entryProgressBadge: document.getElementById('entry-progress-badge'),
+    entryProgressBar: document.getElementById('entry-progress-bar'),
+    entryProgressFill: document.getElementById('entry-progress-fill'),
+    entryStep1: document.getElementById('entry-step-1'),
+    entryStep2: document.getElementById('entry-step-2'),
+    entryConduitFill: document.getElementById('entry-conduit-fill'),
+    entryDoorCta: document.getElementById('entry-door-cta'),
+    goldTokenEntry: document.getElementById('gold-token-entry'),
+    nodeEntryDoor: document.getElementById('node-entry-door'),
+    entryDoorTitle: document.getElementById('entry-door-title'),
+    entryStatusIndicator: document.getElementById('entry-status-indicator'),
+    entryCells: [
+      document.getElementById('entry-cell-1'),
+      document.getElementById('entry-cell-2'),
+      document.getElementById('entry-cell-3')
+    ],
+    entryHatchFrame: document.getElementById('entry-hatch-frame'),
+    entryHatchIcon: document.getElementById('entry-hatch-icon'),
+    entryAccessLabel: document.getElementById('entry-access-label'),
+    entryAccessSub: document.getElementById('entry-access-sub'),
+    entryTapHint: document.getElementById('entry-tap-hint'),
     // v3 Room 02 — Orb Atrium
     stageOrbatrium: document.getElementById('stage-orbatrium'),
+    orbField: document.getElementById('orb-field'),
+    orbFieldCounter: document.getElementById('orb-field-counter'),
     goldTokenLobby: document.getElementById('gold-token-lobby'),
     orbNodes: [
       document.getElementById('orb-node-1'),
@@ -255,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     signalModal: document.getElementById('signal-modal'),
     signalCard: document.getElementById('signal-card'),
     signalRoundBadge: document.getElementById('signal-round-badge'),
+    signalStepPills: document.querySelectorAll('#signal-step-pills .signal-step-pill'),
     btnSignalClose: document.getElementById('btn-signal-close'),
     signalInstruction: document.getElementById('signal-instruction'),
     signalTowerCards: document.querySelectorAll('#signal-towers-grid .signal-tower'),
@@ -342,29 +391,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // v3 ROOM CONSTANTS (declared before boot so auto-resume can use them)
   // =========================================================================
 
-  const ROOM_SEQUENCE = ['lobby', 'orbatrium', 'vault', 'tunnels', 'core'];
+  const ROOM_SEQUENCE = ['entry', 'orbatrium', 'vault', 'tunnels', 'lobby'];
 
   const ROOM_READY_BANNERS = {
-    lobby: '• ALL 3 ACCESS KEYS RECOVERED •',
+    entry: '• ALL 3 ACCESS NODES ONLINE •',
     orbatrium: '• ALL 3 PLASMA ORBS CAUGHT •',
     vault: '• ALL 3 RELAY SIGNALS MIRRORED •',
     tunnels: '• ALL 3 COOLANT FUSES LIT •',
+    lobby: '• ALL 3 ACCESS KEYS RECOVERED •',
     core: '• ALL 3 CORE FRAGMENTS RECOVERED •'
   };
 
   const ROOM_NUDGES = {
-    lobby: '// HINT: INSPECT THE ANOMALY & TERMINAL NODES TO GET STARTED',
+    entry: '// HINT: CLICK OR TAP ALL 3 ACCESS NODES TO UNLOCK THE EXIT HATCH',
     orbatrium: '// HINT: TAP THE DRIFTING PLASMA ORBS TO CATCH THEM',
     vault: '// HINT: OPEN THE SIGNAL RELAY AND MIRROR THE GHOST SONGS',
     tunnels: '// HINT: OPEN THE COOLANT VALVES AND ALIGN EVERY ROW',
+    lobby: '// HINT: SOLVE THE TERMINAL, RESONATOR & ARCADE TO UNLOCK THE FINAL DOOR',
     core: '// HINT: TAP THE GLOWING SHARDS ON THE REACTOR FLOOR'
   };
 
   const ROOM_STAGE_ELEMENTS = {
-    lobby: () => dom.stageLobby,
+    entry: () => dom.stageEntry,
     orbatrium: () => dom.stageOrbatrium,
     vault: () => dom.stageVault,
     tunnels: () => dom.stageTunnels,
+    lobby: () => dom.stageLobby,
     core: () => dom.stageCore
   };
 
@@ -384,14 +436,28 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'ROOM 04 • THE COOLING TUNNELS',
       hint: 'Align the coolant valves, then pump the hydraulic gate with BOOST.'
     },
+    lobby: {
+      eyebrow: '// SUB-LEVEL 04 CLEARED — FINAL CHAMBER',
+      title: 'ROOM 05 • THE LOBBY',
+      hint: 'Final challenge: recover all 3 Cipher Keys to override the Security Barrier and escape.'
+    },
     core: {
-      eyebrow: '// SUB-LEVEL 04 CLEARED — DESCENDING',
-      title: 'ROOM 05 • THE CORE',
-      hint: 'Recover 3 core fragments, then channel energy for the final launch.'
+      eyebrow: '// ARCHIVE STASIS',
+      title: 'THE CORE',
+      hint: 'Recover 3 core fragments, then channel energy for ignition.'
     }
   };
 
   const DOOR_LOCKED_COPY = {
+    entry: {
+      title: 'EXIT HATCH • NO POWER',
+      body: 'A sealed threshold hatch blocking access to the deeper sub-levels. Three adjacent Access Nodes supply its startup power.',
+      diag: [
+        '&gt; Hatch Power: <span class="text-danger fw-bold">OFFLINE</span>',
+        '&gt; Required: ACTIVATE ALL 3 ACCESS NODES (ALPHA, BETA, GAMMA)',
+        '&gt; Destination: SUB-LEVEL 02 • THE ORB ATRIUM'
+      ]
+    },
     orbatrium: {
       title: 'GRAVITY LIFT • POWER OFFLINE',
       body: 'A circular glass lift descends into the sub-levels. Its three energy sockets sit empty — the gravity engine cannot engage without plasma orbs.',
@@ -432,10 +498,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const GOLD_TOKEN_ELEMENTS = {
-    lobby: () => dom.goldTokenLobby,
+    entry: () => dom.goldTokenEntry,
     orbatrium: () => dom.goldTokenOrbatrium,
     vault: () => dom.goldTokenVault,
     tunnels: () => dom.goldTokenTunnels,
+    lobby: () => dom.goldTokenLobby,
     core: () => dom.goldTokenCore
   };
 
@@ -448,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isNodeProcessing = false;
   let isEscapeSequenceActive = false;
   let inSector02 = false;
+  let sector02ReturnToVictory = false;
   let toastTimer = null;
   let isSharing = false;
 
@@ -457,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isPipeOpen = false;
   let isCoreOpen = false;
   let isRoomTransitionActive = false;
-  let currentRoomId = 'lobby';
+  let currentRoomId = 'entry';
   let signalPlaybackTimers = [];
   let boostPumpInterval = null;
   let boostPumping = false;
@@ -557,11 +625,17 @@ document.addEventListener('DOMContentLoaded', () => {
    * the objectives panel always matches the current sub-level.
    */
   const ROOM_OBJECTIVES = {
+    entry: [
+      { id: 'node_1', name: 'NODE ALPHA • ACCESS PORT', desc: 'Tap Node Alpha to charge cell 01' },
+      { id: 'node_2', name: 'NODE BETA • ACCESS PORT', desc: 'Tap Node Beta to charge cell 02' },
+      { id: 'node_3', name: 'NODE GAMMA • ACCESS PORT', desc: 'Tap Node Gamma to charge cell 03' },
+      { id: 'door', name: 'OPEN • EXIT HATCH', desc: 'Unlock the hatch and descend to Room 02', type: 'door' }
+    ],
     lobby: [
       { id: 'key_01', name: 'KEY 01 • HARMONIC RESONATOR', desc: 'Calibrate the dormant anomaly node' },
       { id: 'key_02', name: 'KEY 02 • MAINFRAME TERMINAL', desc: 'Derive the override cipher (LOGS + SCAN)' },
       { id: 'key_03', name: 'KEY 03 • DEFENSE ARCADE', desc: 'Score 1200+ in System Defense' },
-      { id: 'door', name: 'OPEN • SECURITY BARRIER', desc: 'Blast door: descend to Sub-Level 02', type: 'door' }
+      { id: 'door', name: 'ESCAPE • SECURITY BARRIER', desc: 'Override the final Security Barrier to escape', type: 'door' }
     ],
     orbatrium: [
       { id: 'orb_1', name: 'ORB 01 • DRIFTING PLASMA', desc: 'Catch the first drifting orb' },
@@ -595,8 +669,8 @@ document.addEventListener('DOMContentLoaded', () => {
     li.innerHTML =
       '<span class="objective-check" aria-hidden="true"></span>' +
       '<div class="objective-text">' +
-        '<span class="objective-name">' + obj.name + '</span>' +
-        '<span class="objective-desc">' + obj.desc + '</span>' +
+      '<span class="objective-name">' + obj.name + '</span>' +
+      '<span class="objective-desc">' + obj.desc + '</span>' +
       '</div>' +
       '<span class="objective-status ' + statusClass + '">' + statusLabel + '</span>';
     return li;
@@ -627,6 +701,10 @@ document.addEventListener('DOMContentLoaded', () => {
           label = 'LOCKED';
           cls = 'locked';
         }
+      } else if (roomId === 'entry') {
+        done = (state.entryNodesCollected || []).includes(obj.id);
+        label = done ? 'ONLINE' : 'PENDING';
+        cls = done ? 'secured' : 'pending';
       } else if (roomId === 'lobby') {
         done = state.keysCollected.includes(obj.id);
         label = done ? 'SECURED' : 'PENDING';
@@ -723,7 +801,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function markOnboardingSeen() {
     try {
       localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
-    } catch (e) {}
+    } catch (e) { }
   }
 
   function showMissionBriefing(context) {
@@ -782,7 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (nudgeShownThisRun || isEscapeSequenceActive || isBriefingOpen || isRoomTransitionActive) return;
       if (!window.gameManager) return;
       if (isModalOpen || isResonatorOpen || isTerminalOpen || isArcadeOpen ||
-          isSignalOpen || isKeypadOpen || isPipeOpen || isCoreOpen) return;
+        isSignalOpen || isKeypadOpen || isPipeOpen || isCoreOpen) return;
 
       const progress = window.gameManager.getRoomProgress(currentRoomId);
       if (progress.have > 0) return;
@@ -836,14 +914,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveBestTimeMs(ms) {
     try {
       localStorage.setItem(BEST_TIME_STORAGE_KEY, String(ms));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   function incrementRunCounter() {
     try {
       const current = parseInt(localStorage.getItem(RUNS_STORAGE_KEY) || '0', 10);
       localStorage.setItem(RUNS_STORAGE_KEY, String((Number.isNaN(current) ? 0 : current) + 1));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // 3. Initialize Audio Label State
@@ -871,6 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     restoreSavedRoomStage();
     updateHUD();
+    refreshRoomVisuals();
     updateLobbyVisuals();
     startHudTimer();
     scheduleNudgeHint();
@@ -882,11 +961,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.gameManager) {
     window.gameManager.subscribe((event, data, state) => {
       updateHUD();
+      updateEntryVisuals();
       updateLobbyVisuals();
 
       // Dispatch GA4 events safely
       if (window.trackEvent) {
-        if (event === 'KEY_COLLECTED') {
+        if (event === 'ENTRY_NODE_COLLECTED') {
+          window.trackEvent('entry_node_collected', { nodeId: data.nodeId, count: data.count });
+        } else if (event === 'KEY_COLLECTED') {
           if (data.keyId === 'key_01') {
             window.trackEvent('key_01_collected');
           } else if (data.keyId === 'key_02') {
@@ -927,38 +1009,243 @@ document.addEventListener('DOMContentLoaded', () => {
   // v3 MULTI-ROOM ENGINE — sub-level progression, doors, cinematics
   // =========================================================================
 
+  let activeRoomTransitionTimeline = null;
+  let activeRoomTransitionTimers = [];
+
+  function isReducedMotionPreferred() {
+    return typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  /**
+   * Immediately clear and hide the full-screen multi-room transition overlay.
+   */
+  function resetRoomTransitionOverlay() {
+    if (activeRoomTransitionTimeline && typeof activeRoomTransitionTimeline.kill === 'function') {
+      activeRoomTransitionTimeline.kill();
+    }
+    activeRoomTransitionTimeline = null;
+
+    activeRoomTransitionTimers.forEach(id => clearTimeout(id));
+    activeRoomTransitionTimers = [];
+
+    const overlay = dom.roomTransitionOverlay;
+    if (!overlay) return;
+
+    if (typeof gsap !== 'undefined') {
+      const animatedEls = overlay.querySelectorAll(
+        '.rto-backdrop, .rto-hud-caption, .rto-energy-ray, .rto-portal-ring, .rto-portal-core, ' +
+        '.rto-lift-shaft, .rto-lift-beam, .rto-lift-streaks, .rto-cyber-grid, .rto-cipher-rings, ' +
+        '.rto-cipher-bars span, .rto-cipher-sweep, .rto-steam-cloud, .rto-pressure-wave, .rto-shutter'
+      );
+      gsap.killTweensOf(overlay);
+      gsap.killTweensOf(animatedEls);
+      gsap.set(overlay, { clearProps: 'opacity,transform' });
+      gsap.set(animatedEls, { clearProps: 'all' });
+    }
+
+    overlay.classList.remove('active', 'css-fallback');
+    overlay.setAttribute('data-mode', '');
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.style.display = 'none';
+    overlay.style.opacity = '0';
+  }
+
+  /**
+   * Orchestrate a distinct full-screen cinematic transition between rooms.
+   * Calls `onSwap` while the viewport overlay is fully opaque, then reveals cleanly.
+   */
+  function playFullScreenTransition({ mode, eyebrow, title, onSwap, onDone }) {
+    const overlay = dom.roomTransitionOverlay;
+    if (!overlay) {
+      if (typeof onSwap === 'function') onSwap();
+      isRoomTransitionActive = false;
+      isEscapeSequenceActive = false;
+      if (typeof onDone === 'function') onDone();
+      return;
+    }
+
+    resetRoomTransitionOverlay();
+
+    if (dom.rtoHudEyebrow) dom.rtoHudEyebrow.textContent = eyebrow || '// TRANSITIONING';
+    if (dom.rtoHudTitle) dom.rtoHudTitle.textContent = title || 'SUB-LEVEL';
+
+    overlay.setAttribute('data-mode', mode);
+    overlay.setAttribute('aria-hidden', 'false');
+    overlay.classList.add('active');
+    overlay.style.display = 'flex';
+
+    const finishTransition = () => {
+      resetRoomTransitionOverlay();
+      isRoomTransitionActive = false;
+      isEscapeSequenceActive = false;
+      if (currentRoomId) {
+        showRoomIntroBanner(currentRoomId);
+        scheduleNudgeHint();
+      }
+      if (typeof onDone === 'function') onDone();
+    };
+
+    // Reduced-motion or non-GSAP fallback: smooth self-cleaning CSS transition
+    if (!isGsapReady() || isReducedMotionPreferred()) {
+      overlay.classList.add('css-fallback');
+      overlay.style.opacity = '1';
+      const swapDelay = isReducedMotionPreferred() ? 180 : 480;
+      const doneDelay = isReducedMotionPreferred() ? 420 : 1260;
+
+      const t1 = setTimeout(() => {
+        if (typeof onSwap === 'function') onSwap();
+      }, swapDelay);
+      const t2 = setTimeout(() => {
+        finishTransition();
+      }, doneDelay);
+      activeRoomTransitionTimers.push(t1, t2);
+      return;
+    }
+
+    const backdrop = overlay.querySelector('.rto-backdrop');
+    const caption = dom.rtoHudCaption;
+    const tl = gsap.timeline({
+      defaults: { ease: 'power2.out' },
+      onComplete: finishTransition
+    });
+    activeRoomTransitionTimeline = tl;
+
+    gsap.set(overlay, { opacity: 1 });
+    if (backdrop) gsap.set(backdrop, { opacity: 0 });
+    if (caption) gsap.set(caption, { opacity: 0, y: 12, scale: 0.96 });
+
+    if (mode === 'portal') {
+      const rays = overlay.querySelectorAll('.rto-energy-ray');
+      const outerRing = overlay.querySelector('.rto-portal-ring.ring-outer');
+      const innerRing = overlay.querySelector('.rto-portal-ring.ring-inner');
+      const core = overlay.querySelector('.rto-portal-core');
+
+      tl.to(backdrop, { opacity: 0.92, duration: 0.42 }, 0)
+        .fromTo(rays, { opacity: 0, scaleX: 0.15 }, { opacity: 1, scaleX: 1.05, duration: 0.45, stagger: 0.06, ease: 'power3.out' }, 0.05)
+        .to(outerRing, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.2)' }, 0.15)
+        .to(innerRing, { opacity: 1, scale: 1, rotation: 90, duration: 0.5, ease: 'power2.out' }, 0.18)
+        .to(core, { opacity: 1, scale: 1.2, duration: 0.45, ease: 'power2.out' }, 0.22)
+        .to(caption, { opacity: 1, y: 0, scale: 1, duration: 0.35 }, 0.28)
+        .to(rays, { opacity: 0, duration: 0.22 }, 0.58)
+        .to(core, { scale: 6.5, opacity: 0.95, duration: 0.45, ease: 'power2.in' }, 0.55)
+        .call(() => { if (typeof onSwap === 'function') onSwap(); }, [], 0.85)
+        .to(caption, { opacity: 0, y: -10, duration: 0.32 }, 1.05)
+        .to([outerRing, innerRing], { scale: 2.8, opacity: 0, duration: 0.55, ease: 'power2.out' }, 0.98)
+        .to([core, backdrop], { opacity: 0, duration: 0.6, ease: 'power2.out' }, 1.02);
+    } else if (mode === 'gravity') {
+      const shafts = overlay.querySelectorAll('.rto-lift-shaft');
+      const beam = overlay.querySelector('.rto-lift-beam');
+      const streaks = overlay.querySelector('.rto-lift-streaks');
+
+      tl.to(backdrop, { opacity: 0.95, duration: 0.38 }, 0)
+        .to(beam, { opacity: 1, scaleX: 1, duration: 0.45, ease: 'power2.out' }, 0.08)
+        .fromTo(shafts, { opacity: 0, scaleY: 0.2 }, { opacity: 0.95, scaleY: 1, duration: 0.4, stagger: 0.06 }, 0.1)
+        .fromTo(streaks, { opacity: 0 }, { opacity: 0.85, duration: 0.35 }, 0.15)
+        .to(caption, { opacity: 1, y: 0, scale: 1, duration: 0.35 }, 0.26)
+        .call(() => { if (typeof onSwap === 'function') onSwap(); }, [], 0.82)
+        .to(caption, { opacity: 0, y: -16, duration: 0.35 }, 1.06)
+        .to([beam, shafts, streaks], { opacity: 0, y: -40, duration: 0.52, ease: 'power2.inOut' }, 1.0)
+        .to(backdrop, { opacity: 0, duration: 0.55, ease: 'power2.out' }, 1.06);
+    } else if (mode === 'decryption') {
+      const grid = overlay.querySelector('.rto-cyber-grid');
+      const rings = overlay.querySelector('.rto-cipher-rings');
+      const bars = overlay.querySelectorAll('.rto-cipher-bars span');
+      const sweep = overlay.querySelector('.rto-cipher-sweep');
+
+      tl.to(backdrop, { opacity: 0.96, duration: 0.35 }, 0)
+        .to(grid, { opacity: 0.9, duration: 0.35 }, 0.08)
+        .to(bars, { scaleX: 1, duration: 0.35, stagger: 0.05, ease: 'power2.out' }, 0.1)
+        .fromTo(sweep, { top: '0%', opacity: 0.95 }, { top: '100%', duration: 0.65, ease: 'power1.inOut' }, 0.12)
+        .to(rings, { opacity: 1, scale: 1, rotation: 180, duration: 0.55, ease: 'back.out(1.1)' }, 0.14)
+        .to(caption, { opacity: 1, y: 0, scale: 1, duration: 0.32 }, 0.28)
+        .call(() => { if (typeof onSwap === 'function') onSwap(); }, [], 0.84)
+        .to(caption, { opacity: 0, duration: 0.3 }, 1.08)
+        .to(rings, { scale: 2.2, rotation: 270, opacity: 0, duration: 0.48 }, 1.02)
+        .to([grid, bars, sweep, backdrop], { opacity: 0, duration: 0.52, ease: 'power2.out' }, 1.05);
+    } else if (mode === 'hydraulic') {
+      const shutterL = overlay.querySelector('.rto-shutter.shutter-left');
+      const shutterR = overlay.querySelector('.rto-shutter.shutter-right');
+      const wave1 = overlay.querySelector('.rto-pressure-wave.wave-1');
+      const wave2 = overlay.querySelector('.rto-pressure-wave.wave-2');
+      const steamL = overlay.querySelector('.rto-steam-cloud.steam-left');
+      const steamR = overlay.querySelector('.rto-steam-cloud.steam-right');
+
+      tl.to(backdrop, { opacity: 0.94, duration: 0.32 }, 0)
+        .to(shutterL, { x: '0%', duration: 0.36, ease: 'power3.inOut' }, 0.05)
+        .to(shutterR, { x: '0%', duration: 0.36, ease: 'power3.inOut' }, 0.05)
+        .to([steamL, steamR], { opacity: 0.85, duration: 0.35 }, 0.25)
+        .to(wave1, { opacity: 1, scale: 3.8, duration: 0.65, ease: 'power2.out' }, 0.22)
+        .to(wave2, { opacity: 1, scale: 4.5, duration: 0.7, ease: 'power2.out' }, 0.34)
+        .to(caption, { opacity: 1, y: 0, scale: 1, duration: 0.32 }, 0.36)
+        .call(() => { if (typeof onSwap === 'function') onSwap(); }, [], 0.78)
+        .to(caption, { opacity: 0, duration: 0.28 }, 1.05)
+        .to(shutterL, { x: '-105%', duration: 0.62, ease: 'power3.inOut' }, 1.02)
+        .to(shutterR, { x: '105%', duration: 0.62, ease: 'power3.inOut' }, 1.02)
+        .to([steamL, steamR, wave1, wave2, backdrop], { opacity: 0, duration: 0.62, ease: 'power2.out' }, 1.05);
+    }
+  }
+
+  /**
+   * Hide every room stage except the explicitly kept element so two rooms
+   * can never overlap or remain interactive while hidden.
+   */
+  function hideAllOtherRoomStages(keepEl) {
+    Object.values(ROOM_STAGE_ELEMENTS).forEach((getter) => {
+      const el = getter && getter();
+      if (!el || el === keepEl) return;
+      el.style.display = 'none';
+      el.classList.remove('active');
+      el.setAttribute('aria-hidden', 'true');
+      el.style.opacity = '';
+      el.style.transform = '';
+    });
+    if (dom.stageSector02 && dom.stageSector02 !== keepEl) {
+      dom.stageSector02.style.display = 'none';
+      dom.stageSector02.classList.remove('active');
+      dom.stageSector02.setAttribute('aria-hidden', 'true');
+    }
+  }
+
   /**
    * Swap the visible room stage with a standard cross-fade.
    */
   function switchRoomStage(fromEl, toEl, onDone) {
-    if (typeof gsap !== 'undefined' && fromEl && toEl) {
+    const activateTarget = () => {
+      hideAllOtherRoomStages(toEl);
+      if (fromEl && fromEl !== toEl) {
+        fromEl.style.display = 'none';
+        fromEl.classList.remove('active');
+        fromEl.setAttribute('aria-hidden', 'true');
+      }
+      if (toEl) {
+        toEl.style.transform = '';
+        toEl.style.display = 'flex';
+        toEl.classList.add('active');
+        toEl.setAttribute('aria-hidden', 'false');
+        toEl.scrollTop = 0;
+      }
+      if (typeof gsap !== 'undefined' && toEl) {
+        gsap.fromTo(toEl,
+          { opacity: 0, scale: 1.02 },
+          { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out', onComplete: onDone }
+        );
+      } else {
+        if (toEl) toEl.style.opacity = '1';
+        if (typeof onDone === 'function') onDone();
+      }
+    };
+
+    if (typeof gsap !== 'undefined' && fromEl && toEl && fromEl !== toEl) {
       gsap.to(fromEl, {
         opacity: 0,
         scale: 0.97,
         duration: 0.45,
         ease: 'power2.in',
-        onComplete: () => {
-          fromEl.style.display = 'none';
-          toEl.style.display = 'flex';
-          toEl.classList.add('active');
-          toEl.setAttribute('aria-hidden', 'false');
-          toEl.scrollTop = 0;
-          gsap.fromTo(toEl,
-            { opacity: 0, scale: 1.02 },
-            { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out', onComplete: onDone }
-          );
-        }
+        onComplete: activateTarget
       });
     } else {
-      if (fromEl) fromEl.style.display = 'none';
-      if (toEl) {
-        toEl.style.display = 'flex';
-        toEl.classList.add('active');
-        toEl.setAttribute('aria-hidden', 'false');
-        toEl.style.opacity = '1';
-        if (toEl.scrollTop !== undefined) toEl.scrollTop = 0;
-      }
-      if (typeof onDone === 'function') onDone();
+      activateTarget();
     }
   }
 
@@ -1002,15 +1289,21 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function enterRoomById(roomId, viaWhiteWash = false) {
     if (!window.gameManager || !window.gameManager.rooms[roomId]) return;
+    const previousRoomId = currentRoomId;
+    if (previousRoomId && previousRoomId !== roomId && roomEntryTimestamps[previousRoomId]) {
+      window.gameManager.recordRoomTime(previousRoomId, Date.now() - roomEntryTimestamps[previousRoomId]);
+      roomEntryTimestamps[previousRoomId] = null;
+    }
     if (!roomEntryTimestamps[roomId]) {
       roomEntryTimestamps[roomId] = Date.now();
     }
+
+    const fromEl = ROOM_STAGE_ELEMENTS[previousRoomId]?.();
+    const toEl = ROOM_STAGE_ELEMENTS[roomId]?.();
+
     currentRoomId = roomId;
     window.gameManager.enterRoom(roomId);
     window.gameManager.unlockRoom(roomId);
-
-    const fromEl = ROOM_STAGE_ELEMENTS[ROOM_SEQUENCE[Math.max(0, ROOM_SEQUENCE.indexOf(roomId) - 1)]]?.();
-    const toEl = ROOM_STAGE_ELEMENTS[roomId]?.();
 
     const finish = () => {
       isRoomTransitionActive = false;
@@ -1021,15 +1314,39 @@ document.addEventListener('DOMContentLoaded', () => {
       scheduleNudgeHint();
     };
 
+    const underFullscreenTransition = Boolean(
+      dom.roomTransitionOverlay && dom.roomTransitionOverlay.classList.contains('active')
+    );
+
+    if (underFullscreenTransition) {
+      // Full-screen transition overlay covers viewport: swap stages instantaneously beneath it.
+      if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '0';
+      hideAllOtherRoomStages(toEl);
+      if (toEl) {
+        toEl.style.transform = '';
+        toEl.style.opacity = '1';
+        toEl.style.display = 'flex';
+        toEl.classList.add('active');
+        toEl.setAttribute('aria-hidden', 'false');
+        toEl.scrollTop = 0;
+      }
+      if (dom.gameWorld) {
+        dom.gameWorld.style.display = 'flex';
+        dom.gameWorld.classList.add('active');
+      }
+      updateHUD();
+      refreshRoomVisuals();
+      return;
+    }
+
+    const useWhiteWash = Boolean(viaWhiteWash && dom.escapeWhiteWash && parseFloat(dom.escapeWhiteWash.style.opacity || '0') >= 0.5);
+
     const doSwap = () => {
-      if (viaWhiteWash && dom.escapeWhiteWash) {
-        // White wash is fully opaque: swap beneath it, then fade it out.
-        const prevEl = fromEl && fromEl !== toEl ? fromEl : null;
-        if (prevEl) {
-          prevEl.style.display = 'none';
-          prevEl.classList.remove('active');
-        }
+      if (useWhiteWash) {
+        // White wash is opaque: swap cleanly beneath it, then fade it out.
+        hideAllOtherRoomStages(toEl);
         if (toEl) {
+          toEl.style.transform = '';
           toEl.style.display = 'flex';
           toEl.classList.add('active');
           toEl.setAttribute('aria-hidden', 'false');
@@ -1050,26 +1367,246 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         } else {
           if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '0';
+          if (toEl) toEl.style.opacity = '1';
           finish();
         }
       } else {
+        if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '0';
         switchRoomStage(fromEl, toEl, finish);
       }
     };
 
     isRoomTransitionActive = true;
-    setTimeout(doSwap, viaWhiteWash ? 150 : 0);
+    setTimeout(doSwap, useWhiteWash ? 150 : 0);
   }
 
   /**
    * Refresh all per-room door/node visuals from game state.
    */
   function refreshRoomVisuals() {
+    updateEntryVisuals();
     updateOrbatriumVisuals();
     updateVaultVisuals();
     updateTunnelsVisuals();
+    updateLobbyVisuals();
     updateCoreVisuals();
     refreshGoldTokenVisuals();
+  }
+
+  // --------------------------------------------------------------------------
+  // ROOM 01 — THE THRESHOLD (New Beginner Starting Room)
+  // --------------------------------------------------------------------------
+
+  function updateEntryVisuals() {
+    if (!window.gameManager) return;
+    const state = window.gameManager.getState();
+    const nodes = state.entryNodesCollected || [];
+    const count = nodes.length;
+    const ready = count >= 3;
+    const pct = Math.min(100, Math.round((count / 3) * 100));
+
+    dom.entryNodes.forEach((nodeEl, i) => {
+      if (!nodeEl) return;
+      const nodeId = `node_${i + 1}`;
+      const isSolved = nodes.includes(nodeId);
+      const indEl = dom.entryNodeIndicators[i];
+      const statusEl = dom.entryNodeStatuses[i];
+
+      if (isSolved) {
+        nodeEl.classList.add('solved');
+        nodeEl.disabled = true;
+        nodeEl.setAttribute('aria-pressed', 'true');
+        if (indEl) indEl.className = 'node-status-indicator emerald';
+        if (statusEl) statusEl.textContent = '// ONLINE ✓';
+      } else {
+        nodeEl.classList.remove('solved');
+        nodeEl.disabled = false;
+        nodeEl.setAttribute('aria-pressed', 'false');
+        if (indEl) indEl.className = 'node-status-indicator amber';
+        if (statusEl) statusEl.textContent = IS_TOUCH_DEVICE ? '// TAP TO ACTIVATE' : '// CLICK TO ACTIVATE';
+      }
+    });
+
+    dom.entryCells.forEach((cell, i) => {
+      if (!cell) return;
+      if (i < count) {
+        cell.classList.add('filled');
+      } else {
+        cell.classList.remove('filled');
+      }
+    });
+
+    if (dom.entryProgressPanel) {
+      dom.entryProgressPanel.classList.toggle('complete', ready);
+    }
+    if (dom.entryProgressBadge) {
+      dom.entryProgressBadge.textContent = ready ? '3 / 3 — HATCH UNLOCKED' : `${count} / 3 NODES ONLINE`;
+    }
+    if (dom.entryProgressBar) {
+      dom.entryProgressBar.setAttribute('aria-valuenow', String(count));
+    }
+    if (dom.entryProgressFill) {
+      dom.entryProgressFill.style.width = `${pct}%`;
+    }
+    if (dom.entryConduitFill) {
+      dom.entryConduitFill.style.width = `${pct}%`;
+    }
+    if (dom.entryStep1) {
+      dom.entryStep1.classList.toggle('done', ready);
+      dom.entryStep1.classList.toggle('active', !ready);
+    }
+    if (dom.entryStep2) {
+      dom.entryStep2.classList.toggle('active', ready);
+    }
+
+    if (dom.entryProgressReadout) dom.entryProgressReadout.textContent = `${count} / 3`;
+    if (dom.entryConsoleStatus) {
+      dom.entryConsoleStatus.textContent = ready ? 'HATCH READY' : 'AWAITING POWER';
+      dom.entryConsoleStatus.className = ready ? 'text-success fw-bold' : 'text-warning';
+    }
+    if (dom.entryNextAction) {
+      dom.entryNextAction.textContent = ready ? 'ENTER EXIT HATCH' : `ACTIVATE ${3 - count} MORE NODE${3 - count === 1 ? '' : 'S'}`;
+      dom.entryNextAction.className = ready ? 'text-success fw-bold' : 'text-info';
+    }
+
+    if (dom.nodeEntryDoor) {
+      if (ready) {
+        dom.nodeEntryDoor.classList.add('door-ready');
+        dom.nodeEntryDoor.setAttribute('aria-label', 'Threshold Exit Hatch — Unlocked, click to enter Room 02');
+        if (dom.entryDoorTitle) dom.entryDoorTitle.textContent = 'EXIT HATCH // READY';
+        if (dom.entryStatusIndicator) dom.entryStatusIndicator.className = 'node-status-indicator emerald';
+        if (dom.entryHatchIcon) dom.entryHatchIcon.textContent = '🔓';
+        if (dom.entryAccessLabel) {
+          dom.entryAccessLabel.textContent = 'HATCH POWER: 3 / 3';
+          dom.entryAccessLabel.style.color = 'var(--accent-emerald)';
+        }
+        if (dom.entryAccessSub) {
+          dom.entryAccessSub.textContent = '// HATCH ONLINE — DESCEND';
+          dom.entryAccessSub.style.color = 'var(--accent-emerald)';
+        }
+        if (dom.entryDoorCta) {
+          dom.entryDoorCta.textContent = IS_TOUCH_DEVICE ? 'TAP TO ENTER ROOM 02 →' : 'ENTER ROOM 02 →';
+        }
+        if (dom.entryTapHint) dom.entryTapHint.textContent = IS_TOUCH_DEVICE ? '// TAP TO ENTER ROOM 02' : '// CLICK TO ENTER ROOM 02';
+      } else {
+        const remaining = 3 - count;
+        dom.nodeEntryDoor.classList.remove('door-ready');
+        dom.nodeEntryDoor.setAttribute('aria-label', `Threshold Exit Hatch — Locked, ${count} of 3 nodes online`);
+        if (dom.entryDoorTitle) dom.entryDoorTitle.textContent = 'EXIT HATCH';
+        if (dom.entryStatusIndicator) dom.entryStatusIndicator.className = 'node-status-indicator red';
+        if (dom.entryHatchIcon) dom.entryHatchIcon.textContent = '✕';
+        if (dom.entryAccessLabel) {
+          dom.entryAccessLabel.textContent = `HATCH POWER: ${count} / 3`;
+          dom.entryAccessLabel.style.color = 'var(--text-secondary)';
+        }
+        if (dom.entryAccessSub) {
+          dom.entryAccessSub.textContent = '// ACTIVATE ALL 3 NODES TO UNLOCK';
+          dom.entryAccessSub.style.color = 'var(--accent-red)';
+        }
+        if (dom.entryDoorCta) {
+          dom.entryDoorCta.textContent = `LOCKED • ${remaining} NODE${remaining === 1 ? '' : 'S'} NEEDED`;
+        }
+        if (dom.entryTapHint) {
+          dom.entryTapHint.textContent = `// REQUIRES ${remaining} MORE NODE${remaining === 1 ? '' : 'S'}`;
+        }
+      }
+    }
+
+    if (dom.nodeEntryConsole && dom.nodeEntryConsole.querySelector('.node-tap-hint')) {
+      dom.nodeEntryConsole.querySelector('.node-tap-hint').textContent = IS_TOUCH_DEVICE ? '// TAP TO INSPECT' : '// CLICK TO INSPECT';
+    }
+  }
+
+  function handleEntryNodeActivate(nodeIndex) {
+    if (!window.gameManager || isRoomTransitionActive || isEscapeSequenceActive) return;
+    const nodeId = `node_${nodeIndex + 1}`;
+    const collected = window.gameManager.collectEntryNode(nodeId);
+    if (!collected) return;
+
+    const nodeEl = dom.entryNodes[nodeIndex];
+    if (nodeEl) {
+      nodeEl.classList.remove('just-activated');
+      void nodeEl.offsetWidth;
+      nodeEl.classList.add('just-activated');
+      setTimeout(() => nodeEl.classList.remove('just-activated'), 700);
+    }
+
+    const count = (window.gameManager.getState().entryNodesCollected || []).length;
+    if (window.audioManager) {
+      if (count >= 3) {
+        window.audioManager.playResonanceSuccess();
+      } else {
+        window.audioManager.playBonusTargetHit();
+      }
+    }
+
+    showToast(`// ACCESS NODE 0${nodeIndex + 1} ONLINE • ${count} / 3`);
+
+    if (count >= 3) {
+      setTimeout(() => {
+        showToast('// ALL ACCESS NODES ONLINE • EXIT HATCH UNLOCKED');
+        updateEntryVisuals();
+        updateHUD();
+      }, 650);
+    }
+
+    updateEntryVisuals();
+    updateHUD();
+  }
+
+  /**
+   * Room 01 -> Room 02 cinematic: nodes surge, threshold hatch opens, full-screen energy portal expands.
+   */
+  function triggerEntryDoorSequence() {
+    if (isRoomTransitionActive || isEscapeSequenceActive) return;
+    isRoomTransitionActive = true;
+    isEscapeSequenceActive = true;
+
+    [...dom.entryNodes, dom.nodeEntryConsole, dom.nodeEntryDoor].forEach(el => {
+      if (el) el.style.pointerEvents = 'none';
+    });
+
+    if (window.audioManager) {
+      window.audioManager.playDoorPowerUp();
+    }
+
+    const launchPortalTransition = () => {
+      playFullScreenTransition({
+        mode: 'portal',
+        eyebrow: '// SUB-LEVEL 02',
+        title: 'THE ORB ATRIUM',
+        onSwap: () => {
+          enterRoomById('orbatrium', false);
+        }
+      });
+    };
+
+    if (!isGsapReady() || !dom.nodeEntryDoor || isReducedMotionPreferred()) {
+      if (dom.nodeEntryDoor) dom.nodeEntryDoor.classList.add('opening');
+      launchPortalTransition();
+      return;
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    tl.call(() => {
+      if (dom.entryAccessLabel) dom.entryAccessLabel.textContent = 'HATCH POWER: 3 / 3 • CHARGING';
+      if (dom.entryAccessSub) dom.entryAccessSub.textContent = '// OPENING ENERGY GATEWAY';
+    })
+      .to(dom.entryCells.filter(Boolean), {
+        scale: 1.18,
+        boxShadow: '0 0 26px rgba(0, 255, 136, 0.75)',
+        duration: 0.28,
+        stagger: 0.09
+      })
+      .to(dom.entryCells.filter(Boolean), { scale: 1, duration: 0.2 })
+      .call(() => {
+        if (dom.nodeEntryDoor) dom.nodeEntryDoor.classList.add('opening');
+        if (window.audioManager) window.audioManager.playDoorSlideOpen();
+        if (dom.entryAccessSub) dom.entryAccessSub.textContent = '// PORTAL EXPANDING';
+      })
+      .to(dom.stageEntry, { scale: 1.05, duration: 0.45, ease: 'power2.in' }, '+=0.15')
+      .call(launchPortalTransition);
   }
 
   // --------------------------------------------------------------------------
@@ -1102,6 +1639,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (dom.atriumOrbReadout) dom.atriumOrbReadout.textContent = `${orbs.length} / 3`;
+    if (dom.orbFieldCounter) dom.orbFieldCounter.textContent = ready ? '3 / 3 — LIFT CHARGED' : `${orbs.length} / 3 CAUGHT`;
 
     if (dom.nodeLiftDoor) {
       if (ready) {
@@ -1148,6 +1686,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const orbEl = dom.orbNodes[orbIndex];
     if (orbEl) {
+      if (dom.orbField) {
+        const tag = document.createElement('span');
+        tag.className = 'orb-catch-float';
+        tag.textContent = '+1 PIXEL ORB';
+        tag.style.left = orbEl.style.left || `${25 + orbIndex * 24}%`;
+        tag.style.top = orbEl.style.top || '42%';
+        dom.orbField.appendChild(tag);
+        setTimeout(() => { if (tag.parentNode) tag.parentNode.removeChild(tag); }, 650);
+      }
       orbEl.classList.add('caught');
       orbEl.style.pointerEvents = 'none';
     }
@@ -1171,7 +1718,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Room 02 door cinematic: orbs socket in, iris hatch opens, lift descends.
+   * Room 02 -> Room 03 cinematic: orbs socket in, iris opens, full-screen gravity-lift light tunnel engages.
    */
   function triggerLiftSequence() {
     if (isRoomTransitionActive || isEscapeSequenceActive) return;
@@ -1186,10 +1733,21 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioManager.playDoorPowerUp();
     }
 
-    const gsapReady = isGsapReady() && dom.nodeLiftDoor;
+    const launchGravityTransition = () => {
+      playFullScreenTransition({
+        mode: 'gravity',
+        eyebrow: '// SUB-LEVEL 03',
+        title: 'THE SIGNAL VAULT',
+        onSwap: () => {
+          enterRoomById('vault', false);
+        }
+      });
+    };
+
+    const gsapReady = isGsapReady() && dom.nodeLiftDoor && !isReducedMotionPreferred();
     if (!gsapReady) {
       if (dom.nodeLiftDoor) dom.nodeLiftDoor.classList.add('opening');
-      enterRoomById('vault', true);
+      launchGravityTransition();
       return;
     }
 
@@ -1197,32 +1755,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tl.call(() => {
       if (dom.liftIrisIcon) dom.liftIrisIcon.textContent = '◉';
-      if (dom.liftAccessLabel) dom.liftAccessLabel.textContent = 'LIFT POWER: 3 / 3 • LOCKED';
-      if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// SOCKETS CHARGING';
+      if (dom.liftAccessLabel) dom.liftAccessLabel.textContent = 'LIFT POWER: 3 / 3 • CHARGING';
+      if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// ORBS CONVERGING';
     })
       .to(dom.liftSockets.filter(Boolean), {
         scale: 1.18,
         boxShadow: '0 0 26px rgba(0, 255, 136, 0.7)',
-        duration: 0.4,
-        stagger: 0.15
+        duration: 0.28,
+        stagger: 0.1
       })
-      .to(dom.liftSockets.filter(Boolean), { scale: 1, duration: 0.3 })
+      .to(dom.liftSockets.filter(Boolean), { scale: 1, duration: 0.2 })
       .call(() => {
-        if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// GRAVITY ENGINE ONLINE';
+        if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// GRAVITY TUNNEL ACTIVE';
         if (window.audioManager) window.audioManager.playDoorUnlockResonance();
       })
-      .to(dom.liftIrisHatch, { scale: 0.85, duration: 0.5, ease: 'power1.inOut' })
+      .to(dom.liftIrisHatch, { scale: 0.85, duration: 0.35, ease: 'power1.inOut' })
       .call(() => {
         if (dom.nodeLiftDoor) dom.nodeLiftDoor.classList.add('opening');
         if (window.audioManager) window.audioManager.playDoorSlideOpen();
-        if (dom.liftAccessLabel) dom.liftAccessLabel.textContent = 'LIFT: DESCENDING';
-        if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// DEPARTING SUB-LEVEL 02';
+        if (dom.liftAccessLabel) dom.liftAccessLabel.textContent = 'LIFT: ENGAGED';
+        if (dom.liftAccessSub) dom.liftAccessSub.textContent = '// ENTERING LIGHT TUNNEL';
       })
-      .to(dom.liftPlatform, { y: 140, duration: 1.7, ease: 'power2.in' }, '+=0.25')
-      .to(dom.stageOrbatrium, { opacity: 0.9, duration: 0.2 }, '<')
-      .call(() => {
-        enterRoomById('vault', true);
-      });
+      .to(dom.liftPlatform, { y: -90, duration: 0.55, ease: 'power2.in' }, '+=0.15')
+      .call(launchGravityTransition);
   }
 
   // --------------------------------------------------------------------------
@@ -1290,6 +1845,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.signalModal) {
       dom.signalModal.classList.add('active');
       dom.signalModal.setAttribute('aria-hidden', 'false');
+      captureModalFocus(dom.signalModal, dom.btnSignalPlay || dom.btnSignalClose);
     }
     if (window.audioManager) window.audioManager.playModalOpen();
 
@@ -1325,6 +1881,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioManager) window.audioManager.playModalClose();
     unlockBodyScroll();
+    restoreModalTriggerFocus();
     updateVaultVisuals();
     updateHUD();
   }
@@ -1334,18 +1891,39 @@ document.addEventListener('DOMContentLoaded', () => {
     signalPlaybackTimers = [];
   }
 
+  function syncSignalStepPills(sig) {
+    if (!dom.signalStepPills || !sig) return;
+    const activeRound = sig.solved ? 4 : Math.min(3, (sig.round || 0) + (sig.phase === 'idle' || sig.phase === 'round_won' ? 1 : 0));
+    const completedCount = sig.revealedDigits ? sig.revealedDigits.length : 0;
+    dom.signalStepPills.forEach((pill, idx) => {
+      const roundNum = idx + 1;
+      const isDone = roundNum <= completedCount;
+      const isActive = !isDone && roundNum === activeRound && !sig.solved;
+      pill.classList.toggle('done', isDone);
+      pill.classList.toggle('active', isActive);
+    });
+  }
+
   function updateSignalModalUI() {
     if (!window.puzzleManager) return;
     const sig = window.puzzleManager.getSignalState();
     if (!sig) return;
 
     if (dom.signalRoundBadge) dom.signalRoundBadge.textContent = `ROUND ${Math.min(3, sig.round + (sig.phase === 'idle' ? 1 : 0))} / 3`;
+    syncSignalStepPills(sig);
 
     dom.signalTowerCards.forEach(t => { if (t) t.classList.remove('lit'); });
     if (dom.signalInputTracker) dom.signalInputTracker.textContent = '';
     if (dom.signalHintBox) {
       dom.signalHintBox.classList.add('d-none');
       dom.signalHintBox.textContent = '';
+    }
+
+    if (dom.signalDigitsValue && sig.revealedDigits && sig.revealedDigits.length > 0) {
+      const slots = ['7', '3', '9'].map((d, idx) => (idx < sig.revealedDigits.length ? d : '-'));
+      dom.signalDigitsValue.textContent = slots.join(' - ');
+    } else if (dom.signalDigitsValue) {
+      dom.signalDigitsValue.textContent = '- - -';
     }
 
     if (sig.solved || window.gameManager?.getState().goldChip) {
@@ -1472,14 +2050,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!result || result.status === 'error') return;
 
     if (result.status === 'progress') {
-      if (dom.signalInputTracker) dom.signalInputTracker.textContent = '●'.repeat(result.input.length);
+      const totalLen = (sig.sequence || []).length || 3;
+      if (dom.signalInputTracker) {
+        dom.signalInputTracker.textContent = `${result.input.length}/${totalLen} ` + '●'.repeat(result.input.length);
+      }
       return;
     }
 
     if (result.status === 'desync') {
       if (window.audioManager) window.audioManager.playResonanceDesync();
+      if (dom.signalCard) {
+        dom.signalCard.classList.remove('desync-shake');
+        void dom.signalCard.offsetWidth;
+        dom.signalCard.classList.add('desync-shake');
+        setTimeout(() => dom.signalCard?.classList.remove('desync-shake'), 450);
+      }
       if (dom.signalStatusText) {
-        dom.signalStatusText.textContent = '// SIGNAL DESYNC — MIRROR IT AGAIN';
+        dom.signalStatusText.textContent = '// WRONG TOWER — WATCH REPLAY & TRY AGAIN';
         dom.signalStatusText.className = 'signal-status-text error';
       }
       if (dom.signalInputTracker) dom.signalInputTracker.textContent = '';
@@ -1495,8 +2082,10 @@ document.addEventListener('DOMContentLoaded', () => {
       window.gameManager.winSignalRound(result.round);
       if (window.audioManager) window.audioManager.playResonanceSuccess();
       if (window.trackEvent) window.trackEvent('signal_round_won', { round: result.round });
+      syncSignalStepPills(window.puzzleManager.getSignalState());
 
       if (result.allRoundsComplete) {
+        if (dom.signalDigitsValue) dom.signalDigitsValue.textContent = '7 - 3 - 9';
         if (dom.signalStatusText) {
           dom.signalStatusText.textContent = `// FULL CIPHER: ${result.codeComplete} — GOLD DATACHIP UNLOCKED`;
           dom.signalStatusText.className = 'signal-status-text win';
@@ -1557,6 +2146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.keypadModal) {
       dom.keypadModal.classList.add('active');
       dom.keypadModal.setAttribute('aria-hidden', 'false');
+      captureModalFocus(dom.keypadModal, dom.btnKeypadClose);
     }
     if (dom.keypadHintBox) {
       if (keypadAttempts >= 2) {
@@ -1604,6 +2194,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioManager) window.audioManager.playModalClose();
     unlockBodyScroll();
+    restoreModalTriggerFocus();
   }
 
   function renderKeypadDisplay() {
@@ -1674,7 +2265,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Room 03 door cinematic: wheel spins, bolts retract, vault opens.
+   * Room 03 -> Room 04 cinematic: wheel unlocks bolts, full-screen digital decryption spreads.
    */
   function triggerVaultSequence() {
     if (isRoomTransitionActive || isEscapeSequenceActive) return;
@@ -1687,39 +2278,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioManager) window.audioManager.playDoorPowerUp();
 
-    if (!isGsapReady() || !dom.nodeVaultDoor) {
+    const launchDecryptionTransition = () => {
+      playFullScreenTransition({
+        mode: 'decryption',
+        eyebrow: '// SUB-LEVEL 04',
+        title: 'THE COOLING TUNNELS',
+        onSwap: () => {
+          enterRoomById('tunnels', false);
+        }
+      });
+    };
+
+    if (!isGsapReady() || !dom.nodeVaultDoor || isReducedMotionPreferred()) {
       if (dom.vaultBolts) dom.vaultBolts.forEach(b => { if (b) b.classList.add('retracted'); });
-      enterRoomById('tunnels', true);
+      launchDecryptionTransition();
       return;
     }
 
     const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
 
     tl.call(() => {
-      if (dom.vaultAccessSub) dom.vaultAccessSub.textContent = '// LOCK WHEEL DISENGAGING';
+      if (dom.vaultAccessSub) dom.vaultAccessSub.textContent = '// CIPHER DISENGAGING BOLTS';
       if (window.audioManager) window.audioManager.playLockRelease(1);
     })
-      .to(dom.vaultWheel, { rotate: 360, duration: 1.5, ease: 'power2.inOut' })
+      .to(dom.vaultWheel, { rotate: 360, duration: 0.65, ease: 'power2.inOut' })
       .call(() => {
         if (dom.vaultBolts[0]) dom.vaultBolts[0].classList.add('retracted');
         if (window.audioManager) window.audioManager.playLockRelease(2);
       })
-      .to(dom.vaultWheel, { rotate: 720, duration: 1.4, ease: 'power2.inOut' })
+      .to(dom.vaultWheel, { rotate: 720, duration: 0.6, ease: 'power2.inOut' })
       .call(() => {
         if (dom.vaultBolts[1]) dom.vaultBolts[1].classList.add('retracted');
         if (dom.vaultBolts[2]) dom.vaultBolts[2].classList.add('retracted');
         if (window.audioManager) window.audioManager.playLockRelease(3);
       })
-      .to(dom.vaultWheel, { rotate: 900, duration: 1.0, ease: 'power1.inOut' })
       .call(() => {
-        if (dom.vaultAccessSub) dom.vaultAccessSub.textContent = '// BOLTS RETRACTED — VAULT OPEN';
+        if (dom.vaultAccessSub) dom.vaultAccessSub.textContent = '// SIGNAL DECRYPTED — TRANSFERRING';
         if (dom.vaultWheelIcon) dom.vaultWheelIcon.textContent = '⌾';
         if (window.audioManager) window.audioManager.playDoorSlideOpen();
       })
-      .to(dom.nodeVaultDoor, { scale: 1.04, duration: 0.4 })
-      .call(() => {
-        enterRoomById('tunnels', true);
-      });
+      .to(dom.nodeVaultDoor, { scale: 1.04, duration: 0.25 })
+      .call(launchDecryptionTransition);
   }
 
   // --------------------------------------------------------------------------
@@ -1800,6 +2399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.pipeModal) {
       dom.pipeModal.classList.add('active');
       dom.pipeModal.setAttribute('aria-hidden', 'false');
+      captureModalFocus(dom.pipeModal, dom.btnPipeClose);
     }
     if (window.audioManager) window.audioManager.playModalOpen();
 
@@ -1834,8 +2434,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioManager) window.audioManager.playModalClose();
     unlockBodyScroll();
+    restoreModalTriggerFocus();
     updateTunnelsVisuals();
     updateHUD();
+  }
+
+  function buildPipeSvg(shape = 'straight') {
+    if (shape === 't_joint') {
+      return '<svg class="pipe-svg" viewBox="0 0 48 48" aria-hidden="true">' +
+        '<path d="M2 24 H46 M24 24 V44" stroke="currentColor" stroke-width="7" stroke-linecap="square"/>' +
+        '<circle cx="24" cy="24" r="6" fill="currentColor"/></svg>';
+    }
+    if (shape === 'bridge') {
+      return '<svg class="pipe-svg" viewBox="0 0 48 48" aria-hidden="true">' +
+        '<path d="M2 24 H14 L20 15 H28 L34 24 H46" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linejoin="round" stroke-linecap="square"/>' +
+        '<circle cx="24" cy="15" r="4.5" fill="currentColor"/></svg>';
+    }
+    return '<svg class="pipe-svg" viewBox="0 0 48 48" aria-hidden="true">' +
+      '<path d="M2 24 H46" stroke="currentColor" stroke-width="7" stroke-linecap="square"/>' +
+      '<rect x="18" y="17" width="12" height="14" rx="2" fill="currentColor"/></svg>';
+  }
+
+  function syncPipeRowFlowVisuals(rowIdx) {
+    if (!window.puzzleManager || !dom.pipeRowsEl) return;
+    const snap = window.puzzleManager.getPipeGridSnapshot();
+    const rowTiles = snap && snap[rowIdx];
+    const rowEl = dom.pipeRowsEl.querySelector(`.pipe-row[data-row="${rowIdx}"]`);
+    if (!rowTiles || !rowEl) return;
+
+    const tileEls = rowEl.querySelectorAll('.pipe-tile');
+    let flowContinuous = true;
+    rowTiles.forEach((tile, i) => {
+      const aligned = tile.current % 2 === 0;
+      const pressurized = flowContinuous && aligned;
+      if (!aligned) flowContinuous = false;
+      if (tileEls[i]) {
+        tileEls[i].classList.toggle('aligned', aligned);
+        tileEls[i].classList.toggle('pressurized', pressurized);
+      }
+    });
+
+    const isFlowing = window.puzzleManager.isPipeRowFlowing(rowIdx);
+    rowEl.classList.toggle('flowing', isFlowing);
+    tileEls.forEach(t => t.classList.toggle('flowing', isFlowing));
+    const fuseEl = rowEl.querySelector('.fuse-endpoint');
+    if (fuseEl) fuseEl.classList.toggle('fuse-lit', isFlowing);
   }
 
   function renderPipeGrid() {
@@ -1865,20 +2508,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const tileBtn = document.createElement('button');
         tileBtn.type = 'button';
         tileBtn.className = 'pipe-tile';
-        tileBtn.setAttribute('aria-label', `Valve row ${rowIdx + 1} position ${tileIdx + 1}`);
+        tileBtn.setAttribute('aria-label', `Rotate pipe row ${rowIdx + 1} valve ${tileIdx + 1}`);
         tileBtn.dataset.row = String(rowIdx);
         tileBtn.dataset.tile = String(tileIdx);
 
         const body = document.createElement('span');
         body.className = 'valve-body';
         body.style.transform = `rotate(${tile.current * 90}deg)`;
+        body.innerHTML = buildPipeSvg(tile.shape);
         tileBtn.appendChild(body);
-
-        if (tile.current % 2 === 0) tileBtn.classList.add('aligned');
-        if (window.puzzleManager.isPipeRowFlowing(rowIdx)) {
-          tileBtn.classList.add('flowing');
-          rowEl.classList.add('flowing');
-        }
 
         tileRow.appendChild(tileBtn);
       });
@@ -1886,11 +2524,12 @@ document.addEventListener('DOMContentLoaded', () => {
       rowEl.appendChild(tileRow);
 
       const fuse = document.createElement('div');
-      fuse.className = 'pipe-endpoint fuse-endpoint' + (window.puzzleManager.isPipeRowFlowing(rowIdx) ? ' fuse-lit' : '');
+      fuse.className = 'pipe-endpoint fuse-endpoint';
       fuse.innerHTML = '<span class="endpoint-glyph">⚡</span><span>FUSE<br>' + (rowIdx + 1) + '</span>';
       rowEl.appendChild(fuse);
 
       dom.pipeRowsEl.appendChild(rowEl);
+      syncPipeRowFlowVisuals(rowIdx);
     });
 
     const flowingCount = [0, 1, 2].filter(r => window.puzzleManager.isPipeRowFlowing(r)).length;
@@ -1904,25 +2543,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioManager) window.audioManager.playTerminalKeystroke();
 
-    // Update the rotated tile inline (no full re-render → keeps animation smooth)
+    // Update the rotated tile inline (no full re-render -> keeps CSS transition smooth)
     const tileBtn = dom.pipeRowsEl?.querySelector(`.pipe-tile[data-row="${row}"][data-tile="${tile}"]`);
     if (tileBtn) {
       const body = tileBtn.querySelector('.valve-body');
       if (body) body.style.transform = `rotate(${result.current * 90}deg)`;
-      if (result.current % 2 === 0) {
-        tileBtn.classList.add('aligned');
-      } else {
-        tileBtn.classList.remove('aligned');
-      }
     }
+    syncPipeRowFlowVisuals(row);
 
     if (result.rowFlowing) {
-      const rowEl = dom.pipeRowsEl?.querySelector(`.pipe-row[data-row="${row}"]`);
-      if (rowEl) {
-        rowEl.classList.add('flowing');
-        const fuseEl = rowEl.querySelector('.fuse-endpoint');
-        if (fuseEl) fuseEl.classList.add('fuse-lit');
-      }
       if (window.audioManager) window.audioManager.playTargetHit('standard', 1);
 
       const fuseId = `fuse_${row + 1}`;
@@ -1939,7 +2568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dom.pipeStatusBadge) dom.pipeStatusBadge.textContent = 'FUSES: 3 / 3';
         if (window.audioManager) window.audioManager.playArcadeVictory();
         showToast('// ALL FUSES LIT • PRESSURE BOOSTER READY');
-      }, 500);
+      }, 450);
     }
 
     updateTunnelsVisuals();
@@ -1980,15 +2609,16 @@ document.addEventListener('DOMContentLoaded', () => {
         `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
          <p class="text-secondary small mb-0">${copy.body}</p>`,
         `<div class="text-muted">// Gate Diagnostics:</div>` +
-          copy.diag.map(d => `<div>${d}</div>`).join('') +
-          `<div class="text-warning mt-2">&gt; "Light all 3 coolant fuses to rebuild the pressure booster."</div>`
+        copy.diag.map(d => `<div>${d}</div>`).join('') +
+        `<div class="text-warning mt-2">&gt; "Light all 3 coolant fuses to rebuild the pressure booster."</div>`
       );
       return;
     }
 
-    // Equip mode: reveal the pressure UI and start pumping
+    // Equip mode: reveal the pressure UI cleanly (no decay; user charges deliberately)
     if (dom.gatePressureWrap) dom.gatePressureWrap.classList.remove('d-none');
-    if (dom.gateTapHint) dom.gateTapHint.textContent = IS_TOUCH_DEVICE ? '// HOLD TO PUMP — REACH 100%' : '// HOLD TO PUMP — REACH 100%';
+    if (dom.gateTapHint) dom.gateTapHint.textContent = '// TAP OR HOLD PUMP — REACH 100%';
+    renderBoostGauge();
     startBoostPumping();
   }
 
@@ -2003,11 +2633,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tick = () => {
       if (isRoomTransitionActive) return stopBoostPumping();
-      if (boostPumping) {
-        boostPressure = Math.min(100, boostPressure + 3.4);
-      } else {
-        boostPressure = Math.max(0, boostPressure - 1.15);
-      }
+      if (!boostPumping) return;
+      boostPressure = Math.min(100, boostPressure + 4.5);
       renderBoostGauge();
       if (boostPressure >= 100) {
         stopBoostPumping();
@@ -2015,7 +2642,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    boostPumpInterval = setInterval(tick, 90);
+    boostPumpInterval = setInterval(tick, 70);
   }
 
   function stopBoostPumping() {
@@ -2039,10 +2666,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function bindBoostPumpEvents() {
     if (!dom.btnBoostPump) return;
+    const pulsePump = () => {
+      if (isRoomTransitionActive || isEscapeSequenceActive) return;
+      boostPressure = Math.min(100, boostPressure + 18);
+      if (window.audioManager) window.audioManager.playTerminalKeystroke();
+      renderBoostGauge();
+      if (boostPressure >= 100) {
+        stopBoostPumping();
+        triggerGateBlast();
+      }
+    };
     const start = (e) => {
       e.preventDefault();
       boostPumping = true;
       dom.btnBoostPump.classList.add('pumping');
+      pulsePump();
     };
     const stop = () => {
       boostPumping = false;
@@ -2053,10 +2691,17 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.btnBoostPump.addEventListener('pointerup', stop);
     dom.btnBoostPump.addEventListener('pointerleave', stop);
     dom.btnBoostPump.addEventListener('pointercancel', stop);
+    dom.btnBoostPump.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        pulsePump();
+      }
+    });
+    dom.btnBoostPump.addEventListener('pointercancel', stop);
   }
 
   /**
-   * Room 04 door cinematic: steam blasts, gates fly open.
+   * Room 04 -> Room 05 cinematic: pressure vents, gates blast open, full-screen hydraulic release reveals Lobby.
    */
   function triggerGateBlast() {
     if (isRoomTransitionActive || isEscapeSequenceActive) return;
@@ -2068,9 +2713,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioManager) window.audioManager.playDoorPowerUp();
 
-    if (!isGsapReady() || !dom.nodePressureGate) {
+    const launchHydraulicTransition = () => {
+      playFullScreenTransition({
+        mode: 'hydraulic',
+        eyebrow: '// FINAL CHAMBER • SUB-LEVEL 05',
+        title: 'THE LOBBY',
+        onSwap: () => {
+          enterRoomById('lobby', false);
+        }
+      });
+    };
+
+    if (!isGsapReady() || !dom.nodePressureGate || isReducedMotionPreferred()) {
       if (dom.nodePressureGate) dom.nodePressureGate.classList.add('blasting');
-      enterRoomById('core', true);
+      launchHydraulicTransition();
       return;
     }
 
@@ -2078,31 +2734,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tl.call(() => {
       if (dom.gateAccessLabel) dom.gateAccessLabel.textContent = 'GATE STATUS: CRITICAL';
-      if (dom.gateAccessSub) dom.gateAccessSub.textContent = '// OVERPRESSURE WARNING';
+      if (dom.gateAccessSub) dom.gateAccessSub.textContent = '// HYDRAULIC PRESSURE PEAK';
       if (window.audioManager) window.audioManager.playTimerWarning();
     })
-      .to(dom.gatePressureFill, { backgroundColor: '#00ff88', duration: 0.3 })
+      .to(dom.gatePressureFill, { backgroundColor: '#00ff88', duration: 0.22 })
       .call(() => {
         if (dom.nodePressureGate) dom.nodePressureGate.classList.add('blasting');
         if (dom.gateAccessLabel) dom.gateAccessLabel.textContent = 'GATE: BLASTING OPEN';
-        if (dom.gateAccessSub) dom.gateAccessSub.textContent = '// STEAM VENTS ENGAGED';
+        if (dom.gateAccessSub) dom.gateAccessSub.textContent = '// PRESSURE WAVE RELEASED';
         if (window.audioManager) window.audioManager.playDoorSlideOpen();
         if (window.trackEvent) window.trackEvent('gate_blasted');
       })
-      .to(dom.gatePanelLeft, { x: '-104%', duration: 1.1, ease: 'power3.inOut' }, '+=0.35')
-      .to(dom.gatePanelRight, { x: '104%', duration: 1.1, ease: 'power3.inOut' }, '<')
+      .to(dom.gatePanelLeft, { x: '-104%', duration: 0.55, ease: 'power3.inOut' }, '+=0.15')
+      .to(dom.gatePanelRight, { x: '104%', duration: 0.55, ease: 'power3.inOut' }, '<')
       .to(dom.nodePressureGate, {
         x: () => (Math.random() - 0.5) * 6,
         y: () => (Math.random() - 0.5) * 4,
-        repeat: 8,
+        repeat: 5,
         yoyo: true,
-        duration: 0.07,
+        duration: 0.06,
         ease: 'none'
       }, '<')
       .set(dom.nodePressureGate, { x: 0, y: 0 })
-      .call(() => {
-        enterRoomById('core', true);
-      });
+      .call(launchHydraulicTransition);
   }
 
   // --------------------------------------------------------------------------
@@ -2431,16 +3085,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const startedAt = roomEntryTimestamps[currentRoomId];
     if (startedAt && window.gameManager) {
       window.gameManager.recordRoomTime(currentRoomId, Date.now() - startedAt);
+      roomEntryTimestamps[currentRoomId] = null;
     }
 
-    // Story beat: the first door does NOT escape — it descends.
     setTimeout(() => {
       enterRoomById(nextRoom, true);
-      if (nextRoom === 'orbatrium') {
-        setTimeout(() => {
-          showToast('// TWIST: THAT DOOR WAS NOT THE EXIT — DESCENDING TO SUB-LEVEL 02');
-        }, 2600);
-      }
     }, 650);
   }
 
@@ -2592,6 +3241,9 @@ document.addEventListener('DOMContentLoaded', () => {
     startHudTimer();
     scheduleNudgeHint();
     restoreSavedRoomStage();
+    if (!roomEntryTimestamps[currentRoomId]) {
+      roomEntryTimestamps[currentRoomId] = Date.now();
+    }
 
     if (!hasSeenOnboarding()) {
       setTimeout(() => {
@@ -2602,37 +3254,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * v3: resume a saved run in the room the player actually reached.
-   * The DOM always boots on the Lobby stage, so a mid-run reload must swap
+   * The DOM always boots on Room 01 (Entry), so a mid-run reload must swap
    * the visible stage to match the persisted currentRoom.
    */
   function restoreSavedRoomStage() {
     if (!window.gameManager) return;
     const st = window.gameManager.getState();
-    if (!st.gameStarted || st.gameCompleted) return;
+    if (st.gameCompleted) {
+      showFinalVictoryScreen(false);
+      return;
+    }
+    if (!st.gameStarted) return;
 
-    const savedRoom = ROOM_SEQUENCE.includes(st.currentRoom) ? st.currentRoom : 'lobby';
+    const savedRoom = ROOM_SEQUENCE.includes(st.currentRoom) ? st.currentRoom : 'entry';
     currentRoomId = savedRoom;
+    roomEntryTimestamps[savedRoom] = roomEntryTimestamps[savedRoom] || Date.now();
+    window.gameManager.enterRoom(savedRoom);
 
-    if (savedRoom !== 'lobby') {
-      roomEntryTimestamps[savedRoom] = roomEntryTimestamps[savedRoom] || Date.now();
-      window.gameManager.enterRoom(savedRoom);
+    const toEl = ROOM_STAGE_ELEMENTS[savedRoom]?.();
+    hideAllOtherRoomStages(toEl);
+    if (toEl) {
+      toEl.style.transform = '';
+      toEl.style.display = 'flex';
+      toEl.classList.add('active');
+      toEl.setAttribute('aria-hidden', 'false');
+      toEl.style.opacity = '1';
+    }
 
-      ROOM_SEQUENCE.forEach((rid) => {
-        const el = ROOM_STAGE_ELEMENTS[rid]?.();
-        if (el) {
-          el.style.display = 'none';
-          el.classList.remove('active');
-          el.setAttribute('aria-hidden', 'true');
-        }
-      });
-
-      const toEl = ROOM_STAGE_ELEMENTS[savedRoom]?.();
-      if (toEl) {
-        toEl.style.display = 'flex';
-        toEl.classList.add('active');
-        toEl.setAttribute('aria-hidden', 'false');
-      }
-
+    if (savedRoom !== 'entry') {
       showToast(`// SESSION RESTORED • RESUMING ${window.gameManager.rooms[savedRoom]?.number || ''}`);
     }
 
@@ -2742,20 +3391,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Arcade (Key 03)
+    // Arcade / Retro Pixel Maze (Key 03)
     if (dom.nodeArcade) {
       if (key3Found) {
         dom.nodeArcade.classList.add('solved');
         if (dom.arcadeObjIndicator) dom.arcadeObjIndicator.className = 'node-status-indicator emerald';
         if (dom.arcadePreviewTag) {
-          dom.arcadePreviewTag.textContent = 'STATUS: DEFEATED';
+          dom.arcadePreviewTag.textContent = 'STATUS: CLEARED';
           dom.arcadePreviewTag.className = 'arcade-status-tag text-success';
         }
       } else {
         dom.nodeArcade.classList.remove('solved');
         if (dom.arcadeObjIndicator) dom.arcadeObjIndicator.className = 'node-status-indicator amber';
         if (dom.arcadePreviewTag) {
-          dom.arcadePreviewTag.textContent = 'STATUS: READY';
+          dom.arcadePreviewTag.textContent = 'DOTS: 0 / 3';
           dom.arcadePreviewTag.className = 'arcade-status-tag';
         }
       }
@@ -2802,6 +3451,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
 
   function enterSector02() {
+    const fromVictory = Boolean(dom.escapeResultScreen && dom.escapeResultScreen.classList.contains('active'));
+    sector02ReturnToVictory = fromVictory;
     inSector02 = true;
 
     if (isTerminalOpen) closeTerminalModal();
@@ -2825,15 +3476,17 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioManager.playObservationRoomAmbience();
     }
 
+    const activeStage = ROOM_STAGE_ELEMENTS[currentRoomId]?.() || dom.stageLobby;
+
     // GSAP Transition into Sector 02
-    if (typeof gsap !== 'undefined') {
-      gsap.to(dom.stageLobby, {
+    if (typeof gsap !== 'undefined' && !fromVictory && activeStage) {
+      gsap.to(activeStage, {
         opacity: 0,
         scale: 0.96,
         duration: 0.5,
         ease: 'power2.in',
         onComplete: () => {
-          dom.stageLobby.style.display = 'none';
+          hideAllOtherRoomStages(dom.stageSector02);
           dom.stageSector02.style.display = 'flex';
           dom.stageSector02.classList.add('active');
           dom.stageSector02.setAttribute('aria-hidden', 'false');
@@ -2845,9 +3498,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     } else {
-      dom.stageLobby.style.display = 'none';
+      hideAllOtherRoomStages(dom.stageSector02);
       dom.stageSector02.style.display = 'flex';
       dom.stageSector02.classList.add('active');
+      dom.stageSector02.setAttribute('aria-hidden', 'false');
       dom.stageSector02.style.opacity = '1';
     }
 
@@ -2860,8 +3514,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioManager) {
       window.audioManager.playModalClose();
-      window.audioManager.startAmbientDrone();
+      if (!sector02ReturnToVictory) window.audioManager.startAmbientDrone();
     }
+
+    const restoreTarget = () => {
+      dom.stageSector02.style.display = 'none';
+      dom.stageSector02.classList.remove('active');
+      dom.stageSector02.setAttribute('aria-hidden', 'true');
+
+      if (sector02ReturnToVictory) {
+        sector02ReturnToVictory = false;
+        if (dom.gameWorld) dom.gameWorld.style.display = 'none';
+        if (dom.escapeResultScreen) {
+          dom.escapeResultScreen.classList.add('active');
+          dom.escapeResultScreen.setAttribute('aria-hidden', 'false');
+          dom.escapeResultScreen.style.opacity = '1';
+        }
+        return;
+      }
+
+      const returnEl = ROOM_STAGE_ELEMENTS[currentRoomId]?.() || dom.stageLobby;
+      hideAllOtherRoomStages(returnEl);
+      if (returnEl) {
+        returnEl.style.transform = '';
+        returnEl.style.display = 'flex';
+        returnEl.classList.add('active');
+        returnEl.setAttribute('aria-hidden', 'false');
+        if (typeof gsap !== 'undefined') {
+          gsap.fromTo(returnEl,
+            { opacity: 0, scale: 1.02 },
+            { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' }
+          );
+        } else {
+          returnEl.style.opacity = '1';
+        }
+      }
+      updateHUD();
+      refreshRoomVisuals();
+    };
 
     if (typeof gsap !== 'undefined') {
       gsap.to(dom.stageSector02, {
@@ -2869,27 +3559,11 @@ document.addEventListener('DOMContentLoaded', () => {
         scale: 0.96,
         duration: 0.4,
         ease: 'power2.in',
-        onComplete: () => {
-          dom.stageSector02.style.display = 'none';
-          dom.stageSector02.classList.remove('active');
-          dom.stageSector02.setAttribute('aria-hidden', 'true');
-
-          dom.stageLobby.style.display = 'flex';
-          gsap.fromTo(dom.stageLobby,
-            { opacity: 0, scale: 1.02 },
-            { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' }
-          );
-        }
+        onComplete: restoreTarget
       });
     } else {
-      dom.stageSector02.style.display = 'none';
-      dom.stageSector02.classList.remove('active');
-      dom.stageLobby.style.display = 'flex';
-      dom.stageLobby.style.opacity = '1';
+      restoreTarget();
     }
-
-    updateHUD();
-    updateLobbyVisuals();
   }
 
   function handleObservationTerminalCommand(cmdText) {
@@ -3162,6 +3836,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showFinalVictoryScreen(playFinalChord = true) {
     if (!window.gameManager) return;
+    inSector02 = false;
+    sector02ReturnToVictory = false;
+
+    const finalRoomStart = roomEntryTimestamps[currentRoomId];
+    if (finalRoomStart) {
+      window.gameManager.recordRoomTime(currentRoomId, Date.now() - finalRoomStart);
+      roomEntryTimestamps[currentRoomId] = null;
+    }
+
     const finalState = window.gameManager.completeGame();
 
     if (dom.gameWorld) dom.gameWorld.style.display = 'none';
@@ -3287,38 +3970,72 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handlePlayAgain() {
+    resetRoomTransitionOverlay();
     isEscapeSequenceActive = false;
     inSector02 = false;
+    sector02ReturnToVictory = false;
     isRoomTransitionActive = false;
     isSignalOpen = false;
     isKeypadOpen = false;
     isPipeOpen = false;
     isCoreOpen = false;
+    isArcadeOpen = false;
+    isTerminalOpen = false;
+    isResonatorOpen = false;
+    isModalOpen = false;
     unlockBodyScroll();
 
     stopHudTimer();
     stopBoostPumping();
     stopCoreDecay();
     stopSignalPlayback();
+    stopArcadeCountdown();
+    stopArcadeGame();
+    clearArcadePlayfield();
     clearNudgeHint();
     closeObjectivesPanel();
     hideMissionBriefing(false);
 
-    if (window.gameManager) {
-      window.gameManager.resetState();
-    }
+    [dom.arcadeModal, dom.terminalModal, dom.resonatorModal, dom.modalOverlay].forEach(m => {
+      if (!m) return;
+      m.classList.remove('active');
+      m.setAttribute('aria-hidden', 'true');
+    });
 
-    // Reset v3 room runtime
-    currentRoomId = 'lobby';
+    // Reset v3 room runtime BEFORE resetState() so subscriber HUD updates match Room 01
+    currentRoomId = 'entry';
     roomEntryTimestamps = {};
     keypadEntry = '';
     keypadAttempts = 0;
     boostPressure = 0;
 
-    // Reset Door DOM state (Room 01 blast door)
+    if (window.gameManager) {
+      window.gameManager.resetState();
+    }
+
+    // ---- Reset Room 01 (The Threshold / Entry) ----
+    dom.entryNodes.forEach(nodeEl => {
+      if (!nodeEl) return;
+      nodeEl.classList.remove('solved', 'just-activated');
+      nodeEl.disabled = false;
+      nodeEl.setAttribute('aria-pressed', 'false');
+      nodeEl.style.pointerEvents = 'auto';
+    });
+    if (dom.nodeEntryDoor) {
+      dom.nodeEntryDoor.classList.remove('door-ready', 'opening', 'door-locked-shake');
+      dom.nodeEntryDoor.style.pointerEvents = 'auto';
+    }
+    dom.entryCells.forEach(c => { if (c) c.classList.remove('filled'); });
+    if (dom.nodeEntryConsole) dom.nodeEntryConsole.style.pointerEvents = 'auto';
+
+    // Reset Door DOM state (Room 05 Lobby blast door)
     if (dom.doorPanelLeft) dom.doorPanelLeft.style.transform = 'none';
     if (dom.doorPanelRight) dom.doorPanelRight.style.transform = 'none';
     if (dom.doorRadiantAperture) dom.doorRadiantAperture.style.opacity = '0';
+    if (dom.doorFrameOuter) {
+      dom.doorFrameOuter.style.boxShadow = '';
+      dom.doorFrameOuter.style.borderColor = '';
+    }
     if (dom.doorLockRing) {
       dom.doorLockRing.style.opacity = '1';
       dom.doorLockRing.style.transform = 'none';
@@ -3327,7 +4044,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.lockClamp2) dom.lockClamp2.classList.remove('released');
     if (dom.lockClamp3) dom.lockClamp3.classList.remove('released');
 
-    // Reset Interactive Nodes Pointer Events (Room 01)
+    // Reset Interactive Nodes Pointer Events (Room 05 Lobby)
     [dom.nodeTerminal, dom.nodeStrangeObject, dom.nodeArcade, dom.nodeDoor].forEach(el => {
       if (el) el.style.pointerEvents = 'auto';
     });
@@ -3343,7 +4060,8 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.nodeLiftDoor.style.pointerEvents = 'auto';
     }
     dom.liftSockets.forEach(s => { if (s) s.classList.remove('filled'); });
-    if (dom.liftIrisIcon) dom.liftIrisIcon.textContent = '◇';
+    if (dom.liftIrisIcon) dom.liftIrisIcon.textContent = '◻';
+    if (dom.liftIrisHatch) dom.liftIrisHatch.style.transform = '';
     if (dom.liftPlatform) dom.liftPlatform.style.transform = 'none';
     if (dom.nodeAtriumConsole) dom.nodeAtriumConsole.style.pointerEvents = 'auto';
 
@@ -3359,7 +4077,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.nodeVaultArchive) dom.nodeVaultArchive.style.pointerEvents = 'auto';
     dom.vaultBolts.forEach(b => { if (b) b.classList.remove('retracted'); });
     if (dom.vaultWheel) dom.vaultWheel.style.transform = 'none';
-    if (dom.vaultWheelIcon) dom.vaultWheelIcon.textContent = '☸';
+    if (dom.vaultWheelIcon) dom.vaultWheelIcon.textContent = '⛯';
     if (dom.signalGoldStage) dom.signalGoldStage.classList.add('d-none');
     if (dom.keypadModal) {
       dom.keypadModal.classList.remove('active');
@@ -3395,7 +4113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.pipeRowsEl) dom.pipeRowsEl.innerHTML = '';
     if (dom.pipeGoldStage) dom.pipeGoldStage.classList.add('d-none');
 
-    // ---- Reset Room 05 (The Core) ----
+    // ---- Reset Archived Core ----
     dom.fragmentNodes.forEach(fragEl => {
       if (!fragEl) return;
       fragEl.classList.remove('recovered');
@@ -3419,7 +4137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---- Reset gold tokens ----
-    [dom.goldTokenLobby, dom.goldTokenOrbatrium, dom.goldTokenVault, dom.goldTokenTunnels, dom.goldTokenCore].forEach(tokenEl => {
+    [dom.goldTokenEntry, dom.goldTokenLobby, dom.goldTokenOrbatrium, dom.goldTokenVault, dom.goldTokenTunnels, dom.goldTokenCore].forEach(tokenEl => {
       if (!tokenEl) return;
       tokenEl.classList.remove('collected');
       tokenEl.style.pointerEvents = 'auto';
@@ -3433,30 +4151,37 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.signalModal.setAttribute('aria-hidden', 'true');
     }
 
-    // Reset Stage Lobby Scale / Opacity
-    if (dom.stageLobby) {
-      dom.stageLobby.style.display = 'flex';
-      dom.stageLobby.style.transform = 'none';
-      dom.stageLobby.style.opacity = '1';
+    // Show Room 01 (Entry) and hide all other stages including Room 05 (Lobby)
+    if (dom.stageEntry) {
+      dom.stageEntry.style.display = 'flex';
+      dom.stageEntry.classList.add('active');
+      dom.stageEntry.setAttribute('aria-hidden', 'false');
+      dom.stageEntry.style.transform = 'none';
+      dom.stageEntry.style.opacity = '1';
     }
-    [dom.stageOrbatrium, dom.stageVault, dom.stageTunnels, dom.stageCore].forEach(stageEl => {
+    [dom.stageOrbatrium, dom.stageVault, dom.stageTunnels, dom.stageLobby, dom.stageCore].forEach(stageEl => {
       if (!stageEl) return;
       stageEl.style.display = 'none';
       stageEl.classList.remove('active');
       stageEl.setAttribute('aria-hidden', 'true');
+      stageEl.style.transform = 'none';
       stageEl.style.opacity = '';
     });
     if (dom.stageSector02) {
       dom.stageSector02.style.display = 'none';
       dom.stageSector02.classList.remove('active');
+      dom.stageSector02.setAttribute('aria-hidden', 'true');
     }
     if (dom.obsRevealStage) {
       dom.obsRevealStage.classList.remove('active');
       dom.obsRevealStage.style.opacity = '0';
     }
     if (dom.roomIntroBanner) dom.roomIntroBanner.style.display = 'none';
+    if (dom.escapeWhiteWash) dom.escapeWhiteWash.style.opacity = '0';
     if (dom.layerBg) dom.layerBg.style.opacity = '1';
     if (dom.mainGameHud) dom.mainGameHud.style.opacity = '1';
+
+    refreshRoomVisuals();
 
     // Hide result screen, show intro
     if (dom.escapeResultScreen) {
@@ -3829,7 +4554,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================================
-  // KEY 03: ARCADE SYSTEM DEFENSE REACTION GAME
+  // KEY 03: MONOCHROME RETRO PIXEL MAZE MINI-GAME (NO TIMERS / NO COUNTDOWNS)
   // =========================================================================
 
   function openArcadeModal() {
@@ -3839,20 +4564,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     stopArcadeGame();
     clearArcadePlayfield();
+    hideArcadeSummaryStage();
 
     const state = window.gameManager?.getState();
     const bestScore = state?.arcadeBestScore || 0;
     if (dom.arcadeBestBadge) dom.arcadeBestBadge.textContent = `BEST: ${bestScore}`;
-
-    if (dom.arcadeScoreVal) dom.arcadeScoreVal.textContent = '0000';
-    if (dom.arcadeTimeVal) {
-      dom.arcadeTimeVal.textContent = '20s';
-      dom.arcadeTimeVal.className = 'arcade-stat-val';
-    }
-    if (dom.arcadeComboVal) dom.arcadeComboVal.textContent = 'x1';
-    if (dom.arcadeTargetsVal) dom.arcadeTargetsVal.textContent = '0';
-
-    hideArcadeSummaryStage();
 
     if (window.audioManager) {
       window.audioManager.playModalOpen();
@@ -3860,6 +4576,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dom.arcadeModal.classList.add('active');
     dom.arcadeModal.setAttribute('aria-hidden', 'false');
+    captureModalFocus(dom.arcadeModal, dom.btnArcadeClose);
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.arcadeModal, { opacity: 0 }, { opacity: 1, duration: 0.25 });
@@ -3871,16 +4588,14 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.arcadeModal.style.opacity = '1';
     }
 
-    startArcadeCountdown();
+    startArcadeGame();
   }
 
   function closeArcadeModal() {
     if (!dom.arcadeModal || !isArcadeOpen) return;
     isArcadeOpen = false;
 
-    // Invalidate any pending countdown so it cannot start a round behind the closed modal
     stopArcadeCountdown();
-
     stopArcadeGame();
     clearArcadePlayfield();
 
@@ -3903,286 +4618,123 @@ document.addEventListener('DOMContentLoaded', () => {
           dom.arcadeModal.classList.remove('active');
           dom.arcadeModal.setAttribute('aria-hidden', 'true');
           unlockBodyScroll();
+          restoreModalTriggerFocus();
         }
       });
     } else {
       dom.arcadeModal.classList.remove('active');
       dom.arcadeModal.setAttribute('aria-hidden', 'true');
       unlockBodyScroll();
+      restoreModalTriggerFocus();
     }
   }
 
   /**
-   * Cancel any in-flight arcade countdown.
-   * Bumping the token invalidates callbacks that are already scheduled (interval
-   * ticks and the fade-out onComplete), so a countdown can never start a round
-   * after the modal has been closed or after a newer countdown took over.
+   * Preserved cleanup hook for any legacy timer teardown checks.
    */
   function stopArcadeCountdown() {
     if (arcadeCountdownInterval) {
       clearInterval(arcadeCountdownInterval);
       arcadeCountdownInterval = null;
     }
-
     arcadeCountdownToken += 1;
-
-    if (typeof gsap !== 'undefined' && dom.arcadeCountdownOverlay) {
-      gsap.killTweensOf(dom.arcadeCountdownOverlay);
-    }
   }
 
   function startArcadeCountdown() {
-    if (!dom.arcadeCountdownOverlay) return;
-
-    // A retry or reopen always supersedes the previous countdown (no duplicates)
-    stopArcadeCountdown();
-    const token = arcadeCountdownToken;
-    const isStale = () => token !== arcadeCountdownToken || !isArcadeOpen;
-
-    dom.arcadeCountdownOverlay.style.display = 'flex';
-    dom.arcadeCountdownOverlay.style.opacity = '1';
-
-    let count = 3;
-    dom.countdownNum.textContent = count;
-    dom.countdownSub.textContent = 'CALIBRATING TARGETING GRID...';
-
-    if (window.audioManager) {
-      window.audioManager.playArcadeCountdown(count);
-    }
-
-    arcadeCountdownInterval = setInterval(() => {
-      if (isStale()) {
-        stopArcadeCountdown();
-        return;
-      }
-
-      count--;
-      if (count > 0) {
-        dom.countdownNum.textContent = count;
-        if (window.audioManager) window.audioManager.playArcadeCountdown(count);
-      } else if (count === 0) {
-        dom.countdownNum.textContent = 'SYSTEM ACTIVE';
-        dom.countdownSub.textContent = 'ENGAGE TARGETS IMMEDIATELY!';
-        if (window.audioManager) window.audioManager.playArcadeStart();
-      } else {
-        clearInterval(arcadeCountdownInterval);
-        arcadeCountdownInterval = null;
-        if (typeof gsap !== 'undefined') {
-          gsap.to(dom.arcadeCountdownOverlay, {
-            opacity: 0,
-            duration: 0.25,
-            onComplete: () => {
-              if (isStale()) return;
-              dom.arcadeCountdownOverlay.style.display = 'none';
-              startArcadeGame();
-            }
-          });
-        } else {
-          dom.arcadeCountdownOverlay.style.display = 'none';
-          startArcadeGame();
-        }
-      }
-    }, 800);
+    // No countdown in Retro Pixel Maze: start immediately.
+    startArcadeGame();
   }
 
   function startArcadeGame() {
     if (!window.puzzleManager || !isArcadeOpen) return;
     arcadeIsPlaying = true;
-    arcadeTimeRemaining = 20;
+    hideArcadeSummaryStage();
 
-    window.puzzleManager.startArcadeSession();
+    window.puzzleManager.startMazeSession();
+    if (dom.mazeStatusBanner) {
+      dom.mazeStatusBanner.textContent = 'COLLECT ALL 3 ENERGY DOTS (•), THEN REACH EXIT (E)';
+      dom.mazeStatusBanner.classList.remove('exit-open');
+    }
+    renderPixelMaze();
+  }
 
-    const startTime = performance.now();
-    const durationMs = 20000;
+  function renderPixelMaze() {
+    if (!dom.pixelMazeBoard || !window.puzzleManager) return;
+    const maze = window.puzzleManager.getMazeState();
+    if (!maze) return;
 
-    if (arcadeTimerInterval) clearInterval(arcadeTimerInterval);
-    arcadeTimerInterval = setInterval(() => {
-      const elapsed = performance.now() - startTime;
-      const remainingMs = Math.max(0, durationMs - elapsed);
-      arcadeTimeRemaining = Math.ceil(remainingMs / 1000);
+    dom.pixelMazeBoard.innerHTML = '';
 
-      if (dom.arcadeTimeVal) {
-        dom.arcadeTimeVal.textContent = `${arcadeTimeRemaining}s`;
+    for (let r = 0; r < maze.rows; r++) {
+      for (let c = 0; c < maze.cols; c++) {
+        const cellVal = maze.grid[r][c];
+        const cellEl = document.createElement('div');
+        cellEl.className = 'maze-cell ' + (cellVal === 1 ? 'wall' : 'floor');
+        cellEl.setAttribute('role', 'gridcell');
 
-        if (arcadeTimeRemaining <= 3) {
-          dom.arcadeTimeVal.className = 'arcade-stat-val urgent';
-          if (window.audioManager) window.audioManager.playTimerWarning();
-        } else if (arcadeTimeRemaining <= 10) {
-          dom.arcadeTimeVal.className = 'arcade-stat-val amber';
+        const isPlayer = maze.player.r === r && maze.player.c === c;
+        const dotKey = `${r},${c}`;
+        const hasDot = cellVal === 'D' && !maze.dotsCollected.includes(dotKey);
+        const isExit = cellVal === 'E';
+
+        if (isExit) {
+          const exitEl = document.createElement('span');
+          exitEl.className = 'maze-exit' + (maze.exitUnlocked ? ' open' : '');
+          exitEl.textContent = 'E';
+          cellEl.appendChild(exitEl);
+        } else if (hasDot && !isPlayer) {
+          const dotEl = document.createElement('span');
+          dotEl.className = 'maze-dot';
+          cellEl.appendChild(dotEl);
         }
-      }
 
-      if (remainingMs <= 0) {
-        endArcadeGame();
-      }
-    }, 250);
+        if (isPlayer) {
+          const playerEl = document.createElement('span');
+          playerEl.className = 'maze-player';
+          cellEl.appendChild(playerEl);
+        }
 
-    scheduleNextSpawn();
-  }
-
-  function scheduleNextSpawn() {
-    if (!arcadeIsPlaying) return;
-
-    if (activeTargets.size < 4) {
-      spawnTarget();
-    }
-
-    const delay = Math.random() * 380 + 520;
-    arcadeSpawnerTimeout = setTimeout(scheduleNextSpawn, delay);
-  }
-
-  function spawnTarget() {
-    if (!dom.arcadePlayfield || !arcadeIsPlaying || !window.puzzleManager) return;
-
-    const playfieldRect = dom.arcadePlayfield.getBoundingClientRect();
-    const width = playfieldRect.width || 700;
-    const height = playfieldRect.height || 420;
-
-    const type = window.puzzleManager.getRandomTargetType();
-    const targetDef = window.puzzleManager.getPuzzle('key_03')?.targetTypes[type];
-    // Touch targets get a generous size boost for mobile ergonomics
-    const size = (targetDef?.size || 55) * (IS_TOUCH_DEVICE ? 1.3 : 1);
-
-    const margin = size + 20;
-    const posX = Math.random() * (width - margin * 2) + margin;
-    const posY = Math.random() * (height - margin * 2) + margin;
-
-    const targetEl = document.createElement('div');
-    targetEl.className = `arcade-target ${type} telegraphing`;
-    targetEl.style.left = `${posX}px`;
-    targetEl.style.top = `${posY}px`;
-    targetEl.style.width = `${size}px`;
-    targetEl.style.height = `${size}px`;
-    targetEl.dataset.type = type;
-    targetEl.setAttribute('role', 'button');
-    targetEl.setAttribute('aria-label', `Target ${type}`);
-
-    targetEl.innerHTML = `
-      <div class="target-reticle-ring"></div>
-      <div class="target-core-dot"></div>
-    `;
-
-    // Ambient cursor hover feedback for dynamically spawned targets (desktop)
-    if (!IS_TOUCH_DEVICE) {
-      targetEl.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-      targetEl.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-    }
-
-    dom.arcadePlayfield.appendChild(targetEl);
-    activeTargets.add(targetEl);
-
-    if (window.audioManager) {
-      window.audioManager.playTargetTelegraph();
-    }
-
-    setTimeout(() => {
-      if (!targetEl.parentNode || !arcadeIsPlaying) return;
-      targetEl.classList.remove('telegraphing');
-
-      targetEl.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        handleTargetHit(targetEl, posX, posY);
-      });
-    }, targetDef.telegraphTime || 250);
-
-    const expireTimer = setTimeout(() => {
-      if (!activeTargets.has(targetEl)) return;
-      handleTargetMiss(targetEl);
-    }, targetDef.lifetime || 2000);
-
-    targetEl._expireTimer = expireTimer;
-  }
-
-  function handleTargetHit(targetEl, posX, posY) {
-    if (!activeTargets.has(targetEl) || targetEl.dataset.hit === 'true') return;
-    targetEl.dataset.hit = 'true';
-    clearTimeout(targetEl._expireTimer);
-    activeTargets.delete(targetEl);
-
-    const type = targetEl.dataset.type || 'standard';
-    const hitData = window.puzzleManager.recordArcadeHit(type);
-    if (!hitData) return;
-
-    if (window.audioManager) {
-      if (hitData.isBonus) {
-        window.audioManager.playBonusTargetHit();
-      } else {
-        window.audioManager.playTargetHit(type, hitData.combo);
+        dom.pixelMazeBoard.appendChild(cellEl);
       }
     }
 
-    if (dom.arcadeScoreVal) dom.arcadeScoreVal.textContent = hitData.totalScore.toString().padStart(4, '0');
-    if (dom.arcadeComboVal) dom.arcadeComboVal.textContent = `x${hitData.combo}`;
-    if (dom.arcadeTargetsVal) dom.arcadeTargetsVal.textContent = hitData.targetsDestroyed;
-
-    showScoreFloatTag(posX, posY, `+${hitData.earnedScore}${hitData.combo > 1 ? ` (x${hitData.combo})` : ''}`, hitData.isBonus);
-
-    if (typeof gsap !== 'undefined') {
-      gsap.to(targetEl, {
-        scale: 1.35,
-        opacity: 0,
-        duration: 0.16,
-        onComplete: () => {
-          if (targetEl.parentNode) targetEl.parentNode.removeChild(targetEl);
-        }
-      });
-    } else {
-      if (targetEl.parentNode) targetEl.parentNode.removeChild(targetEl);
-    }
+    if (dom.arcadeScoreVal) dom.arcadeScoreVal.textContent = `${maze.dotsCollected.length} / ${maze.dotsTotal}`;
+    if (dom.arcadeTimeVal) dom.arcadeTimeVal.textContent = maze.exitUnlocked ? 'OPEN' : 'LOCKED';
+    if (dom.arcadeTargetsVal) dom.arcadeTargetsVal.textContent = String(maze.moves);
   }
 
-  function handleTargetMiss(targetEl) {
-    activeTargets.delete(targetEl);
-    clearTimeout(targetEl._expireTimer);
+  function handleMazeMove(dr, dc) {
+    if (!arcadeIsPlaying || !isArcadeOpen || !window.puzzleManager) return;
+    const res = window.puzzleManager.moveMazePlayer(dr, dc);
+    if (!res || res.status === 'inactive') return;
 
-    if (window.puzzleManager) {
-      window.puzzleManager.recordArcadeMiss();
+    if (res.status === 'blocked') {
+      if (window.audioManager) window.audioManager.playLockedSound();
+      return;
     }
 
-    if (window.audioManager) {
-      window.audioManager.playTargetMiss();
-    }
+    renderPixelMaze();
 
-    if (dom.arcadeComboVal) dom.arcadeComboVal.textContent = 'x1';
-
-    if (typeof gsap !== 'undefined') {
-      gsap.to(targetEl, {
-        opacity: 0,
-        scale: 0.5,
-        duration: 0.18,
-        onComplete: () => {
-          if (targetEl.parentNode) targetEl.parentNode.removeChild(targetEl);
+    if (res.status === 'dot') {
+      if (window.audioManager) window.audioManager.playBonusTargetHit();
+      const remaining = res.dotsTotal - res.dotsCollected.length;
+      if (dom.mazeStatusBanner) {
+        if (remaining <= 0) {
+          dom.mazeStatusBanner.textContent = 'ALL 3 DOTS SECURED — EXIT (E) IS NOW OPEN!';
+          dom.mazeStatusBanner.classList.add('exit-open');
+        } else {
+          dom.mazeStatusBanner.textContent = `ENERGY DOT SECURED! ${remaining} MORE TO UNLOCK EXIT`;
         }
-      });
+      }
+    } else if (res.status === 'exit_locked') {
+      if (window.audioManager) window.audioManager.playLockedSound();
+      if (dom.mazeStatusBanner) {
+        dom.mazeStatusBanner.textContent = `EXIT LOCKED — COLLECT ${res.dotsRemaining} MORE DOT${res.dotsRemaining === 1 ? '' : 'S'} FIRST!`;
+      }
+    } else if (res.status === 'won') {
+      endArcadeGame(res);
     } else {
-      if (targetEl.parentNode) targetEl.parentNode.removeChild(targetEl);
-    }
-  }
-
-  function showScoreFloatTag(x, y, text, isBonus) {
-    if (!dom.arcadePlayfield) return;
-    const tag = document.createElement('div');
-    tag.className = `score-float-tag ${isBonus ? 'bonus' : ''}`;
-    tag.textContent = text;
-    tag.style.left = `${x}px`;
-    tag.style.top = `${y}px`;
-
-    dom.arcadePlayfield.appendChild(tag);
-
-    if (typeof gsap !== 'undefined') {
-      gsap.fromTo(tag,
-        { opacity: 1, y: 0, scale: 0.8 },
-        {
-          opacity: 0, y: -30, scale: 1.1, duration: 0.6, ease: 'power2.out', onComplete: () => {
-            if (tag.parentNode) tag.parentNode.removeChild(tag);
-          }
-        }
-      );
-    } else {
-      setTimeout(() => {
-        if (tag.parentNode) tag.parentNode.removeChild(tag);
-      }, 500);
+      if (window.audioManager) window.audioManager.playTerminalKeystroke();
     }
   }
 
@@ -4195,16 +4747,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function clearArcadePlayfield() {
-    activeTargets.forEach(targetEl => {
-      clearTimeout(targetEl._expireTimer);
-      if (targetEl.parentNode) targetEl.parentNode.removeChild(targetEl);
-    });
+    if (dom.pixelMazeBoard) dom.pixelMazeBoard.innerHTML = '';
     activeTargets.clear();
   }
 
   /**
    * Hide the arcade summary panel and clear any leftover inline opacity
-   * from the reveal tween so the next countdown/round is never covered.
+   * from the reveal tween so the next round is never covered.
    */
   function hideArcadeSummaryStage() {
     if (!dom.arcadeSummaryStage) return;
@@ -4218,53 +4767,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function endArcadeGame() {
+  function endArcadeGame(mazeResult) {
     stopArcadeGame();
-    clearArcadePlayfield();
-
     if (!window.puzzleManager) return;
-    const result = window.puzzleManager.finishArcadeSession();
+    const result = mazeResult || window.puzzleManager.getMazeState() || { finalScore: 1500, moves: 0, dotsTotal: 3, bestScore: 1500 };
 
     if (window.gameManager && result.finalScore > 0) {
       window.gameManager.recordArcadeBestScore(result.finalScore);
     }
 
     if (dom.summaryFinalScore) dom.summaryFinalScore.textContent = result.finalScore;
-    if (dom.summaryTargetsDestroyed) dom.summaryTargetsDestroyed.textContent = result.targetsDestroyed;
-    if (dom.summaryMaxCombo) dom.summaryMaxCombo.textContent = `x${result.maxCombo}`;
-    if (dom.summaryBestScore) dom.summaryBestScore.textContent = result.bestScore;
-    if (dom.arcadeBestBadge) dom.arcadeBestBadge.textContent = `BEST: ${result.bestScore}`;
+    if (dom.summaryTargetsDestroyed) dom.summaryTargetsDestroyed.textContent = result.moves || 0;
+    if (dom.summaryMaxCombo) dom.summaryMaxCombo.textContent = `${(result.dotsCollected || []).length} / ${result.dotsTotal || 3}`;
+    if (dom.summaryBestScore) dom.summaryBestScore.textContent = result.bestScore || result.finalScore;
+    if (dom.arcadeBestBadge) dom.arcadeBestBadge.textContent = `BEST: ${result.bestScore || result.finalScore}`;
 
     const alreadySolved = window.gameManager?.getState().keysCollected.includes('key_03');
 
-    if (result.passed) {
-      if (window.audioManager) {
-        window.audioManager.playArcadeVictory();
-      }
-      dom.summaryStatusTitle.textContent = 'SYSTEM DEFENSE DEFEATED';
-      dom.summaryStatusTitle.className = 'h4 fw-bold text-success mb-2 font-monospace';
-      dom.summaryStatusSub.textContent = 'Simulation passed (Score >= 1200). Defense protocol permanently deactivated.';
+    if (window.audioManager) {
+      window.audioManager.playArcadeVictory();
+    }
+    if (dom.summaryStatusTitle) {
+      dom.summaryStatusTitle.textContent = 'MAZE PROTOCOL CLEARED';
+      dom.summaryStatusTitle.className = 'h4 fw-bold text-light mb-2 font-monospace';
+    }
+    if (dom.summaryStatusSub) {
+      dom.summaryStatusSub.textContent = 'All 3 energy dots collected and exit reached. Protocol override key unlocked.';
+    }
 
+    if (dom.btnClaimKey3) {
       if (!alreadySolved) {
         dom.btnClaimKey3.classList.remove('d-none');
       } else {
         dom.btnClaimKey3.classList.add('d-none');
       }
-    } else {
-      if (window.audioManager) {
-        window.audioManager.playLockedSound();
-      }
-      dom.summaryStatusTitle.textContent = 'INSUFFICIENT SCORE';
-      dom.summaryStatusTitle.className = 'h4 fw-bold text-warning mb-2 font-monospace';
-      dom.summaryStatusSub.textContent = `Score was below target threshold (1200 pts required). Retry to claim Key 03.`;
-      dom.btnClaimKey3.classList.add('d-none');
     }
 
-    dom.arcadeSummaryStage.classList.add('active');
-    if (typeof gsap !== 'undefined') {
-      gsap.fromTo(dom.arcadeSummaryStage, { opacity: 0 }, { opacity: 1, duration: 0.3 });
-    } else {
-      dom.arcadeSummaryStage.style.opacity = '1';
+    if (dom.arcadeSummaryStage) {
+      dom.arcadeSummaryStage.classList.add('active');
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo(dom.arcadeSummaryStage, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      } else {
+        dom.arcadeSummaryStage.style.opacity = '1';
+      }
     }
   }
 
@@ -4329,6 +4874,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dom.terminalModal.classList.add('active');
     dom.terminalModal.setAttribute('aria-hidden', 'false');
+    captureModalFocus(dom.terminalModal, dom.termInput);
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.terminalModal, { opacity: 0 }, { opacity: 1, duration: 0.25 });
@@ -4373,12 +4919,14 @@ document.addEventListener('DOMContentLoaded', () => {
           dom.terminalModal.classList.remove('active');
           dom.terminalModal.setAttribute('aria-hidden', 'true');
           unlockBodyScroll();
+          restoreModalTriggerFocus();
         }
       });
     } else {
       dom.terminalModal.classList.remove('active');
       dom.terminalModal.setAttribute('aria-hidden', 'true');
       unlockBodyScroll();
+      restoreModalTriggerFocus();
     }
   }
 
@@ -4526,6 +5074,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dom.resonatorModal.classList.add('active');
     dom.resonatorModal.setAttribute('aria-hidden', 'false');
+    captureModalFocus(dom.resonatorModal, dom.btnResClose);
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.resonatorModal, { opacity: 0 }, { opacity: 1, duration: 0.25 });
@@ -4570,12 +5119,14 @@ document.addEventListener('DOMContentLoaded', () => {
           dom.resonatorModal.classList.remove('active');
           dom.resonatorModal.setAttribute('aria-hidden', 'true');
           unlockBodyScroll();
+          restoreModalTriggerFocus();
         }
       });
     } else {
       dom.resonatorModal.classList.remove('active');
       dom.resonatorModal.setAttribute('aria-hidden', 'true');
       unlockBodyScroll();
+      restoreModalTriggerFocus();
     }
   }
 
@@ -4668,6 +5219,42 @@ document.addEventListener('DOMContentLoaded', () => {
   // STANDARD INSPECTION MODAL (FOR OBJECT DIAGNOSTICS)
   // =========================================================================
 
+  let lastModalTrigger = null;
+
+  function captureModalFocus(modalEl, preferredEl) {
+    if (typeof document === 'undefined') return;
+    const active = document.activeElement;
+    if (active && active !== document.body && !active.closest('.modal, [role="dialog"]')) {
+      lastModalTrigger = active;
+    }
+    const target = preferredEl || modalEl?.querySelector('button:not([disabled]), input:not([disabled]), [tabindex="0"]');
+    if (target && typeof target.focus === 'function') {
+      setTimeout(() => {
+        try { target.focus({ preventScroll: true }); } catch (_) {}
+      }, 30);
+    }
+  }
+
+  function restoreModalTriggerFocus() {
+    if (lastModalTrigger && typeof lastModalTrigger.focus === 'function' && lastModalTrigger.isConnected) {
+      try { lastModalTrigger.focus({ preventScroll: true }); } catch (_) {}
+    }
+    lastModalTrigger = null;
+  }
+
+  function getTopmostModalEl() {
+    if (isBriefingOpen) return document.getElementById('briefing-overlay');
+    if (isCoreOpen) return dom.coreModal;
+    if (isPipeOpen) return dom.pipeModal;
+    if (isKeypadOpen) return dom.keypadModal;
+    if (isSignalOpen) return dom.signalModal;
+    if (isModalOpen) return dom.modalOverlay;
+    if (isArcadeOpen) return dom.arcadeModal;
+    if (isTerminalOpen) return dom.terminalModal;
+    if (isResonatorOpen) return dom.resonatorModal;
+    return null;
+  }
+
   function openModal(title, bodyHtml, diagHtml, actionLabel, onAction) {
     if (!dom.modalOverlay || !dom.modalCard || isEscapeSequenceActive) return;
     isModalOpen = true;
@@ -4686,6 +5273,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dom.modalOverlay.classList.add('active');
     dom.modalOverlay.setAttribute('aria-hidden', 'false');
+    captureModalFocus(dom.modalOverlay, dom.btnModalClose);
 
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(dom.modalOverlay, { opacity: 0 }, { opacity: 1, duration: 0.25 });
@@ -4722,12 +5310,14 @@ document.addEventListener('DOMContentLoaded', () => {
           dom.modalOverlay.classList.remove('active');
           dom.modalOverlay.setAttribute('aria-hidden', 'true');
           unlockBodyScroll();
+          restoreModalTriggerFocus();
         }
       });
     } else {
       dom.modalOverlay.classList.remove('active');
       dom.modalOverlay.setAttribute('aria-hidden', 'true');
       unlockBodyScroll();
+      restoreModalTriggerFocus();
     }
   }
 
@@ -4958,7 +5548,60 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dom.btnClaimKey3) dom.btnClaimKey3.addEventListener('click', handleClaimKey3);
     if (dom.btnArcadeRetry) dom.btnArcadeRetry.addEventListener('click', () => {
       hideArcadeSummaryStage();
-      startArcadeCountdown();
+      startArcadeGame();
+    });
+    if (dom.btnMazeRestart) dom.btnMazeRestart.addEventListener('click', () => {
+      startArcadeGame();
+    });
+
+    if (dom.mazeDpad) {
+      const dirMap = { up: [-1, 0], down: [1, 0], left: [0, -1], right: [0, 1] };
+      dom.mazeDpad.addEventListener('click', (e) => {
+        const btn = e.target.closest('.maze-dpad-btn');
+        if (!btn) return;
+        const delta = dirMap[btn.dataset.dir];
+        if (delta) handleMazeMove(delta[0], delta[1]);
+      });
+    }
+
+    if (dom.pixelMazeBoard) {
+      let swipeStart = null;
+      dom.pixelMazeBoard.addEventListener('pointerdown', (e) => {
+        swipeStart = { x: e.clientX, y: e.clientY };
+      });
+      dom.pixelMazeBoard.addEventListener('pointerup', (e) => {
+        if (!swipeStart) return;
+        const dx = e.clientX - swipeStart.x;
+        const dy = e.clientY - swipeStart.y;
+        swipeStart = null;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          handleMazeMove(0, dx > 0 ? 1 : -1);
+        } else {
+          handleMazeMove(dy > 0 ? 1 : -1, 0);
+        }
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (!isArcadeOpen || !arcadeIsPlaying) return;
+      const key = e.key.toLowerCase();
+      if (e.key === 'ArrowUp' || key === 'w') {
+        e.preventDefault();
+        handleMazeMove(-1, 0);
+      } else if (e.key === 'ArrowDown' || key === 's') {
+        e.preventDefault();
+        handleMazeMove(1, 0);
+      } else if (e.key === 'ArrowLeft' || key === 'a') {
+        e.preventDefault();
+        handleMazeMove(0, -1);
+      } else if (e.key === 'ArrowRight' || key === 'd') {
+        e.preventDefault();
+        handleMazeMove(0, 1);
+      } else if (key === 'r') {
+        e.preventDefault();
+        startArcadeGame();
+      }
     });
 
     // 7. Sector 02 Interactions
@@ -5066,6 +5709,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 10. v3 MULTI-ROOM INTERACTIONS
+    // Room 01 (The Threshold): 3 beginner access nodes + console + exit hatch
+    dom.entryNodes.forEach((nodeEl, i) => {
+      if (!nodeEl) return;
+      nodeEl.addEventListener('click', () => handleEntryNodeActivate(i));
+      nodeEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleEntryNodeActivate(i);
+        }
+      });
+    });
+
+    if (dom.nodeEntryConsole) {
+      dom.nodeEntryConsole.addEventListener('click', () => {
+        if (window.audioManager) window.audioManager.playTerminalBeep();
+        const count = (window.gameManager?.getState().entryNodesCollected || []).length;
+        openModal(
+          '// THRESHOLD CONSOLE // PORT 01',
+          `<h4 class="h5 fw-bold text-info mb-2 font-monospace">SYSTEM ENTRY DIAGNOSTICS</h4>
+           <p class="text-secondary small mb-0">This access port supplies startup power to the Threshold Exit Hatch. Activate all three glowing Access Nodes (Alpha, Beta, Gamma) to unseal the descent shaft to Room 02.</p>`,
+          `<div class="text-muted">// Console Readout:</div>
+           <div>&gt; Access Nodes Online: <span class="text-info fw-bold">${count} / 3</span></div>
+           <div>&gt; Exit Hatch Status: ${(window.gameManager?.isRoomDoorReady('entry')) ? '<span class="text-success fw-bold">ONLINE — READY</span>' : '<span class="text-danger fw-bold">LOCKED</span>'}</div>
+           <div class="text-info mt-2">&gt; "Tap all 3 nodes, then click the Exit Hatch."</div>`
+        );
+      });
+      dom.nodeEntryConsole.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          dom.nodeEntryConsole.click();
+        }
+      });
+    }
+
+    if (dom.nodeEntryDoor) {
+      dom.nodeEntryDoor.addEventListener('click', () => {
+        const ready = window.gameManager?.isRoomDoorReady('entry');
+        if (ready) {
+          triggerEntryDoorSequence();
+        } else {
+          if (window.audioManager) window.audioManager.playLockedSound();
+          dom.nodeEntryDoor.classList.remove('door-locked-shake');
+          void dom.nodeEntryDoor.offsetWidth;
+          dom.nodeEntryDoor.classList.add('door-locked-shake');
+          setTimeout(() => dom.nodeEntryDoor.classList.remove('door-locked-shake'), 450);
+          const copy = DOOR_LOCKED_COPY.entry;
+          const count = (window.gameManager?.getState().entryNodesCollected || []).length;
+          openModal(
+            '// EXIT HATCH // SUB-LEVEL 01',
+            `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
+             <p class="text-secondary small mb-0">${copy.body}</p>`,
+            `<div class="text-muted">// Hatch Diagnostics:</div>` +
+            `<div>&gt; Nodes Online: <span class="text-warning fw-bold">${count} / 3</span></div>` +
+            copy.diag.map(d => `<div>${d}</div>`).join('') +
+            `<div class="text-info mt-2">&gt; "Tap Node Alpha, Node Beta, and Node Gamma first."</div>`
+          );
+        }
+      });
+      dom.nodeEntryDoor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          dom.nodeEntryDoor.click();
+        }
+      });
+    }
+
     // Room 02: orb catching + lift door + lore + gold token
     dom.orbNodes.forEach((orbEl, i) => {
       if (!orbEl) return;
@@ -5091,8 +5800,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
              <p class="text-secondary small mb-0">${copy.body}</p>`,
             `<div class="text-muted">// Lift Diagnostics:</div>` +
-              copy.diag.map(d => `<div>${d}</div>`).join('') +
-              `<div class="text-success mt-2">&gt; "Catch the drifting plasma orbs in the atrium."</div>`
+            copy.diag.map(d => `<div>${d}</div>`).join('') +
+            `<div class="text-success mt-2">&gt; "Catch the drifting plasma orbs in the atrium."</div>`
           );
         }
       });
@@ -5162,8 +5871,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
              <p class="text-secondary small mb-0">${copy.body}</p>`,
             `<div class="text-muted">// Vault Diagnostics:</div>` +
-              copy.diag.map(d => `<div>${d}</div>`).join('') +
-              `<div class="text-warning mt-2">&gt; "Open the Signal Relay console and mirror the ghost songs."</div>`
+            copy.diag.map(d => `<div>${d}</div>`).join('') +
+            `<div class="text-warning mt-2">&gt; "Open the Signal Relay console and mirror the ghost songs."</div>`
           );
         }
       });
@@ -5262,8 +5971,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `<h4 class="h5 fw-bold text-light mb-2 font-monospace">${copy.title}</h4>
              <p class="text-secondary small mb-0">${copy.body}</p>`,
             `<div class="text-muted">// Reactor Diagnostics:</div>` +
-              copy.diag.map(d => `<div>${d}</div>`).join('') +
-              `<div class="text-info mt-2">&gt; "Tap the glowing shards scattered on the reactor floor."</div>`
+            copy.diag.map(d => `<div>${d}</div>`).join('') +
+            `<div class="text-info mt-2">&gt; "Tap the glowing shards scattered on the reactor floor."</div>`
           );
         }
       });
@@ -5310,7 +6019,7 @@ document.addEventListener('DOMContentLoaded', () => {
           `<div class="text-muted">// Service Log:</div>
            <div>&gt; Last Pressure Test: <span class="text-danger fw-bold">FAILED</span></div>
            <div>&gt; Coolant Valves: MISALIGNED</div>
-           <div class="text-danger mt-2">&gt; "Align the valves. Build the pressure. Do not stop pumping."</div>`
+           <div class="text-info mt-2">&gt; "Align the valves from SOURCE to FUSE, then charge the Hydraulic Pump to 100%."</div>`
         );
       });
     }
@@ -5330,12 +6039,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Gold tokens (all five rooms)
+    // Gold tokens (all five active rooms + archived Core)
     const goldTokenBindings = [
-      ['lobby', dom.goldTokenLobby],
+      ['entry', dom.goldTokenEntry],
       ['orbatrium', dom.goldTokenOrbatrium],
       ['vault', dom.goldTokenVault],
       ['tunnels', dom.goldTokenTunnels],
+      ['lobby', dom.goldTokenLobby],
       ['core', dom.goldTokenCore]
     ];
     goldTokenBindings.forEach(([roomId, tokenEl]) => {
@@ -5349,8 +6059,25 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Escape Key Handler — closes only the TOP-MOST visible layer
+    // Keyboard Handler: Modal Tab Focus Trap + Escape closes top-most visible layer
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        const activeModal = getTopmostModalEl();
+        if (!activeModal) return;
+        const focusables = [...activeModal.querySelectorAll('button:not([disabled]):not(.d-none), input:not([disabled]), [tabindex="0"]')]
+          .filter(el => el.offsetParent !== null);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !activeModal.contains(document.activeElement))) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+        return;
+      }
       if (e.key !== 'Escape' || isEscapeSequenceActive) return;
 
       if (isBriefingOpen) {
@@ -5500,7 +6227,13 @@ document.addEventListener('DOMContentLoaded', () => {
       particles.push(new Particle());
     }
 
+    let rafId = null;
+
     function render() {
+      if (document.hidden) {
+        rafId = null;
+        return;
+      }
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
       for (let i = 0; i < particles.length; i++) {
@@ -5525,8 +6258,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      requestAnimationFrame(render);
+      rafId = requestAnimationFrame(render);
     }
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !rafId) {
+        rafId = requestAnimationFrame(render);
+      }
+    });
 
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -5573,16 +6312,32 @@ document.addEventListener('DOMContentLoaded', () => {
       active = false;
     });
 
+    let cursorRafId = null;
+
     function updateCursorRing() {
+      if (!active || document.hidden) {
+        cursorRafId = null;
+        return;
+      }
       ringX += (mouseX - ringX) * 0.2;
       ringY += (mouseY - ringY) * 0.2;
 
       ring.style.left = `${ringX}px`;
       ring.style.top = `${ringY}px`;
 
-      requestAnimationFrame(updateCursorRing);
+      cursorRafId = requestAnimationFrame(updateCursorRing);
     }
-    updateCursorRing();
+
+    window.addEventListener('mousemove', () => {
+      if (active && !cursorRafId && !document.hidden) {
+        cursorRafId = requestAnimationFrame(updateCursorRing);
+      }
+    }, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && active && !cursorRafId) {
+        cursorRafId = requestAnimationFrame(updateCursorRing);
+      }
+    });
 
     function bindHoverListeners() {
       const interactives = document.querySelectorAll('button, a, [role="button"], input, .interactive-node, .resonance-node-card, .term-chip, .obs-chip');
