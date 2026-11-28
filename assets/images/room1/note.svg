@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 76" fill="none">
+  <rect x="10" y="12" width="46" height="58" rx="4" transform="rotate(-4 33 41)" fill="#2a1e17" fill-opacity="0.28"/>
+  <rect x="8" y="10" width="46" height="58" rx="4" transform="rotate(-4 31 39)" fill="#f5ebd6" stroke="#2a1e17" stroke-width="3.2"/>
+  <!-- Pin -->
+  <circle cx="31" cy="14" r="5" fill="#b85a4a" stroke="#2a1e17" stroke-width="2.5"/>
+  <!-- Hand-drawn squiggle lines (no real text) -->
+  <path d="M16 28 Q26 26 42 27" stroke="#6c5848" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M16 38 Q29 36 44 37" stroke="#6c5848" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M17 48 Q27 47 37 47" stroke="#6c5848" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

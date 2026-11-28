@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" fill="none">
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#191522"/>
+      <stop offset="48%" stop-color="#2b2128"/>
+      <stop offset="100%" stop-color="#3c2b24"/>
+    </linearGradient>
+    <radialGradient id="moonGlow" cx="0.77" cy="0.21" r="0.28">
+      <stop offset="0%" stop-color="#9bbbd0" stop-opacity="0.34"/>
+      <stop offset="52%" stop-color="#9bbbd0" stop-opacity="0.11"/>
+      <stop offset="100%" stop-color="#9bbbd0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="houseAura" cx="0.5" cy="0.55" r="0.38">
+      <stop offset="0%" stop-color="#9bbbd0" stop-opacity="0.14"/>
+      <stop offset="65%" stop-color="#7a5239" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#15100d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="winGlowA" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0%" stop-color="#f4b942" stop-opacity="0.98"/>
+      <stop offset="52%" stop-color="#e3922d" stop-opacity="0.48"/>
+      <stop offset="100%" stop-color="#f4b942" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lanternSpill" cx="0.5" cy="0.62" r="0.38">
+      <stop offset="0%" stop-color="#f4b942" stop-opacity="0.28"/>
+      <stop offset="62%" stop-color="#8b5a36" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#15100d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hillDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#201713"/>
+      <stop offset="100%" stop-color="#130d0a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Evening Dusk Sky -->
+  <rect width="1600" height="900" fill="url(#skyGrad)"/>
+  <rect width="1600" height="900" fill="url(#moonGlow)"/>
+  <ellipse cx="780" cy="480" rx="480" ry="260" fill="url(#houseAura)"/>
+
+  <!-- Stars & Crisp Crescent Moon -->
+  <g fill="#f5ebd6" opacity="0.58">
+    <circle cx="210" cy="145" r="2.2"/>
+    <circle cx="380" cy="95" r="1.8"/>
+    <circle cx="540" cy="170" r="2"/>
+    <circle cx="690" cy="110" r="1.6"/>
+    <circle cx="930" cy="120" r="2.2"/>
+    <circle cx="1080" cy="86" r="1.7"/>
+    <circle cx="1410" cy="155" r="2"/>
+  </g>
+  <path d="M1238 142 A46 46 0 1 0 1272 224 A38 38 0 1 1 1238 142 Z" fill="#dbe8f0" opacity="0.9"/>
+
+  <!-- Soft Misty Cloud Ribbon -->
+  <path d="M120 278 Q340 248 540 274 T940 264 T1440 282" stroke="#9bbbd0" stroke-width="28" stroke-linecap="round" opacity="0.08"/>
+
+  <!-- Far Rolling Hills -->
+  <path d="M0 640 Q280 560 620 618 T1220 600 T1600 635 L1600 900 L0 900 Z" fill="#251b17"/>
+
+  <!-- Storybook House Silhouette -->
+  <g transform="translate(500 220)">
+    <ellipse cx="280" cy="360" rx="360" ry="230" fill="url(#lanternSpill)"/>
+
+    <!-- Chimneys -->
+    <rect x="118" y="34" width="38" height="106" rx="4" fill="#281d18" stroke="#150f0c" stroke-width="3"/>
+    <rect x="404" y="54" width="34" height="92" rx="4" fill="#281d18" stroke="#150f0c" stroke-width="3"/>
+
+    <!-- Main Timber/Plaster Walls -->
+    <rect x="92" y="182" width="376" height="270" rx="6" fill="#2d201a" stroke="#150f0c" stroke-width="4"/>
+    <rect x="26" y="256" width="96" height="196" rx="5" fill="#261b16" stroke="#150f0c" stroke-width="4"/>
+    <rect x="438" y="248" width="98" height="204" rx="5" fill="#261b16" stroke="#150f0c" stroke-width="4"/>
+
+    <!-- Steep Gabled Roofs + Subtle Moonlight Roof Rim -->
+    <polygon points="70,190 280,58 490,190" fill="#1e1512" stroke="#150f0c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="72,188 280,58 488,188" stroke="#9bbbd0" stroke-width="2" opacity="0.28"/>
+    <polygon points="10,264 78,200 138,264" fill="#1e1512" stroke="#150f0c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="424,256 488,188 552,256" fill="#1e1512" stroke="#150f0c" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Attic Round Window (warm lantern glow) -->
+    <circle cx="280" cy="144" r="38" fill="url(#winGlowA)" opacity="0.72"/>
+    <circle cx="280" cy="144" r="19" fill="#f4b942" fill-opacity="0.86" stroke="#150f0c" stroke-width="3.5"/>
+    <path d="M280 125 V163 M261 144 H299" stroke="#2d201a" stroke-width="2.5"/>
+
+    <!-- Upper Story Bedroom Window (moonlight glass) -->
+    <rect x="148" y="220" width="52" height="72" rx="24" fill="#6b8ba1" fill-opacity="0.58" stroke="#150f0c" stroke-width="3.5"/>
+    <path d="M174 220 V292 M148 256 H200" stroke="#150f0c" stroke-width="2.5"/>
+
+    <!-- Upper Right Library Window (warm lantern glow) -->
+    <circle cx="386" cy="256" r="52" fill="url(#winGlowA)" opacity="0.68"/>
+    <rect x="360" y="220" width="52" height="72" rx="24" fill="#f4b942" fill-opacity="0.88" stroke="#150f0c" stroke-width="3.5"/>
+    <path d="M386 220 V292 M360 256 H412" stroke="#2d201a" stroke-width="2.5"/>
+
+    <!-- Left Wing Window -->
+    <rect x="52" y="302" width="38" height="58" rx="18" fill="#6b8ba1" fill-opacity="0.46" stroke="#150f0c" stroke-width="3"/>
+
+    <!-- Arched Front Door + Threshold Lantern -->
+    <path d="M236 452 V354 C236 322 324 322 324 354 V452 Z" fill="#462d1e" stroke="#150f0c" stroke-width="4"/>
+    <path d="M248 452 V358 C248 336 312 336 312 358 V452 Z" fill="#5e3d28"/>
+    <circle cx="298" cy="396" r="5" fill="#f4b942"/>
+    <circle cx="338" cy="346" r="44" fill="url(#winGlowA)" opacity="0.8"/>
+    <rect x="331" y="336" width="14" height="20" rx="4" fill="#f4b942" stroke="#150f0c" stroke-width="2.5"/>
+  </g>
+
+  <!-- Stone Garden Path & Foreground Shrubs / Framing Trees -->
+  <path d="M0 688 Q420 662 800 676 T1600 684 L1600 900 L0 900 Z" fill="url(#hillDark)"/>
+  <path d="M756 678 Q738 770 692 900 L876 900 Q822 770 802 678 Z" fill="#32231b" opacity="0.78"/>
+
+  <g fill="#120c09" opacity="0.9">
+    <path d="M-20 900 L18 430 C28 340 -10 260 -20 190 L-20 900 Z"/>
+    <path d="M12 450 Q120 390 198 424 Q130 456 26 492 Z"/>
+    <circle cx="90" cy="740" r="140"/>
+    <circle cx="220" cy="790" r="108"/>
+
+    <path d="M1620 900 L1575 410 C1565 320 1605 230 1620 150 L1620 900 Z"/>
+    <path d="M1582 430 Q1468 370 1392 406 Q1464 438 1568 474 Z"/>
+    <circle cx="1500" cy="745" r="145"/>
+    <circle cx="1370" cy="800" r="110"/>
+  </g>
+
+  <rect width="1600" height="900" fill="#15100d" opacity="0.18"/>
+</svg>

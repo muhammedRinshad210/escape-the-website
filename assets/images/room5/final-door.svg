@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 360" fill="none">
+  <ellipse cx="120" cy="348" rx="104" ry="8" fill="#2a1e17" fill-opacity="0.35"/>
+  <path d="M18 346 V120 C18 54 64 16 120 16 C176 16 222 54 222 120 V346 Z" fill="#3b2b23" stroke="#2a1e17" stroke-width="5"/>
+  <path d="M30 344 V122 C30 64 70 28 120 28 C170 28 210 64 210 122 V344 Z" fill="#7a5239" stroke="#2a1e17" stroke-width="4"/>
+  <line x1="120" y1="30" x2="120" y2="342" stroke="#2a1e17" stroke-width="3.5"/>
+  <path d="M46 112 C52 72 82 46 120 42" stroke="#a5744e" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+  <!-- Brass plate for 4 symbol buttons -->
+  <rect x="46" y="138" width="148" height="104" rx="14" fill="#3b2b23" stroke="#f4b942" stroke-width="3.5"/>
+</svg>

@@ -1,0 +1,746 @@
+/* ==========================================================================
+   Escape the Website v4 — Room Layers, Clocks, Reactions & Win Lighting
+   ========================================================================== */
+
+.room-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.room-layer {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.room-layer img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.clock-hand-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.clock-ticking .clock-sec-hand {
+  transition: transform 0.14s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.room-torch-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 48% 82%, rgba(244, 185, 66, 0.28) 0%, rgba(244, 185, 66, 0.08) 42%, transparent 72%);
+}
+
+.rug-glint {
+  font-size: 1.5rem;
+  color: #fff3c4;
+  text-shadow: 0 0 12px #f4b942, 0 0 22px #f4b942;
+  animation: glintPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes glintPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(0.85);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.22);
+    opacity: 1;
+  }
+}
+
+.door-open-light {
+  position: absolute;
+  inset: 6% 8% 2%;
+  border-radius: 50% 50% 6px 6px;
+  background: radial-gradient(circle at 50% 55%, #fff8dc 0%, #f4b942 62%, rgba(244, 185, 66, 0) 100%);
+  box-shadow: 0 0 38px rgba(244, 185, 66, 0.85);
+}
+
+.door-swung {
+  transform-origin: left center;
+  transform: perspective(420px) rotateY(-64deg);
+  transition: transform 0.65s ease-out;
+}
+
+/* Hotspots */
+.hotspot-btn {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 14px;
+  background: transparent;
+  border: 2px solid transparent;
+  touch-action: manipulation;
+  transition: transform 0.14s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.hotspot-btn[data-hotspot-id="rug"] {
+  touch-action: none;
+}
+
+.hotspot-btn:hover {
+  border-color: rgba(246, 238, 223, 0.26);
+}
+
+.hotspot-btn:active,
+.hotspot-btn.is-tapped {
+  transform: translate(-50%, -50%) scale(0.96);
+  border-color: rgba(244, 185, 66, 0.72);
+  background: rgba(244, 185, 66, 0.1);
+}
+
+.hotspot-btn.is-drop-hover {
+  border-color: var(--accent-amber);
+  background: rgba(244, 185, 66, 0.22);
+}
+
+.hotspot-btn.is-hint-glow {
+  border-color: var(--accent-amber);
+  box-shadow: 0 0 0 4px rgba(244, 185, 66, 0.38), 0 0 22px rgba(244, 185, 66, 0.55);
+  animation: hintPulse 1.5s ease-in-out infinite;
+}
+
+.hotspot-btn.is-wrong-shake {
+  border-color: var(--accent-coral);
+  background: rgba(223, 107, 87, 0.18);
+  animation: gentleWobble 0.4s ease-in-out 2;
+}
+
+/* Cat Reaction Overlay */
+.cat-reaction-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(21, 16, 13, 0.18);
+}
+
+.cat-leap-img {
+  position: absolute;
+  width: 58%;
+  max-width: 280px;
+  opacity: 0;
+}
+
+.cat-paws-img {
+  position: absolute;
+  width: 82%;
+  max-width: 390px;
+  opacity: 0;
+}
+
+.cat-claw-marks {
+  position: absolute;
+  inset: 12%;
+  width: 76%;
+  height: 76%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scene-frame.is-cat-shaking {
+  animation: catScreenShake 0.12s ease-in-out 4;
+}
+
+@keyframes catScreenShake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-4px, 2px); }
+  50% { transform: translate(4px, -2px); }
+  75% { transform: translate(-3px, -1px); }
+}
+
+/* Clothes Reaction Overlay */
+.clothes-reaction-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(35, 27, 22, 0.72);
+  touch-action: none;
+  padding: 16px;
+}
+
+.clothes-cover-stack {
+  position: relative;
+  width: 86%;
+  max-width: 360px;
+  height: 58%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clothes-cover-img {
+  position: absolute;
+  width: 96%;
+  height: auto;
+  transform: rotate(-7deg) scale(1.15);
+}
+
+.clothes-cover-top {
+  transform: rotate(9deg) translate(6%, -12%) scale(1.1);
+}
+
+/* Warm Doorway Light Wash */
+.door-light-wash {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  pointer-events: none;
+  background: radial-gradient(circle at 82% 55%, #fff9e6 0%, #f4b942 52%, #f5ebd6 100%);
+  opacity: 0;
+}
+
+@keyframes hintPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(244, 185, 66, 0.35), 0 0 18px rgba(244, 185, 66, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(244, 185, 66, 0.55), 0 0 28px rgba(244, 185, 66, 0.75);
+  }
+}
+
+@keyframes gentleWobble {
+  0%, 100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  25% {
+    transform: translate(-50%, -50%) rotate(-3deg);
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(3deg);
+  }
+}
+
+/* Room 2: Library Bookshelf, Books, Passage & Reactions */
+.library-shelf-group {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 6% 58%;
+  transition: transform 0.85s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.library-shelf-group.is-rotated {
+  transform: perspective(760px) rotateY(-74deg);
+}
+
+.library-book-layer {
+  transition: transform 0.16s ease, filter 0.16s ease;
+}
+
+.library-book-layer.is-book-selected {
+  transform: translate(-50%, -58%) scale(1.08);
+  filter: drop-shadow(0 0 8px rgba(244, 185, 66, 0.9));
+}
+
+.library-lever-layer {
+  transition: transform 0.22s ease;
+}
+
+.library-lever-layer.is-pulled {
+  transform: translate(-50%, -50%) rotate(28deg);
+}
+
+.secret-passage-arch {
+  border-radius: 50% 50% 8px 8px;
+  background: radial-gradient(circle at 50% 55%, #fff8dc 0%, #f4b942 56%, #523f35 100%);
+  box-shadow: inset 0 0 24px rgba(42, 30, 23, 0.55), 0 0 36px rgba(244, 185, 66, 0.7);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.secret-passage-arch.is-open {
+  opacity: 1;
+}
+
+.books-tumble-layer,
+.owl-reaction-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(21, 16, 13, 0.25);
+}
+
+.tumble-book {
+  position: absolute;
+  width: 16%;
+  max-width: 80px;
+}
+
+.tumble-b1 { left: 26%; top: 44%; }
+.tumble-b2 { left: 40%; top: 40%; }
+.tumble-b3 { left: 54%; top: 44%; }
+.tumble-b4 { left: 66%; top: 40%; }
+
+.owl-pop-img {
+  width: 72%;
+  max-width: 320px;
+}
+
+.owl-shhh-bubble {
+  position: absolute;
+  top: 16%;
+  right: 14%;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--bg-parchment);
+  color: var(--ink-dark);
+  border: 2.5px solid #2a1e17;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Room 3: Dark Room Torch Beam, Lights, Lock Keypad & Reactions */
+.darkroom-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 118px at var(--beam-x, 26%) var(--beam-y, 35%),
+    rgba(244, 185, 66, 0.08) 0%,
+    rgba(12, 9, 7, 0.25) 48%,
+    rgba(12, 9, 7, 0.95) 86%
+  );
+  transition: opacity 0.25s ease;
+}
+
+.darkroom-mask.is-lights-on {
+  opacity: 0.12;
+}
+
+.corridor-bulb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3b2b23;
+  border: 2.5px solid #2a1e17;
+  z-index: 14;
+  transition: background-color 0.2s ease, box-shadow 0.25s ease;
+}
+
+.corridor-bulb.is-lit {
+  background: #fff3c4;
+  box-shadow: 0 0 28px 10px rgba(244, 185, 66, 0.78);
+}
+
+.corridor-open-glow {
+  border-radius: 50% 50% 6px 6px;
+  background: radial-gradient(circle at 50% 55%, #fff8dc 0%, #f4b942 58%, rgba(244, 185, 66, 0) 100%);
+  box-shadow: 0 0 42px rgba(244, 185, 66, 0.85);
+}
+
+.ghost-reaction-layer,
+.lock-tongue-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(21, 16, 13, 0.18);
+}
+
+.ghost-broom-img {
+  width: 44%;
+  max-width: 200px;
+}
+
+.lock-tongue-img {
+  width: 46%;
+  max-width: 210px;
+}
+
+.codelock-card {
+  max-width: 340px;
+}
+
+.codelock-display {
+  margin: 10px auto 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #2a1e17;
+  color: #f4b942;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.35em;
+}
+
+.codelock-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.codelock-key {
+  min-height: 48px;
+  border-radius: 12px;
+  background: rgba(44, 33, 25, 0.1);
+  border: 2px solid rgba(44, 33, 25, 0.25);
+  color: var(--ink-dark);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.codelock-key:active {
+  transform: scale(0.96);
+}
+
+.codelock-ok {
+  background: linear-gradient(180deg, #f6c456 0%, #df9d28 100%);
+  border-color: #b67b18;
+}
+
+.codelock-clear {
+  font-size: 0.92rem;
+}
+
+.codelock-cancel {
+  width: 100%;
+}
+
+/* Room 4: Workshop Hatch Ladder & Decoy Gags */
+.hatch-open-ladder {
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 16px,
+      #a5744e 16px,
+      #a5744e 22px
+    ),
+    linear-gradient(90deg, transparent 22%, #7a5239 22%, #7a5239 30%, transparent 30%, transparent 70%, #7a5239 70%, #7a5239 78%, transparent 78%),
+    #1c1410;
+  border: 4px solid #2a1e17;
+  box-shadow: inset 0 12px 24px rgba(0, 0, 0, 0.75);
+}
+
+.gag-reaction-layer,
+.balloon-soot-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(21, 16, 13, 0.22);
+}
+
+.balloon-soot-layer {
+  background: rgba(24, 18, 15, 0.68);
+}
+
+.gag-pop-img {
+  width: 48%;
+  max-width: 220px;
+}
+
+.soot-gag-img {
+  width: 92%;
+  max-width: 400px;
+}
+
+/* Room 5: Final Door, Diary Reader, Reactions & Finale */
+.room-daylight-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.room5-walls-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: left center;
+}
+
+.room5-walls-wrap.is-peeled {
+  opacity: 0;
+  transform: perspective(800px) rotateY(-88deg) translateX(-40%);
+  transition: transform 0.85s ease-in, opacity 0.7s ease-in;
+}
+
+.door-pips-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.door-pip {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #2a1e17;
+  border: 2px solid #f4b942;
+}
+
+.door-pip.is-lit {
+  background: #f4b942;
+  box-shadow: 0 0 8px #f4b942;
+}
+
+.brick-wall-img {
+  width: 46%;
+  max-width: 210px;
+}
+
+.fake-escape-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 20%;
+  background: rgba(21, 16, 13, 0.22);
+}
+
+.fake-escape-banner {
+  padding: 14px 24px;
+  border-radius: 14px;
+  background: var(--bg-parchment);
+  color: var(--ink-dark);
+  border: 4px solid #2a1e17;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+.diary-reader-card {
+  max-width: 420px;
+}
+
+.diary-reader-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 18px;
+  text-align: left;
+}
+
+.diary-entry-row {
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(255, 250, 240, 0.75);
+  border: 1px dashed rgba(92, 69, 49, 0.35);
+}
+
+.diary-entry-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  display: block;
+}
+
+.diary-entry-text {
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--ink-dark);
+}
+
+.diary-reader-card .btn-primary-story {
+  width: 100%;
+}
+
+.finale-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 6vw, 2.45rem);
+  line-height: 1.1;
+  margin: 4px 0 16px;
+}
+
+.finale-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.finale-stat-box {
+  padding: 12px 10px;
+  border-radius: 12px;
+  background: rgba(255, 250, 240, 0.75);
+  border: 1.5px solid rgba(92, 69, 49, 0.22);
+}
+
+.finale-stat-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 2px;
+}
+
+.finale-stat-val {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink-dark);
+}
+
+.finale-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.share-feedback {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+/* ==========================================================================
+   Large Landscape Mouse/Trackpad Desktop Styles ONLY (Mobile untouched)
+   ========================================================================== */
+@media (min-width: 1024px) and (min-height: 600px) and (orientation: landscape) and (hover: hover) and (pointer: fine) {
+  .scene-wing-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .wing-room1-bg {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .wing-full-svg {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wing-daylight-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .wing-room5-walls {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transform-origin: left center;
+  }
+
+  .wing-room5-walls.is-peeled {
+    opacity: 0;
+    transform: perspective(900px) rotateY(-88deg) translateX(-40%);
+    transition: transform 0.85s ease-in, opacity 0.7s ease-in;
+  }
+
+  /* Use seamless full 16:10 wide backgrounds across Rooms 1-5 on desktop */
+  .scene-frame.is-room1-wing .room-bg-img,
+  .scene-frame.is-svg-wing-room .room-bg-img,
+  .scene-frame.is-svg-wing-room .room-daylight-bg {
+    display: none;
+  }
+
+  /* Reaction overlays inside #scene-play-core stretch seamlessly across full 16:10 stage */
+  .cat-reaction-layer,
+  .clothes-reaction-layer,
+  .books-tumble-layer,
+  .owl-reaction-layer,
+  .ghost-reaction-layer,
+  .tongue-reaction-layer,
+  .boing-reaction-layer,
+  .soot-reaction-layer,
+  .brick-reaction-layer,
+  .fake-escape-layer {
+    inset: 0 -39%;
+  }
+
+  /* Rooms 2-5 use seamless full 16:10 SVG rooms instead of narrow 9:10 bg */
+  .scene-frame.is-svg-wing-room .room-bg-img,
+  .scene-frame.is-svg-wing-room .room-daylight-bg {
+    display: none;
+  }
+
+  /* Comfortable mouse cursor & subtle hover feedback without spoiling dark-room clues */
+  .hotspot-btn {
+    cursor: pointer;
+  }
+
+  .scene-frame:not(.is-darkroom-active) .hotspot-btn:hover {
+    border-color: rgba(246, 238, 223, 0.34);
+    background: radial-gradient(circle, rgba(244, 185, 66, 0.14) 0%, transparent 74%);
+  }
+
+  .scene-frame.is-darkroom-active .hotspot-btn {
+    cursor: default;
+  }
+
+  .scene-frame.is-darkroom-active .hotspot-btn:hover {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  /* Slightly wider laptop torch beam & scaled overlay art */
+  .darkroom-mask {
+    background: radial-gradient(
+      circle 156px at var(--beam-x, 26%) var(--beam-y, 35%),
+      rgba(244, 185, 66, 0.08) 0%,
+      rgba(12, 9, 7, 0.24) 48%,
+      rgba(12, 9, 7, 0.95) 86%
+    );
+  }
+
+  .cat-leap-img { max-width: 360px; }
+  .cat-paws-img { max-width: 500px; }
+  .owl-pop-img { max-width: 400px; }
+  .ghost-broom-img { max-width: 260px; }
+  .lock-tongue-img { max-width: 270px; }
+  .gag-pop-img { max-width: 280px; }
+  .soot-gag-img { max-width: 560px; }
+  .brick-wall-img { max-width: 290px; }
+
+  .diary-reader-card { max-width: 520px; }
+  .codelock-card { max-width: 390px; }
+  .finale-title { font-size: 2.6rem; }
+}

@@ -1,140 +1,90 @@
-# ESCAPE THE WEBSITE — v3 (FIVE SUB-LEVELS)
+# ESCAPE THE WEBSITE — Storybook Edition (v4)
 
-An interactive, immersive web-based escape adventure. You are locked inside the
-website — and the real exit is **five sub-levels down**. Every room hides a
-different kind of puzzle, its own collectibles, and its own way of opening.
+An illustrated, full-screen 2D storybook escape game. You opened the wrong page and were pulled into a house hidden inside an old website. Explore five rooms, collect four diary pages left by the person trapped before you, and unlock the Final Door back out.
 
 ## Live Site
 
-The official production URL (canonical) is the Render deployment:
+The official production URL (canonical) is:
 
 **https://escape-the-website.onrender.com/**
 
-`index.html`, `sitemap.xml` and `robots.txt` reference this URL. Any legacy
-mirror deployment is non-canonical and is not part of the production SEO
-configuration.
+`index.html`, `sitemap.xml`, and `robots.txt` reference this URL.
 
-## Technologies Used
+## Stack
 
-- **HTML5** (Semantic structure)
-- **CSS3 / Vanilla CSS** (Custom theme variables and layout)
-- **Vanilla JavaScript** (Modular ES6 architecture, no heavy frameworks)
-- **Bootstrap 5** (Layout and base utility classes via CDN)
-- **GSAP (GreenSock Animation Platform)** (Cinematic animations via CDN)
-- **Google Fonts** (Orbitron, Inter, JetBrains Mono)
+- **HTML5 & Semantic Shell** (`index.html`, `100dvh` full-screen app layout, safe-area inset support)
+- **Vanilla CSS** (`css/base.css`, `css/hud.css`, `css/rooms.css`)
+- **Vanilla JavaScript** (`js/engine.js`, `js/ui.js`, per-room modules in `js/rooms/`, Web Audio synthesis in `js/audio.js`, GA4 + Clarity wrapper in `js/analytics.js`)
+- **GSAP** via CDN with reduced-motion and missing-GSAP fallbacks
+- **Zero frameworks, zero build step, zero backend** — deploys directly as a static site
 
-## The Five Sub-Levels (v3)
+## The Five Rooms
 
-| Room | Name | Find this | Door opens by |
-|------|------|-----------|---------------|
-| ROOM 01 | THE LOBBY | 3 cipher keys (resonator sequence, mainframe terminal, defense arcade) | Blast-door lock-release cinematic — and the twist: it leads **deeper** |
-| ROOM 02 | THE ORB ATRIUM | 3 drifting plasma orbs (tap to catch) | Gravity lift — orbs socket in, iris hatch opens, lift descends |
-| ROOM 03 | THE SIGNAL VAULT | 3 relay memory songs → **GOLD DATACHIP** | Cipher keypad (7-3-9, digits revealed per round) → vault wheel spins open |
-| ROOM 04 | THE COOLING TUNNELS | 3 coolant fuses (rotate valve tiles) → **PRESSURE BOOSTER** | Hydraulic BOOST pump — hold to pump pressure to 100% while it leaks, gates blast with steam |
-| ROOM 05 | THE CORE | 3 hidden core fragments | Core ignition — rapid-tap CHANNEL ENERGY to 100% → overload launch cinematic → escape |
+| Room | Title | Mission |
+|------|-------|---------|
+| Room 1 | The Bedroom | Find the key to the door |
+| Room 2 | The Library | Open the secret passage |
+| Room 3 | The Dark Room | Find the lock code |
+| Room 4 | The Workshop | Get the key out of the drain |
+| Room 5 | The Final Door | Open the last door |
 
-Plus the hidden **SECTOR 02 — Observation Chamber** secret (inverted resonator
-sequence, or `TRACE`/`SECTOR 02` in the mainframe terminal) — unchanged.
+## Features
 
-## Replayability & Progression
-
-- **S–C RANK** on the victory screen (S < 8:00, A < 14:00, B < 22:00, C beyond)
-- **5 hidden GOLD TOKENS** (one per room, +100 pts each, shimmering spots)
-- **Per-room best times** + total best time + best rank persist in `localStorage`
-- Score economy: keys 300, orbs 150, signals 250 + chip 200, fuses 200 + booster 200, fragments 200, gold 100, launch 500
-- Personal best line + `★ NEW RECORD` badge on the results screen
-- **Session restore** — reload mid-run and you resume in the exact sub-level you reached
-
-## Gameplay & Onboarding
-
-- **Mission Briefing (How To Play)** — cinematic overlay on first entry,
-  explains inspect / find-3-items / doors / gold in four steps; reopen via `?` or ESC
-- **Room intro banners** — every sub-level announces itself with a one-line "how this room works" hint
-- **Dynamic objectives panel** (☰ OBJECTIVES) — re-renders per room with
-  PENDING / SECURED / READY / LOCKED / DISCOVERED states
-- **HUD collectible tracker** — relabels per room (KEYS → ORBS → SIGNALS → FUSES → FRAGMENTS)
-- **Idle nudge** — room-aware hint toast after ~75 s without progress
-- **Locked-door guidance** — tapping a locked door always explains exactly what is missing
-- **Layered ESC handling** — closes only the top-most layer
-- **Mobile ergonomics** — one-line HUD on phones, ≥44 px tap targets,
-  scrollable room stages, touch wording (`TAP` vs `CLICK`), larger arcade targets,
-  `env(safe-area-inset-bottom)` aware toasts
-- **Audio toggle**, restart-with-confirm, key claim toasts — all preserved from v2
+- **Mobile-First Design:** Sized for `360x640`, `390x844`, and desktop `1366x768` with no page scroll during play and 48 px+ touch targets
+- **Tactile Interactions:** Tap to inspect, tap or drag inventory items onto targets, swipe/tap overlays, combine workshop items
+- **3-Level Firefly Hints:** Gentle clue -> clearer clue -> glowing target spot
+- **Star Rating & Auto-Save:** 1–3 stars per room based on hints and mistakes; resumes mid-run via `localStorage` (`escape_the_website_save_v4`)
+- **Privacy-Safe Analytics:** Tracks `game_start`, `room_start`, `room_complete`, `wrong_choice`, `hint_used`, `game_completed`, `share_clicked`, and `replay_clicked` in GA4 and Microsoft Clarity (no personal data)
 
 ## Project Structure
 
 ```text
 escape-the-website/
-├── index.html          # Main HTML entry point (5 room stages + 8 overlays)
-├── css/
-│   ├── style.css       # Core styles + v3 multi-room styles
-│   └── animations.css  # Keyframe animations and transitions
-├── js/
-│   ├── main.js         # Controller: HUD, onboarding, room engine, cinematics
-│   ├── game.js         # v2 state: rooms, progress, gold, ranks, storage
-│   ├── puzzles.js      # Puzzle engines: keys, orbs, relay memory, valves, core
-│   ├── audio.js        # Sound effects controller (WebAudio synth)
-│   └── analytics.js    # GA4 tracking helpers
-├── tests/              # Plain Node.js regression suites (see Tests)
+├── index.html                   # Cover, About/How-to-play, game stage, modals & SEO metadata
+├── robots.txt                   # Search engine crawl directives
+├── sitemap.xml                  # Canonical sitemap
 ├── assets/
-│   ├── images/         # Game visual assets
-│   ├── icons/          # UI and puzzle icons
-│   └── sounds/         # Audio clips & ambient sound tracks
-└── README.md           # This file
+│   ├── icons/                   # App & browser favicons
+│   └── images/                  # Storybook cover, OG preview (1200x630), room1–room5 SVGs & WebP
+├── css/
+│   ├── base.css                 # Palette, fonts (Fraunces + Nunito), reset
+│   ├── hud.css                  # Cover, top/bottom HUD bars, modals, page-turn transitions
+│   └── rooms.css                # Room layers, lighting mask, animations
+├── js/
+│   ├── analytics.js             # Safe GA4 + Microsoft Clarity event wrapper
+│   ├── audio.js                 # Original Web Audio synthesizer & mute controls
+│   ├── engine.js                # State, inventory, hints, stars, save/load, GSAP guard
+│   ├── ui.js                    # DOM rendering, pointer/drag/swipe, transitions, modals
+│   └── rooms/
+│       ├── room1-bedroom.js     # Room 1: Bedroom
+│       ├── room2-library.js     # Room 2: Library
+│       ├── room3-darkroom.js    # Room 3: Dark Room
+│       ├── room4-workshop.js    # Room 4: Workshop
+│       └── room5-door.js        # Room 5: Final Door & Finale
+└── tests/
+    ├── test-v4-engine.js        # Engine, stars, hints, save/load & analytics unit tests
+    ├── test-v4-rooms.js         # All 5 rooms & end-to-end playthrough unit tests
+    └── test-seo-urls.js         # SEO, canonical, OG/Twitter, JSON-LD, sitemap & robots audit
 ```
 
-## How to Run
-
-100% static web application — no build steps, backend or database required.
-
-### Method 1: Local HTTP Server (Recommended)
+## How to Run Locally
 
 ```bash
-# Using Python 3:
+# Python 3
 python -m http.server 8000
 
-# Or using npx serve:
+# Or Node
 npx serve .
 ```
 
-Then open http://localhost:8000 in any modern browser.
+Then open `http://localhost:8000`.
 
-### Method 2: Direct File Opening
+## Running Tests
 
-Double-click `index.html` or open it directly inside your browser.
-
-## Tests
-
-Plain Node.js, no dependencies. Run from the repository root:
+Plain Node.js (no npm dependencies required):
 
 ```bash
-node tests/test-multiroom-engine.js  # v3 five-room engine, ranks, storage migration
-node tests/test-gsap-guards.js       # GSAP guards and degraded animation paths
-node tests/test-arcade-countdown.js  # Arcade countdown lifecycle (close / retry / reopen)
-node tests/test-step-e.js            # Share text and analytics contract
-node tests/test-seo-urls.js          # Canonical / Open Graph / sitemap production URL audit
+node tests/test-v4-engine.js
+node tests/test-v4-rooms.js
+node tests/test-seo-urls.js
 ```
-
-Each suite prints `TOTAL TESTS: n | PASSED: n | FAILED: n` and exits non-zero on
-failure. The `tests/` directory is not referenced by the game; only `index.html`,
-`css/`, `js/` and `assets/` are needed to run it.
-
-## Storage Schema
-
-`escape_the_website_save_v2` (v1 saves are discarded safely):
-
-```json
-{
-  "version": 2,
-  "keysCollected": [], "orbsCollected": [], "signalRoundsWon": 0,
-  "goldChip": false, "fusesLit": [], "boosterClaimed": false,
-  "fragmentsCollected": [], "goldTokens": [],
-  "currentRoom": "lobby", "currentRoomIndex": 0,
-  "score": 0, "gameStarted": false, "gameCompleted": false,
-  "arcadeBestScore": 0, "secretDiscovered": false,
-  "roomBestTimes": {}, "bestRank": null, "bestGoldCount": 0
-}
-```
-
-Meta-progression (arcade best, secret discovery, room best times, best rank,
-best gold count) survives restarts and Play Again.

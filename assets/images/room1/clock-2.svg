@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 110" fill="none">
+  <!-- Pendulum -->
+  <line x1="42" y1="68" x2="42" y2="94" stroke="#2a1e17" stroke-width="3"/>
+  <circle cx="42" cy="97" r="8" fill="#f4b942" stroke="#2a1e17" stroke-width="3"/>
+  <!-- House clock frame -->
+  <path d="M12 40 L42 12 L72 40 V74 H12 Z" fill="#a5744e" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="42" cy="48" r="19" fill="#f5ebd6" stroke="#2a1e17" stroke-width="3"/>
+  <line x1="42" y1="33" x2="42" y2="36" stroke="#2a1e17" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="57" y1="48" x2="54" y2="48" stroke="#2a1e17" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="42" y1="63" x2="42" y2="60" stroke="#2a1e17" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="27" y1="48" x2="30" y2="48" stroke="#2a1e17" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Hands (7:15) -->
+  <line x1="42" y1="48" x2="34" y2="57" stroke="#2a1e17" stroke-width="3" stroke-linecap="round"/>
+  <line x1="42" y1="48" x2="54" y2="48" stroke="#b85a4a" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="42" cy="48" r="3" fill="#2a1e17"/>
+</svg>

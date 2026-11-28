@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 170" fill="none">
+  <!-- Feather tufts / ears -->
+  <polygon points="36,42 22,12 60,28" fill="#7a5239" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <polygon points="144,42 158,12 120,28" fill="#7a5239" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Owl body/head -->
+  <ellipse cx="90" cy="94" rx="64" ry="62" fill="#8c5f3f" stroke="#2a1e17" stroke-width="4.5"/>
+  <!-- Cream belly/face heart -->
+  <ellipse cx="90" cy="118" rx="38" ry="34" fill="#f5ebd6"/>
+  <circle cx="64" cy="70" r="24" fill="#f5ebd6" stroke="#2a1e17" stroke-width="3.5"/>
+  <circle cx="116" cy="70" r="24" fill="#f5ebd6" stroke="#2a1e17" stroke-width="3.5"/>
+  <!-- Eyes -->
+  <circle cx="64" cy="70" r="9" fill="#2a1e17"/>
+  <circle cx="116" cy="70" r="9" fill="#2a1e17"/>
+  <circle cx="61" cy="67" r="3" fill="#f5ebd6"/>
+  <circle cx="113" cy="67" r="3" fill="#f5ebd6"/>
+  <!-- Round brass glasses -->
+  <circle cx="64" cy="70" r="22" stroke="#f4b942" stroke-width="4.5"/>
+  <circle cx="116" cy="70" r="22" stroke="#f4b942" stroke-width="4.5"/>
+  <line x1="86" y1="70" x2="94" y2="70" stroke="#f4b942" stroke-width="4.5"/>
+  <!-- Beak -->
+  <polygon points="83,84 97,84 90,97" fill="#f4b942" stroke="#2a1e17" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Wing raised to beak ("Shhh!") -->
+  <ellipse cx="102" cy="126" rx="16" ry="28" transform="rotate(-18 102 126)" fill="#7a5239" stroke="#2a1e17" stroke-width="3.8"/>
+</svg>

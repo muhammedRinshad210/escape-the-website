@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 100" fill="none">
+  <!-- Tail -->
+  <path d="M22 64 C8 54 10 34 26 36" stroke="#d9823b" stroke-width="10" stroke-linecap="round"/>
+  <path d="M22 64 C8 54 10 34 26 36" stroke="#2a1e17" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+  <!-- Back legs -->
+  <path d="M36 66 L18 82" stroke="#d9823b" stroke-width="12" stroke-linecap="round"/>
+  <path d="M36 66 L18 82" stroke="#2a1e17" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- Stretched body -->
+  <ellipse cx="64" cy="54" rx="34" ry="18" transform="rotate(-14 64 54)" fill="#d9823b" stroke="#2a1e17" stroke-width="3.8"/>
+  <!-- Front paws -->
+  <path d="M90 46 L118 32" stroke="#d9823b" stroke-width="11" stroke-linecap="round"/>
+  <circle cx="120" cy="31" r="6" fill="#f5ebd6" stroke="#2a1e17" stroke-width="3"/>
+  <!-- Head -->
+  <polygon points="86,22 92,8 102,20" fill="#d9823b" stroke="#2a1e17" stroke-width="3.2" stroke-linejoin="round"/>
+  <polygon points="108,22 114,8 120,24" fill="#d9823b" stroke="#2a1e17" stroke-width="3.2" stroke-linejoin="round"/>
+  <ellipse cx="102" cy="32" rx="18" ry="15" fill="#d9823b" stroke="#2a1e17" stroke-width="3.6"/>
+  <circle cx="96" cy="30" r="3.4" fill="#2a1e17"/>
+  <circle cx="110" cy="30" r="3.4" fill="#2a1e17"/>
+  <circle cx="95" cy="29" r="1.2" fill="#f5ebd6"/>
+  <circle cx="109" cy="29" r="1.2" fill="#f5ebd6"/>
+</svg>

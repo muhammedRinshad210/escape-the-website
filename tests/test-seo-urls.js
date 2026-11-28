@@ -27,7 +27,8 @@ const LEGACY = 'muhammedrinshad210.github.io';
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
 const robots = fs.readFileSync(path.join(ROOT, 'robots.txt'), 'utf8');
-const mainJs = fs.readFileSync(path.join(ROOT, 'js', 'main.js'), 'utf8');
+const uiJs = fs.readFileSync(path.join(ROOT, 'js', 'ui.js'), 'utf8');
+const analyticsJs = fs.readFileSync(path.join(ROOT, 'js', 'analytics.js'), 'utf8');
 
 // 1. Canonical + Open Graph + Twitter point at the production host
 const canonical = html.match(/<link rel="canonical" href="([^"]+)">/);
@@ -54,26 +55,33 @@ assert(ld !== null, 'JSON-LD block parses as valid JSON');
 assert(ld && ld.url === PROD + '/', 'JSON-LD url is the production URL');
 assert(ld && typeof ld['@id'] === 'string' && ld['@id'].startsWith(PROD + '/'), 'JSON-LD @id is scoped to the production URL');
 
-// 3. Sitemap contains exactly one production URL
+// 3. Sitemap contains exactly one production URL & updated lastmod
 const locs = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]);
 assert(locs.length === 1, 'Sitemap declares a single URL');
 assert(locs[0] === PROD + '/', 'Sitemap loc is the production URL');
+assert(/<lastmod>2026-11-27<\/lastmod>/.test(sitemap), 'Sitemap lastmod is updated to 2026-11-27');
 
 // 4. robots.txt advertises the production sitemap
 assert(robots.includes('Sitemap: ' + PROD + '/sitemap.xml'), 'robots.txt points at the production sitemap');
 assert(/User-agent:\s*\*/.test(robots) && /Allow:\s*\//.test(robots), 'robots.txt still allows crawling');
 
-// 5. Crawl directives stay open (no accidental deindexing)
+// 5. Crawl directives stay open & About section is crawlable without puzzle answers
 assert(/<meta name="robots" content="index, follow">/.test(html), 'Meta robots remains index, follow');
 assert(!/noindex/i.test(html), 'No noindex directive was introduced');
+assert(html.includes('id="cover-about"') && html.includes('About / How to play'), 'Visible About / How to play section exists from cover');
+assert(!html.includes('741') && !html.includes('torch, magnet, clock, fruit'), 'About / How to play omits puzzle answers');
 
 // 6. No legacy host references anywhere in shipped files
-[['index.html', html], ['sitemap.xml', sitemap], ['robots.txt', robots], ['js/main.js', mainJs]].forEach(([name, body]) => {
+[['index.html', html], ['sitemap.xml', sitemap], ['robots.txt', robots], ['js/ui.js', uiJs]].forEach(([name, body]) => {
     assert(!body.includes(LEGACY), 'No legacy host in ' + name);
 });
 
-// 7. Share referral URL uses the production host
-assert(mainJs.includes("const gameUrl = '" + PROD + "/';"), 'Share referral URL is the production URL');
+// 7. Share referral URL & GA4/Clarity analytics contract
+assert(uiJs.includes("const gameUrl = '" + PROD + "/';"), 'Share referral URL is the production URL');
+['game_start', 'room_start', 'room_complete', 'wrong_choice', 'hint_used', 'game_completed', 'share_clicked', 'replay_clicked'].forEach((ev) => {
+    assert(uiJs.includes("'" + ev + "'"), 'Analytics tracks ' + ev);
+});
+assert(analyticsJs.includes("typeof window.clarity === 'function'"), 'Clarity custom events only execute when window.clarity exists');
 
 // 8. Deployment safety: no root-absolute asset references, declared files exist
 assert(!/(?:href|src)="\//.test(html), 'No root-absolute href/src paths');

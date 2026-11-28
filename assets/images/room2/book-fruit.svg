@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 112" fill="none">
+  <rect x="4" y="6" width="38" height="102" rx="6" fill="#b85a4a" stroke="#2a1e17" stroke-width="3.5"/>
+  <rect x="8" y="14" width="30" height="8" rx="2" fill="#f4b942" opacity="0.8"/>
+  <rect x="8" y="90" width="30" height="8" rx="2" fill="#f4b942" opacity="0.8"/>
+  <!-- Fruit (apple) emblem on spine -->
+  <ellipse cx="23" cy="56" rx="12" ry="18" fill="#f5ebd6" stroke="#2a1e17" stroke-width="2.5"/>
+  <circle cx="23" cy="58" r="8" fill="#b85a4a" stroke="#2a1e17" stroke-width="2"/>
+  <path d="M23 50 V45" stroke="#2a1e17" stroke-width="2" stroke-linecap="round"/>
+  <path d="M23 47 C27 45 30 46 28 49 C26 50 24 49 23 47 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="1.5"/>
+</svg>

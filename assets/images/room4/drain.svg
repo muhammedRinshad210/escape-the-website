@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 84" fill="none">
+  <ellipse cx="65" cy="42" rx="56" ry="30" fill="#2a1e17" stroke="#3b2b23" stroke-width="4"/>
+  <rect x="26" y="24" width="12" height="36" rx="4" fill="#523f35" stroke="#2a1e17" stroke-width="2.5"/>
+  <rect x="48" y="20" width="12" height="44" rx="4" fill="#523f35" stroke="#2a1e17" stroke-width="2.5"/>
+  <rect x="70" y="20" width="12" height="44" rx="4" fill="#523f35" stroke="#2a1e17" stroke-width="2.5"/>
+  <rect x="92" y="24" width="12" height="36" rx="4" fill="#523f35" stroke="#2a1e17" stroke-width="2.5"/>
+  <!-- Key glint peeking deep inside drain -->
+  <circle cx="65" cy="44" r="6" fill="#f4b942" opacity="0.85"/>
+  <rect x="69" y="42" width="14" height="4" rx="2" fill="#f4b942" opacity="0.85"/>
+</svg>

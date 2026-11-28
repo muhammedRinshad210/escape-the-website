@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140" fill="none">
+  <!-- Peeking ginger head -->
+  <polygon points="48,44 54,14 78,34" fill="#d9823b" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <polygon points="132,44 126,14 102,34" fill="#d9823b" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="90" cy="58" rx="44" ry="34" fill="#d9823b" stroke="#2a1e17" stroke-width="4"/>
+  <!-- Big friendly eyes -->
+  <circle cx="72" cy="54" r="7" fill="#2a1e17"/>
+  <circle cx="108" cy="54" r="7" fill="#2a1e17"/>
+  <circle cx="70" cy="51.5" r="2.5" fill="#f5ebd6"/>
+  <circle cx="106" cy="51.5" r="2.5" fill="#f5ebd6"/>
+  <polygon points="85,64 95,64 90,70" fill="#b85a4a"/>
+  <!-- Two big cream paws pressed against the screen -->
+  <ellipse cx="48" cy="108" rx="22" ry="18" fill="#f5ebd6" stroke="#2a1e17" stroke-width="4"/>
+  <ellipse cx="132" cy="108" rx="22" ry="18" fill="#f5ebd6" stroke="#2a1e17" stroke-width="4"/>
+  <!-- Soft pink paw pads -->
+  <ellipse cx="48" cy="112" rx="9" ry="7" fill="#df8b7c"/>
+  <circle cx="38" cy="100" r="3.5" fill="#df8b7c"/>
+  <circle cx="48" cy="97" r="3.5" fill="#df8b7c"/>
+  <circle cx="58" cy="100" r="3.5" fill="#df8b7c"/>
+  <ellipse cx="132" cy="112" rx="9" ry="7" fill="#df8b7c"/>
+  <circle cx="122" cy="100" r="3.5" fill="#df8b7c"/>
+  <circle cx="132" cy="97" r="3.5" fill="#df8b7c"/>
+  <circle cx="142" cy="100" r="3.5" fill="#df8b7c"/>
+</svg>

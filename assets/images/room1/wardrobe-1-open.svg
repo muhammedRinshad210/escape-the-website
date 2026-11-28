@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 260" fill="none">
+  <ellipse cx="95" cy="250" rx="74" ry="7" fill="#2a1e17" fill-opacity="0.32"/>
+  <rect x="42" y="232" width="14" height="18" rx="4" fill="#3b2b23" stroke="#2a1e17" stroke-width="3"/>
+  <rect x="134" y="232" width="14" height="18" rx="4" fill="#3b2b23" stroke="#2a1e17" stroke-width="3"/>
+  <!-- Body -->
+  <path d="M36 42 C36 24 58 14 95 14 C132 14 154 24 154 42 V234 H36 Z" fill="#523f35" stroke="#2a1e17" stroke-width="4.5"/>
+  <path d="M30 42 C30 22 56 10 95 10 C134 10 160 22 160 42 Z" fill="#a5744e" stroke="#2a1e17" stroke-width="4"/>
+  <!-- Dark interior + hanging rail + coat -->
+  <rect x="44" y="48" width="102" height="178" rx="4" fill="#2a1e17"/>
+  <line x1="48" y1="68" x2="142" y2="68" stroke="#a5744e" stroke-width="4"/>
+  <path d="M64 68 L54 172 L96 172 L86 68 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="3"/>
+  <path d="M106 68 L98 158 L134 158 L124 68 Z" fill="#b85a4a" stroke="#2a1e17" stroke-width="3"/>
+  <!-- Swung-open doors -->
+  <polygon points="36,48 8,60 8,240 36,228" fill="#8b5e42" stroke="#2a1e17" stroke-width="3.5" stroke-linejoin="round"/>
+  <polygon points="154,48 182,60 182,240 154,228" fill="#8b5e42" stroke="#2a1e17" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="15" cy="146" r="4" fill="#f4b942" stroke="#2a1e17" stroke-width="2"/>
+  <circle cx="175" cy="146" r="4" fill="#f4b942" stroke="#2a1e17" stroke-width="2"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 86" fill="none">
+  <rect x="8" y="10" width="94" height="68" rx="10" fill="#2a1e17" fill-opacity="0.3"/>
+  <rect x="6" y="6" width="94" height="68" rx="10" fill="#7a5239" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="14" y="14" width="78" height="52" rx="6" fill="#523f35" stroke="#a5744e" stroke-width="2.5"/>
+  <!-- Botanical leaf carving emblem (no text) -->
+  <path d="M53 56 V26" stroke="#f4b942" stroke-width="3" stroke-linecap="round"/>
+  <path d="M53 46 C40 44 35 34 42 26 C49 28 53 36 53 46 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="2.2"/>
+  <path d="M53 40 C66 38 71 28 64 20 C57 22 53 30 53 40 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="2.2"/>
+  <circle cx="53" cy="22" r="4" fill="#f4b942"/>
+</svg>

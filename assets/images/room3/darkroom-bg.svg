@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 800" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="r3Wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2e2420"/>
+      <stop offset="100%" stop-color="#483830"/>
+    </linearGradient>
+    <linearGradient id="r3Floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6e4b32"/>
+      <stop offset="100%" stop-color="#8c5f3f"/>
+    </linearGradient>
+  </defs>
+  <!-- Wall & Wainscoting -->
+  <rect width="720" height="585" fill="url(#r3Wall)"/>
+  <rect x="38" y="460" width="644" height="125" fill="#3b2b23" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="38" y="454" width="644" height="12" fill="#68442f" stroke="#2a1e17" stroke-width="3"/>
+  <polygon points="0,0 38,32 38,500 0,585" fill="#231914" stroke="#2a1e17" stroke-width="3"/>
+  <polygon points="720,0 682,32 682,500 720,585" fill="#231914" stroke="#2a1e17" stroke-width="3"/>
+
+  <!-- Corridor Doorway Arch (center-right) -->
+  <path d="M442 585 V256 C442 192 490 156 544 156 C598 156 646 192 646 256 V585 Z" fill="#231914" stroke="#2a1e17" stroke-width="5"/>
+  <path d="M456 585 V262 C456 208 496 174 544 174 C592 174 632 208 632 262 V585 Z" fill="#5e3f2b" stroke="#2a1e17" stroke-width="4"/>
+  <!-- Iron bars / latch on corridor door -->
+  <rect x="456" y="310" width="176" height="14" fill="#3b2b23" stroke="#2a1e17" stroke-width="3"/>
+  <rect x="456" y="450" width="176" height="14" fill="#3b2b23" stroke="#2a1e17" stroke-width="3"/>
+
+  <!-- Floorboards -->
+  <rect x="0" y="585" width="720" height="215" fill="url(#r3Floor)" stroke="#2a1e17" stroke-width="4"/>
+  <g stroke="#2a1e17" stroke-width="2.6" opacity="0.6">
+    <line x1="90" y1="585" x2="22" y2="800"/>
+    <line x1="190" y1="585" x2="150" y2="800"/>
+    <line x1="360" y1="585" x2="360" y2="800"/>
+    <line x1="530" y1="585" x2="570" y2="800"/>
+    <line x1="630" y1="585" x2="698" y2="800"/>
+    <line x1="0" y1="660" x2="720" y2="660"/>
+    <line x1="0" y1="734" x2="720" y2="734"/>
+  </g>
+</svg>
