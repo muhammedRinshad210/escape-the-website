@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 220" fill="none">
+  <!-- Broom handle sticking out bottom -->
+  <rect x="74" y="128" width="12" height="84" rx="5" fill="#7a5239" stroke="#2a1e17" stroke-width="3.5"/>
+  <!-- Broom bristles peeking out -->
+  <path d="M56 154 L104 154 L112 184 L48 184 Z" fill="#d99b32" stroke="#2a1e17" stroke-width="3.5" stroke-linejoin="round"/>
+  <!-- Bedsheet draped over broom -->
+  <path d="M80 18 C112 18 130 48 132 94 C134 128 138 148 122 154 C112 158 104 142 94 148 C84 154 76 154 66 148 C56 142 48 158 38 154 C22 148 26 128 28 94 C30 48 48 18 80 18 Z" fill="#f5ebd6" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Goofy drawn ghost eyes & wavy mouth -->
+  <circle cx="64" cy="70" r="8" fill="#2a1e17"/>
+  <circle cx="96" cy="72" r="9" fill="#2a1e17"/>
+  <circle cx="62" cy="67" r="2.5" fill="#f5ebd6"/>
+  <circle cx="94" cy="69" r="2.5" fill="#f5ebd6"/>
+  <ellipse cx="80" cy="96" rx="9" ry="12" fill="#2a1e17"/>
+</svg>

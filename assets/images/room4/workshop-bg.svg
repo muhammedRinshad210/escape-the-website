@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 800" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="r4Wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b2b23"/>
+      <stop offset="100%" stop-color="#523f35"/>
+    </linearGradient>
+    <linearGradient id="r4Floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7a5239"/>
+      <stop offset="100%" stop-color="#a5744e"/>
+    </linearGradient>
+    <radialGradient id="r4Lamp" cx="0.5" cy="0.14" r="0.5">
+      <stop offset="0%" stop-color="#f4b942" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#f4b942" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="585" fill="url(#r4Wall)"/>
+  <rect width="720" height="585" fill="url(#r4Lamp)"/>
+  <!-- Hanging workshop lamp -->
+  <line x1="360" y1="0" x2="360" y2="66" stroke="#2a1e17" stroke-width="5"/>
+  <path d="M318 96 L340 66 H380 L402 96 Z" fill="#7a5239" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="360" cy="98" rx="18" ry="8" fill="#fff3c4"/>
+
+  <!-- Wall Shelf (upper left) -->
+  <rect x="64" y="218" width="244" height="16" rx="5" fill="#7a5239" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="92" y="234" width="14" height="28" rx="3" fill="#5e3f2b" stroke="#2a1e17" stroke-width="3"/>
+  <rect x="264" y="234" width="14" height="28" rx="3" fill="#5e3f2b" stroke="#2a1e17" stroke-width="3"/>
+
+  <!-- Pegboard (upper right) -->
+  <rect x="424" y="136" width="224" height="154" rx="10" fill="#68442f" stroke="#2a1e17" stroke-width="4.5"/>
+  <rect x="438" y="150" width="196" height="126" rx="6" fill="#493429" stroke="#2a1e17" stroke-width="2.5"/>
+
+  <!-- Workbench (left/center) -->
+  <rect x="52" y="426" width="330" height="24" rx="6" fill="#9a6b48" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="74" y="450" width="22" height="135" fill="#68442f" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="338" y="450" width="22" height="135" fill="#68442f" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="96" y="514" width="242" height="16" fill="#5e3f2b" stroke="#2a1e17" stroke-width="3"/>
+
+  <!-- Floorboards -->
+  <rect x="0" y="585" width="720" height="215" fill="url(#r4Floor)" stroke="#2a1e17" stroke-width="4"/>
+  <g stroke="#2a1e17" stroke-width="2.6" opacity="0.6">
+    <line x1="90" y1="585" x2="22" y2="800"/>
+    <line x1="210" y1="585" x2="175" y2="800"/>
+    <line x1="360" y1="585" x2="360" y2="800"/>
+    <line x1="510" y1="585" x2="545" y2="800"/>
+    <line x1="630" y1="585" x2="698" y2="800"/>
+    <line x1="0" y1="665" x2="720" y2="665"/>
+    <line x1="0" y1="738" x2="720" y2="738"/>
+  </g>
+</svg>

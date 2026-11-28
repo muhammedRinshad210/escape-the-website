@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 96" fill="none">
+  <ellipse cx="75" cy="84" rx="64" ry="8" fill="#2a1e17" fill-opacity="0.32"/>
+  <!-- Bottom terracotta sweater -->
+  <path d="M16 78 C16 56 44 46 78 46 C112 46 134 56 134 78 Z" fill="#b85a4a" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Middle sage cloth -->
+  <path d="M28 62 C32 40 58 32 82 32 C106 32 122 44 120 62 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Top cream shirt / scarf draped -->
+  <path d="M44 44 C48 22 68 14 88 18 C104 22 108 38 98 50 C84 54 58 54 44 44 Z" fill="#f5ebd6" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M92 40 C110 46 122 64 114 78" stroke="#f4b942" stroke-width="8" stroke-linecap="round"/>
+  <path d="M92 40 C110 46 122 64 114 78" stroke="#2a1e17" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

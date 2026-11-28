@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 112" fill="none">
+  <rect x="4" y="6" width="38" height="102" rx="6" fill="#6f9e78" stroke="#2a1e17" stroke-width="3.5"/>
+  <rect x="8" y="14" width="30" height="8" rx="2" fill="#f4b942" opacity="0.8"/>
+  <rect x="8" y="90" width="30" height="8" rx="2" fill="#f4b942" opacity="0.8"/>
+  <!-- Sapling emblem on spine -->
+  <ellipse cx="23" cy="56" rx="12" ry="18" fill="#f5ebd6" stroke="#2a1e17" stroke-width="2.5"/>
+  <path d="M23 68 V50" stroke="#5e3d29" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M23 54 C16 52 14 45 20 43 C23 45 24 50 23 54 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="1.8"/>
+  <path d="M23 51 C30 49 32 42 26 40 C23 42 22 47 23 51 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="1.8"/>
+</svg>

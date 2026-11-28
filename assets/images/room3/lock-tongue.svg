@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 180" fill="none">
+  <path d="M44 74 V46 C44 20 106 20 106 46 V74" stroke="#d5c6ae" stroke-width="14" stroke-linecap="round"/>
+  <path d="M44 74 V46 C44 20 106 20 106 46 V74" stroke="#2a1e17" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <rect x="24" y="70" width="102" height="86" rx="18" fill="#f4b942" stroke="#2a1e17" stroke-width="4.5"/>
+  <!-- Goofy eyes on lock -->
+  <circle cx="56" cy="100" r="10" fill="#f5ebd6" stroke="#2a1e17" stroke-width="3"/>
+  <circle cx="94" cy="100" r="10" fill="#f5ebd6" stroke="#2a1e17" stroke-width="3"/>
+  <circle cx="58" cy="101" r="4.5" fill="#2a1e17"/>
+  <circle cx="92" cy="101" r="4.5" fill="#2a1e17"/>
+  <!-- Mouth + sticking-out cartoon tongue -->
+  <path d="M52 126 Q75 138 98 126" stroke="#2a1e17" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M62 129 V158 C62 170 88 170 88 158 V129 Z" fill="#df6b57" stroke="#2a1e17" stroke-width="3.8"/>
+  <line x1="75" y1="132" x2="75" y2="156" stroke="#2a1e17" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

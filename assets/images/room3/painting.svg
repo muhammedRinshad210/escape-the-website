@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 170" fill="none">
+  <rect x="8" y="10" width="134" height="152" rx="10" fill="#2a1e17" fill-opacity="0.35"/>
+  <!-- Wooden frame -->
+  <rect x="6" y="6" width="134" height="152" rx="10" fill="#7a5239" stroke="#2a1e17" stroke-width="4.5"/>
+  <!-- 3 Stripes top-to-bottom: Blue (Circle), Red (Triangle), Green (Square) -->
+  <rect x="18" y="18" width="110" height="42" fill="#4f83a8" stroke="#2a1e17" stroke-width="2.5"/>
+  <circle cx="73" cy="39" r="13" fill="#f5ebd6" stroke="#2a1e17" stroke-width="2.8"/>
+
+  <rect x="18" y="60" width="110" height="42" fill="#b85a4a" stroke="#2a1e17" stroke-width="2.5"/>
+  <polygon points="73,68 87,94 59,94" fill="#f5ebd6" stroke="#2a1e17" stroke-width="2.8" stroke-linejoin="round"/>
+
+  <rect x="18" y="102" width="110" height="44" fill="#6f9e78" stroke="#2a1e17" stroke-width="2.5"/>
+  <rect x="61" y="112" width="24" height="24" rx="3" fill="#f5ebd6" stroke="#2a1e17" stroke-width="2.8"/>
+</svg>

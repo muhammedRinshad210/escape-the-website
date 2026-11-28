@@ -50,7 +50,7 @@ class AudioManager {
           music: this.musicEnabled
         }));
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -59,7 +59,7 @@ class AudioManager {
   init() {
     if (this.isInitialized && this.audioContext) {
       if (this.audioContext.state === 'suspended') {
-        this.audioContext.resume().catch(() => {});
+        this.audioContext.resume().catch(() => { });
       }
       return;
     }
@@ -202,7 +202,7 @@ class AudioManager {
       setTimeout(() => {
         this.startAmbientDrone();
       }, 700);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -228,7 +228,7 @@ class AudioManager {
       gain.connect(this.sfxGain);
       osc.start(now);
       osc.stop(now + 0.03);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -261,7 +261,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.24);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -288,7 +288,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.13);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -315,7 +315,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.1);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -341,7 +341,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.025);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -368,7 +368,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.08);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -403,7 +403,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.52);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -430,7 +430,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.27);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -472,7 +472,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.42);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -499,7 +499,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.3);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -535,7 +535,7 @@ class AudioManager {
         osc.start(now + (i * 0.07));
         osc.stop(now + 1.5);
       });
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -566,7 +566,7 @@ class AudioManager {
         osc.start(now + idx * 0.08);
         osc.stop(now + 1.7);
       });
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // =========================================================================
@@ -594,7 +594,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.11);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playArcadeStart() {
@@ -618,7 +618,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.32);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playTargetTelegraph() {
@@ -642,7 +642,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.055);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playTargetHit(type = 'standard', combo = 1) {
@@ -669,7 +669,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.16);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playBonusTargetHit() {
@@ -694,7 +694,7 @@ class AudioManager {
         osc.start(now + idx * 0.035);
         osc.stop(now + 0.28 + idx * 0.035);
       });
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playTargetMiss() {
@@ -718,7 +718,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.1);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playTimerWarning() {
@@ -741,7 +741,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.06);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playArcadeVictory() {
@@ -769,7 +769,7 @@ class AudioManager {
         osc.start(now + idx * 0.07);
         osc.stop(now + 1.5 + idx * 0.04);
       });
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playDoorUnlockResonance() {
@@ -815,7 +815,7 @@ class AudioManager {
       mGain.connect(this.sfxGain);
       metallic.start(now);
       metallic.stop(now + 1.7);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // =========================================================================
@@ -844,7 +844,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 2.3);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playLockRelease(lockNum = 1) {
@@ -882,7 +882,7 @@ class AudioManager {
       echoGain.connect(this.sfxGain);
       echo.start(now);
       echo.stop(now + 0.85);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playDoorPowerUp() {
@@ -913,7 +913,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 2.1);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playDoorSlideOpen() {
@@ -945,7 +945,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 2.6);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playEscapeFinalChord() {
@@ -978,7 +978,7 @@ class AudioManager {
         osc.start(now + idx * 0.1);
         osc.stop(now + 3.7 + idx * 0.08);
       });
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // =========================================================================
@@ -1014,7 +1014,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 1.4);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playObservationRoomAmbience() {
@@ -1041,7 +1041,7 @@ class AudioManager {
       gain.connect(this.ambienceGain);
 
       osc.start(now);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   playMonitorGlitch() {
@@ -1065,7 +1065,7 @@ class AudioManager {
 
       osc.start(now);
       osc.stop(now + 0.11);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -1077,7 +1077,7 @@ class AudioManager {
     try {
       const now = this.audioContext.currentTime;
       const freqs = [55, 110, 164.81];
-      
+
       freqs.forEach((freq, i) => {
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
@@ -1099,7 +1099,7 @@ class AudioManager {
         osc.start(now);
         this.ambienceOscillators.push({ osc, gain });
       });
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -1112,9 +1112,261 @@ class AudioManager {
       try {
         gain.gain.linearRampToValueAtTime(0.0001, now + 0.3);
         osc.stop(now + 0.35);
-      } catch (e) {}
+      } catch (e) { }
     });
     this.ambienceOscillators = [];
+  }
+
+  /**
+   * Playful cartoon cat meow (v4 Room 1)
+   */
+  playCatMeow() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+
+    try {
+      const now = this.audioContext.currentTime;
+      const osc = this.audioContext.createOscillator();
+      const gain = this.audioContext.createGain();
+      const filter = this.audioContext.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(480, now);
+      osc.frequency.exponentialRampToValueAtTime(840, now + 0.14);
+      osc.frequency.exponentialRampToValueAtTime(390, now + 0.45);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1100, now);
+      filter.Q.setValueAtTime(2.5, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.sfxGain);
+
+      osc.start(now);
+      osc.stop(now + 0.5);
+    } catch (e) { }
+  }
+
+  /**
+   * Soft cloth rustle/whoosh (v4 Room 1)
+   */
+  playClothWhoosh() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+
+    try {
+      const now = this.audioContext.currentTime;
+      const osc = this.audioContext.createOscillator();
+      const gain = this.audioContext.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(90, now + 0.25);
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+
+      osc.start(now);
+      osc.stop(now + 0.28);
+    } catch (e) { }
+  }
+
+  /**
+   * Soft wooden clock tick (v4 Room 1)
+   */
+  playClockTick() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+
+    try {
+      const now = this.audioContext.currentTime;
+      const osc = this.audioContext.createOscillator();
+      const gain = this.audioContext.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(760, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.03);
+
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+
+      osc.start(now);
+      osc.stop(now + 0.045);
+    } catch (e) { }
+  }
+
+  /**
+   * Soft owl "Shhh!" whisper tone (v4 Room 2)
+   */
+  playOwlShhh() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+
+    try {
+      const now = this.audioContext.currentTime;
+      const bufSize = this.audioContext.sampleRate * 0.35;
+      const buffer = this.audioContext.createBuffer(1, bufSize, this.audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+      }
+
+      const noise = this.audioContext.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.audioContext.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2200, now);
+      filter.Q.setValueAtTime(3, now);
+
+      const gain = this.audioContext.createGain();
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.sfxGain);
+      noise.start(now);
+    } catch (e) { }
+  }
+
+  /**
+   * Giant rubber duck squeak (v4 Room 4)
+   */
+  playDuckSqueak() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+    try {
+      const now = this.audioContext.currentTime;
+      [0, 0.14].forEach((offset, i) => {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(i === 0 ? 780 : 920, now + offset);
+        osc.frequency.exponentialRampToValueAtTime(520, now + offset + 0.12);
+        gain.gain.setValueAtTime(0.14, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.13);
+        osc.connect(gain);
+        gain.connect(this.sfxGain);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.14);
+      });
+    } catch (e) { }
+  }
+
+  /**
+   * Bouncy spring boing (v4 Room 4)
+   */
+  playSpringBoing() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+    try {
+      const now = this.audioContext.currentTime;
+      const osc = this.audioContext.createOscillator();
+      const lfo = this.audioContext.createOscillator();
+      const lfoGain = this.audioContext.createGain();
+      const gain = this.audioContext.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(540, now + 0.38);
+      lfo.frequency.setValueAtTime(24, now);
+      lfoGain.gain.setValueAtTime(45, now);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      lfo.start(now);
+      osc.start(now);
+      lfo.stop(now + 0.46);
+      osc.stop(now + 0.46);
+    } catch (e) { }
+  }
+
+  /**
+   * Balloon pop (v4 Room 4)
+   */
+  playBalloonPop() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+    try {
+      const now = this.audioContext.currentTime;
+      const osc = this.audioContext.createOscillator();
+      const gain = this.audioContext.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(280, now);
+      osc.frequency.exponentialRampToValueAtTime(45, now + 0.09);
+      gain.gain.setValueAtTime(0.24, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(now);
+      osc.stop(now + 0.11);
+    } catch (e) { }
+  }
+
+  /**
+   * Soft storybook UI button tap (v4)
+   */
+  playUiTap() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+    try {
+      const now = this.audioContext.currentTime;
+      const osc = this.audioContext.createOscillator();
+      const gain = this.audioContext.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(540, now);
+      osc.frequency.exponentialRampToValueAtTime(340, now + 0.045);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(now);
+      osc.stop(now + 0.055);
+    } catch (e) {}
+  }
+
+  /**
+   * Soft paper page-turn swish (v4)
+   */
+  playPageTurn() {
+    this.init();
+    if (!this.soundEnabled || !this.audioContext) return;
+    try {
+      const now = this.audioContext.currentTime;
+      const bufSize = Math.floor(this.audioContext.sampleRate * 0.24);
+      const buffer = this.audioContext.createBuffer(1, bufSize, this.audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) {
+        const env = Math.sin((i / bufSize) * Math.PI);
+        data[i] = (Math.random() * 2 - 1) * env;
+      }
+      const src = this.audioContext.createBufferSource();
+      src.buffer = buffer;
+      const filter = this.audioContext.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1400, now);
+      filter.Q.setValueAtTime(1.4, now);
+      const gain = this.audioContext.createGain();
+      gain.gain.setValueAtTime(0.11, now);
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.sfxGain);
+      src.start(now);
+    } catch (e) {}
   }
 }
 

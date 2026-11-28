@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 340" fill="none">
+  <ellipse cx="90" cy="330" rx="76" ry="8" fill="#2a1e17" fill-opacity="0.35"/>
+  <!-- Door frame -->
+  <path d="M16 328 V104 C16 48 48 16 90 16 C132 16 164 48 164 104 V328 Z" fill="#3b2b23" stroke="#2a1e17" stroke-width="5"/>
+  <!-- Door planks -->
+  <path d="M26 326 V106 C26 56 54 26 90 26 C126 26 154 56 154 106 V326 Z" fill="#7a5239" stroke="#2a1e17" stroke-width="4"/>
+  <path d="M68 30 V324 M112 30 V324" stroke="#5e3d29" stroke-width="3" stroke-linecap="round"/>
+  <!-- Subtle warm wood highlight -->
+  <path d="M40 96 C44 62 64 40 90 36" stroke="#a5744e" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+  <!-- Decorative iron hinge straps -->
+  <rect x="26" y="128" width="46" height="14" rx="5" fill="#3b2b23" stroke="#2a1e17" stroke-width="3"/>
+  <rect x="26" y="252" width="46" height="14" rx="5" fill="#3b2b23" stroke="#2a1e17" stroke-width="3"/>
+  <circle cx="38" cy="135" r="2.5" fill="#a5744e"/>
+  <circle cx="38" cy="259" r="2.5" fill="#a5744e"/>
+  <!-- Brass lock plate + keyhole + handle -->
+  <rect x="120" y="176" width="24" height="44" rx="10" fill="#d99b32" stroke="#2a1e17" stroke-width="3"/>
+  <circle cx="132" cy="190" r="8" fill="#f4b942" stroke="#2a1e17" stroke-width="2.5"/>
+  <circle cx="132" cy="204" r="3" fill="#2a1e17"/>
+  <path d="M130 205 L134 205 L135 213 L129 213 Z" fill="#2a1e17"/>
+</svg>

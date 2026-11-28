@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 800" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b2b23"/>
+      <stop offset="65%" stop-color="#523f35"/>
+      <stop offset="100%" stop-color="#443229"/>
+    </linearGradient>
+    <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8b5a36"/>
+      <stop offset="100%" stop-color="#a5744e"/>
+    </linearGradient>
+    <radialGradient id="sconceGlow" cx="0.82" cy="0.24" r="0.45">
+      <stop offset="0%" stop-color="#f4b942" stop-opacity="0.42"/>
+      <stop offset="55%" stop-color="#f4b942" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#f4b942" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cornerVignette" cx="0.5" cy="0.45" r="0.72">
+      <stop offset="55%" stop-color="#2a1e17" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#2a1e17" stop-opacity="0.45"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Main Wall -->
+  <rect width="720" height="585" fill="url(#wallGrad)"/>
+  <!-- Warm sconce ambient wash -->
+  <rect width="720" height="585" fill="url(#sconceGlow)"/>
+
+  <!-- Ceiling Crown Molding -->
+  <rect x="0" y="0" width="720" height="32" fill="#3b2b23" stroke="#2a1e17" stroke-width="4"/>
+  <line x1="0" y1="24" x2="720" y2="24" stroke="#7a5239" stroke-width="3"/>
+
+  <!-- Side Wall Corners -->
+  <polygon points="0,0 38,32 38,500 0,585" fill="#2e211a" stroke="#2a1e17" stroke-width="3"/>
+  <polygon points="720,0 682,32 682,500 720,585" fill="#2e211a" stroke="#2a1e17" stroke-width="3"/>
+
+  <!-- Wooden Wainscoting -->
+  <rect x="38" y="458" width="644" height="127" fill="#463329" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="38" y="454" width="644" height="12" fill="#7a5239" stroke="#2a1e17" stroke-width="3"/>
+  <rect x="64" y="482" width="110" height="84" rx="4" fill="#3b2b23" stroke="#2a1e17" stroke-width="2.5"/>
+  <rect x="546" y="482" width="110" height="84" rx="4" fill="#3b2b23" stroke="#2a1e17" stroke-width="2.5"/>
+
+  <!-- Warm Brass Wall Sconce (Upper Right) -->
+  <rect x="576" y="180" width="24" height="44" rx="8" fill="#7a5239" stroke="#2a1e17" stroke-width="3"/>
+  <path d="M588 182 V160" stroke="#d99b32" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="588" cy="144" r="24" fill="#f4b942" fill-opacity="0.28"/>
+  <path d="M588 122 C598 134 600 146 593 154 H583 C576 146 578 134 588 122 Z" fill="#f4b942" stroke="#2a1e17" stroke-width="2.5"/>
+  <path d="M588 132 C592 138 593 145 590 150 H586 C583 145 584 138 588 132 Z" fill="#fff5d1"/>
+
+  <!-- Honey-Oak Floorboards -->
+  <rect x="0" y="585" width="720" height="215" fill="url(#floorGrad)" stroke="#2a1e17" stroke-width="4"/>
+  <g stroke="#2a1e17" stroke-width="2.8" opacity="0.65">
+    <line x1="88" y1="585" x2="20" y2="800"/>
+    <line x1="184" y1="585" x2="145" y2="800"/>
+    <line x1="274" y1="585" x2="262" y2="800"/>
+    <line x1="360" y1="585" x2="360" y2="800"/>
+    <line x1="446" y1="585" x2="458" y2="800"/>
+    <line x1="536" y1="585" x2="575" y2="800"/>
+    <line x1="632" y1="585" x2="700" y2="800"/>
+    <line x1="0" y1="650" x2="720" y2="650"/>
+    <line x1="0" y1="726" x2="720" y2="726"/>
+  </g>
+
+  <rect width="720" height="800" fill="url(#cornerVignette)" pointer-events="none"/>
+</svg>

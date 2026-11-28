@@ -1,26 +1,26 @@
 /**
- * Escape The Website - Google Analytics 4 Event Dispatcher & Safety Wrapper
- * Provides failure-proof tracking for game lifecycle, key acquisitions,
- * puzzle completions, secret discovery, and score shares.
+ * Escape The Website - Google Analytics 4 & Clarity Event Dispatcher
+ * Provides failure-proof tracking for game lifecycle, room progression,
+ * mistakes, hints, shares, and replays with zero personal data.
  */
 
 (function () {
   'use strict';
 
-  // Internal deduplication registry to guarantee single-fire events per session/run
+  // Internal deduplication registry to guarantee single-fire events per run
   const firedEvents = new Set();
 
   /**
-   * Safe GA4 Event Dispatcher
-   * @param {string} eventName - GA4 event name (e.g. 'game_start', 'key_01_collected')
-   * @param {Object} [params={}] - Optional non-sensitive parameters
+   * Safe GA4 + Microsoft Clarity Event Dispatcher
+   * @param {string} eventName - Analytics event name (e.g. 'game_start', 'room_complete')
+   * @param {Object} [params={}] - Optional non-personal parameters (room_number, hint_level, etc.)
    */
   function trackEvent(eventName, params) {
-    try {
-      if (!eventName || typeof eventName !== 'string') return;
+    if (!eventName || typeof eventName !== 'string') return;
 
-      // Safe parameter sanitization (allow numbers, strings, booleans only)
-      const sanitizedParams = {};
+    // Safe parameter sanitization (allow numbers, strings, booleans only)
+    const sanitizedParams = {};
+    try {
       if (params && typeof params === 'object') {
         for (const [key, value] of Object.entries(params)) {
           if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean') {
@@ -28,36 +28,54 @@
           }
         }
       }
+    } catch (err) {
+      // Ignore sanitization failure
+    }
 
-      // Check if official gtag is available and execute safely
+    // Send to GA4 safely
+    try {
       if (typeof window.gtag === 'function') {
         window.gtag('event', eventName, sanitizedParams);
       }
     } catch (err) {
       // Analytics failures must never propagate or break game execution
     }
+
+    // Send custom event to Microsoft Clarity only if window.clarity exists
+    try {
+      if (typeof window.clarity === 'function') {
+        window.clarity('event', eventName);
+      }
+    } catch (err) {
+      // Clarity failures must never propagate or break game execution
+    }
   }
 
   /**
    * Track one-time unique events per game run
    * @param {string} eventKey - Unique deduplication key
-   * @param {string} eventName - GA4 event name
+   * @param {string} eventName - Event name
    * @param {Object} [params={}] - Event parameters
    */
   function trackUniqueEvent(eventKey, eventName, params) {
-    if (firedEvents.has(eventKey)) return;
-    firedEvents.add(eventKey);
-    trackEvent(eventName, params);
+    try {
+      if (firedEvents.has(eventKey)) return;
+      firedEvents.add(eventKey);
+      trackEvent(eventName, params);
+    } catch (err) {
+      // Never propagate analytics errors
+    }
   }
 
   /**
-   * Reset run-specific deduplication flags (e.g. on new game start)
+   * Reset run-specific deduplication flags (e.g. on replay / new game)
    */
   function resetRunEvents() {
-    firedEvents.delete('key_01_collected');
-    firedEvents.delete('key_02_collected');
-    firedEvents.delete('key_03_collected');
-    firedEvents.delete('game_completed');
+    try {
+      firedEvents.clear();
+    } catch (err) {
+      // Never propagate analytics errors
+    }
   }
 
   // Expose global safe analytics interface

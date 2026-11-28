@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" fill="none">
+  <!-- Hidden floorboard seam / dark nook revealed under corner -->
+  <path d="M208 58 L286 58 L270 96 L192 92 Z" fill="#2a1e17" stroke="#3b2b23" stroke-width="3"/>
+  <ellipse cx="144" cy="66" rx="134" ry="40" fill="#2a1e17" fill-opacity="0.28"/>
+  <!-- Rug with right side folded back -->
+  <path d="M18 62 C18 36 74 18 156 18 C206 18 242 26 262 36 L204 88 C186 96 168 100 156 100 C74 100 18 88 18 62 Z" fill="#b85a4a" stroke="#2a1e17" stroke-width="4.5" stroke-linejoin="round"/>
+  <path d="M36 62 C36 42 84 27 154 27 C192 27 222 33 238 41" stroke="#f5ebd6" stroke-width="3.5" stroke-dasharray="9 6" fill="none"/>
+  <!-- Folded-over underside flap -->
+  <path d="M262 36 C236 52 212 68 204 88 C236 82 268 62 262 36 Z" fill="#e5d5b5" stroke="#2a1e17" stroke-width="4" stroke-linejoin="round"/>
+</svg>

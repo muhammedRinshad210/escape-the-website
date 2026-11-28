@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 800" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="skyDay" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9bbbd0"/>
+      <stop offset="65%" stop-color="#f5ebd6"/>
+      <stop offset="100%" stop-color="#f4b942"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="800" fill="url(#skyDay)"/>
+  <circle cx="520" cy="210" r="76" fill="#fff5d1" stroke="#f4b942" stroke-width="8"/>
+  <!-- Soft storybook hills -->
+  <path d="M0 590 Q190 480 410 565 Q570 620 720 530 V800 H0 Z" fill="#6f9e78" stroke="#2a1e17" stroke-width="4"/>
+  <path d="M0 660 Q260 560 510 640 Q620 675 720 630 V800 H0 Z" fill="#5b8764" stroke="#2a1e17" stroke-width="4"/>
+</svg>

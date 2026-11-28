@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 120" fill="none">
+  <!-- Warm amber glow -->
+  <circle cx="40" cy="34" r="28" fill="#f4b942" fill-opacity="0.28"/>
+  <!-- Wooden handle -->
+  <path d="M34 56 L46 56 L43 110 C43 113 37 113 37 110 Z" fill="#7a5239" stroke="#2a1e17" stroke-width="3.5" stroke-linejoin="round"/>
+  <!-- Brass collar -->
+  <rect x="29" y="44" width="22" height="14" rx="4" fill="#d99b32" stroke="#2a1e17" stroke-width="3.5"/>
+  <!-- Flame -->
+  <path d="M40 12 C51 24 54 36 46 44 L34 44 C26 36 29 24 40 12 Z" fill="#f4b942" stroke="#2a1e17" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M40 24 C45 31 46 38 42 43 L38 43 C34 38 35 31 40 24 Z" fill="#fff3c4"/>
+</svg>

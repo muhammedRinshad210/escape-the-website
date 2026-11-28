@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 800" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="r5Wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b2b23"/>
+      <stop offset="100%" stop-color="#523f35"/>
+    </linearGradient>
+    <linearGradient id="r5Floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7a5239"/>
+      <stop offset="100%" stop-color="#a5744e"/>
+    </linearGradient>
+    <radialGradient id="r5Glow" cx="0.5" cy="0.38" r="0.52">
+      <stop offset="0%" stop-color="#f4b942" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#f4b942" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="585" fill="url(#r5Wall)"/>
+  <rect width="720" height="585" fill="url(#r5Glow)"/>
+  <rect x="38" y="458" width="644" height="127" fill="#463329" stroke="#2a1e17" stroke-width="4"/>
+  <rect x="38" y="454" width="644" height="12" fill="#7a5239" stroke="#2a1e17" stroke-width="3"/>
+  <polygon points="0,0 38,32 38,500 0,585" fill="#2e211a" stroke="#2a1e17" stroke-width="3"/>
+  <polygon points="720,0 682,32 682,500 720,585" fill="#2e211a" stroke="#2a1e17" stroke-width="3"/>
+  <!-- Small wooden pedestal on left for the Diary -->
+  <rect x="74" y="492" width="112" height="16" rx="5" fill="#9a6b48" stroke="#2a1e17" stroke-width="3.5"/>
+  <rect x="114" y="508" width="32" height="82" fill="#68442f" stroke="#2a1e17" stroke-width="3.5"/>
+  <rect x="92" y="582" width="76" height="14" rx="5" fill="#7a5239" stroke="#2a1e17" stroke-width="3.5"/>
+  <!-- Floorboards -->
+  <rect x="0" y="585" width="720" height="215" fill="url(#r5Floor)" stroke="#2a1e17" stroke-width="4"/>
+  <g stroke="#2a1e17" stroke-width="2.6" opacity="0.6">
+    <line x1="90" y1="585" x2="22" y2="800"/>
+    <line x1="210" y1="585" x2="175" y2="800"/>
+    <line x1="360" y1="585" x2="360" y2="800"/>
+    <line x1="510" y1="585" x2="545" y2="800"/>
+    <line x1="630" y1="585" x2="698" y2="800"/>
+    <line x1="0" y1="665" x2="720" y2="665"/>
+    <line x1="0" y1="738" x2="720" y2="738"/>
+  </g>
+</svg>
